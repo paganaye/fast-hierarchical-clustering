@@ -1,5 +1,6 @@
+import { Animal } from "./Animal";
 
-class Dog extends Animal {
+export class Dog extends Animal {
     sound(): string {
         return "woof";
     }
