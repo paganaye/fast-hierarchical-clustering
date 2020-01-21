@@ -4,11 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "test:watch": "mocha --watch"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^13.1.8",
     "mocha": "^7.0.0"
-  }
+  },
+  "dependencies": {}
 }
