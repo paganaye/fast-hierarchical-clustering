@@ -17,7 +17,9 @@ It is not rocket science but it is a bit fiddly to get this three component righ
 
 ### Features
 
-- **Beautiful Code** thanks to the awesome annotations of the libraries from [pleerock](https://github.com/pleerock).
+- **TypeScript compilation** done in memory, we don't save any javascript files anywhere.
+- **Test Runner** Mocha tests are available instantly, a couple samples tests are provided.
+- **Visual Studio Code Debugging** is configured and works instantly.
 
 
 ## ❯ Table of Contents
@@ -123,7 +125,15 @@ We have configured the files below, any of them can be tweaked further to accomo
     .vscode/settings.json
     .vscode/tasks.json
     .vscode/launch.json
-    
+
+## ❯ Customization
+
+While you're accustomed with environment you can delete all the files in `src`, `test`, `documentation` and replace them with yours.
+
+## ❯ Improvement
+
+If you want to contribute to this repository please fork it and submit a pull request if you want to.
+
 ## ❯ License
 
 [MIT](/LICENSE)
