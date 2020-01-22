@@ -5,5 +5,3 @@ export class Cat extends Animal {
         return "meow";
     }
 }
-
-console.log("hi");
