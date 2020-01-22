@@ -1,6 +1,7 @@
 {
     "mocha.files.glob": "test/**/*.ts",
     "mocha.runTestsOnSave": "true",
+    "mochaExplorer.files": "test/**/*.ts",
     "mocha.requires": [
         "ts-node/register"
     ]
