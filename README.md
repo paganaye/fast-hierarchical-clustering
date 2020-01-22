@@ -3,7 +3,7 @@
 <h1 align="center">Minimal visual studio code, typescript and mocha project boiler plate</h1>
 
 <p align="center">  
-  <b>A simple project to bootstrap a project where you can debug your typescript tests without generating a single javascript file.</b></br>
+  <b>A simple project to bootstrap a typescript project with multiple the settings files preconfigured.</b></br>
 
   
   <sub>Made with ❤️ by <a href="https://github.com/paganaye">Pascal Ganaye</a></sub>
@@ -59,29 +59,73 @@ code .
 
 > This starts visual studio code in the current folder.
 
+Press <kbd>control</kbd>+<kbd>shift</kbd>+<kbd>B</kbd>
+
+You should see
+
+```
+> mocha
+
+  test1
+    √ The dog should bark
+
+  #test2
+    √ The cat should meow
+
+
+  2 passing (8ms)
+```
 ## ❯ Recommended plugins
 
-Mocha Test Explorer
+We recommend you to install the extension below.  
 
 https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter
+
+
+![mocha test explorer plugin](documentation/mocha-test-explorer.png)
+
+This plugin wil make your tests appear in the Test Explorer and let you run individual test files or tests directly from the source.
+
+![test explorer](documentation/running-from-test-explorer.png)
+
 
 ## ❯ VSCode integration
 
 The editor intellisense works from the get go.
 The tests can be run and debugged directly from the source file.
 
+![intellisense in the source editor](documentation/typescript-intellisense.png)
 
-### Debugger in VS Code
+
+### ❯ Debugger in VS Code
 
 There is no need to build the app.
 Just set a breakpoint and hit <kbd>F5</kbd> in your Visual Studio Code.
 
-We have two launch command:
-    
+
+![debugging a test](documentation/debugging-a-test.png)
+
+We have two launch command preconfigured for you:
+
 The first: `Debug current Test file` is for Mocha test 
 
 The second: `Debug current Typescript file` is specifically for debugging files that are not specifically tests. 
 
+### ❯ Configured files
+
+We have configured the files below, any of them can be tweaked further to accomodate your needs.
+
+
+    package.json
+    tsconfig.json
+    .gitignore
+    .mocharc.json
+    .vscode/settings.json
+    .vscode/tasks.json
+    .vscode/launch.json
+    
 ## ❯ License
 
 [MIT](/LICENSE)
+
+
