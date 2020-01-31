@@ -39,6 +39,26 @@
                 "TS_NODE_IGNORE": "false",
                 "TS_NODE_PROJECT": "tsconfig.json"
             }
-        }
+        },
+        {
+            "type": "node",
+            "name": "Debug index.ts",
+            "request": "launch",
+            "args": [
+                "src/index.ts"
+            ],
+            "runtimeArgs": [
+                "--nolazy",
+                "--require",
+                "ts-node/register"
+            ],
+            "cwd": "${workspaceRoot}",
+            "protocol": "inspector",
+            "internalConsoleOptions": "openOnSessionStart",
+            "env": {
+                "TS_NODE_IGNORE": "false",
+                "TS_NODE_PROJECT": "tsconfig.json"
+            }
+        }        
     ]
 }
