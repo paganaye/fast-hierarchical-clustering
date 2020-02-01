@@ -7,17 +7,15 @@ var debug = true;
 //debug = false;
 
 if (debug) {
-    var NB_POINTS = 100;
-    var FULL_AREA_WIDTH = 5;
-    var FULL_AREA_HEIGHT = 5;
+    var NB_POINTS = 300;
+    var FULL_AREA_WIDTH = 50;
+    var FULL_AREA_HEIGHT = 50;
     var DISPLAY_DECIMATOR = 1;
-    var FIRST_DISTANCE = 1.99;
 } else {
     var NB_POINTS = 1_000_000;
     var FULL_AREA_WIDTH = 1_000_000;
     var FULL_AREA_HEIGHT = 1_000_000;
     var DISPLAY_DECIMATOR = 5000;
-    var FIRST_DISTANCE = 5;
 }
 
 var CLUSTER_MIN_SIZE = 1;
@@ -30,9 +28,9 @@ points.forEach((point) => {
     quad.add(point)
 });
 
-printQuad(quad.root, "root", "");
-listNeighboursFast(quad, FIRST_DISTANCE);
-listNeighboursSlow(points, FIRST_DISTANCE);
+// printQuad(quad.root, "root", "");
+listNeighboursFast(quad, 1);
+listNeighboursSlow(points, 1);
 
 function listNeighboursSlow(points: Point[], maxDistance: number) {
     console.log("listNeighboursSlow");
@@ -106,8 +104,8 @@ function createPoints(): Point[] {
     var idCounter = 0;
     var points = new Array(NB_POINTS).fill(0).map(() => {
         let id = ++idCounter;
-        let x = Math.floor(random() * FULL_AREA_WIDTH);
-        let y = Math.floor(random() * FULL_AREA_HEIGHT);
+        let x = Math.floor(random() * FULL_AREA_WIDTH * 10) / 10;
+        let y = Math.floor(random() * FULL_AREA_HEIGHT * 10) / 10;
         return { id, x, y };
     });
     return points;
