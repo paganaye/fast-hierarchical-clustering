@@ -1,4 +1,5 @@
-import { Point, QuadTree } from "./QuadTree";
+import { QuadTree } from "./QuadTree";
+import { Point } from "./Point";
 
 export enum QuadSector {
   Root,

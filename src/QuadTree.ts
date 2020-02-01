@@ -1,18 +1,8 @@
 import { QuadNode, QuadSector } from "./QuadNode";
+import { Point } from "./Point";
 
-export interface Point {
-  id: number,
-  x: number,
-  y: number
-}
 export interface QuadTreeConfig {
   nodeSize: number
-}
-export const enum RangePos {
-  beforeMin,
-  beforeMid,
-  afterMid,
-  afterMax
 }
 
 export class QuadTree {
