@@ -21,24 +21,38 @@ if (debug) {
 }
 
 var CLUSTER_MIN_SIZE = 1;
-
+var pointIdCounter = 0;
 let points = createPoints();
 
-listNeighboursFast(points, 1);
-listNeighboursSlow(points, 1);
+//listNeighboursFast(points, 1);
+//listNeighboursSlow(points, 1);
 
-//mergeNeighboursFast(points);
+mergeNeighboursFast(points);
 
 function mergeNeighboursFast(points: Point[]) {
     let quad = createQuad(points);
     // ideally we'd like to merge only the nearestneighbours
-    var maxDistance = 1
+    var maxDistance = quad.getNodeSize()
     // let result = mergeQuadPoints(quad, maxDistance);
     // getQuadDistances
     while (maxDistance < 100) {
-        let result = getQuadTreeNeighbours(quad, 1);
-        
-        maxDistance *= 1.5
+        let neighbours = getQuadTreeNeighbours(quad, maxDistance);
+        neighbours.sort((a, b) => a.distance - b.distance)
+        for (let neighbour of neighbours) {
+            let p1 = neighbour.pt1;
+            let p2 = neighbour.pt2;
+
+            if (p1.weight == 0 || p2.weight == 0) continue;
+            let totalWeight = p1.weight + p2.weight;
+            let p: Point = {
+                id: ++pointIdCounter,
+                x: (p1.x * p1.weight + p2.x * p2.weight) / totalWeight,
+                y: (p1.y * p1.weight + p2.y * p2.weight) / totalWeight,
+                weight: totalWeight
+            }
+        }
+        maxDistance *= 2
+
     }
     //console.log("fast", { neighbours: result.length });
 
@@ -121,7 +135,7 @@ function getInterNodeNeighbours(n1: QuadNode | undefined, n2: QuadNode | undefin
             let ptj = pts2[j];
             let distance = calcDistance(pti, ptj);
             if (distance <= maxDistance) {
-                result.push(newNeighbour(pti, ptj, distance));
+                result.push(newNeighbour(pti, ptj, distance, n1, n2));
             }
         }
     }
@@ -142,12 +156,11 @@ function enumerateQuad(quad: QuadTree) {
 // const CLUSTER_MAX_SIZE = 128;
 
 function createPoints(): Point[] {
-    var idCounter = 0;
     var points = new Array(NB_POINTS).fill(0).map(() => {
-        let id = ++idCounter;
+        let id = ++pointIdCounter;
         let x = Math.floor(random() * FULL_AREA_WIDTH * 10) / 10;
         let y = Math.floor(random() * FULL_AREA_HEIGHT * 10) / 10;
-        return { id, x, y };
+        return { id, x, y, weight: 1 };
     });
     return points;
 }
@@ -188,13 +201,13 @@ function getNeighbours(points: Point[], maxDistance: number, result: Neighbour[]
             let ptj = points[j];
             let distance = calcDistance(pti, ptj);
             if (distance <= maxDistance) {
-                result.push(newNeighbour(pti,ptj,distance))
+                result.push(newNeighbour(pti, ptj, distance))
             }
 
         }
 
     }
-}  
+}
 
 function calcDistance(p1: Point, p2: Point): number {
     let dx = p1.x - p2.x;
@@ -204,9 +217,9 @@ function calcDistance(p1: Point, p2: Point): number {
 
 function printDistance(p1: Point, p2: Point) {
     let distance = calcDistance(p1, p2);
-        printPoint("   ", p1);
-        printPoint("   ", p2);
-        console.log("      distance:", distance);
+    printPoint("   ", p1);
+    printPoint("   ", p2);
+    console.log("      distance:", distance);
 }
-        
+
 console.log("done")

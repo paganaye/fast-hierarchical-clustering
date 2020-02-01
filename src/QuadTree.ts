@@ -10,6 +10,9 @@ export class QuadTree {
   nodeSize: number;
 
   constructor(config: QuadTreeConfig) {
+    // todo we don't need nodesize
+    // we could infer it as we go along
+    // as soon as we have more than X item in the same QuadNode we can automatically lower the nodesize automatically.
     this.nodeSize = config.nodeSize;
 
     this.root = new QuadNode({
@@ -140,6 +143,7 @@ export class QuadTree {
         throw "Internal error";
     }
   }
+
   static getWestNeighbour(current: QuadNode | undefined): QuadNode | undefined {
     let parent = current?.parentNode;
     if (!parent) return undefined;
@@ -159,7 +163,9 @@ export class QuadTree {
     }
   }
 
-
+  getNodeSize() {
+    return this.nodeSize;
+  }
 
 }
 
