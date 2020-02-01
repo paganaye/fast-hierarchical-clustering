@@ -1,17 +1,18 @@
 import { Point, QuadTree } from "./QuadTree";
 
-export const enum QuadSector {
-  Root = "root",
-  NorthEast = "ne",
-  NorthWest = "nw",
-  SouthEast = "se",
-  SouthWest = "sw"
+export enum QuadSector {
+  Root,
+  NorthWest,
+  NorthEast,
+  SouthWest,
+  SouthEast
 }
 
 export class QuadNode {
-
+  static nodeIdCounter = 0;
+  readonly id: number;
   readonly quadTree: QuadTree;
-  private parentNode?: QuadNode;
+  parentNode?: QuadNode;
   readonly xmin: number;
   readonly xmid: number;
   readonly xmax: number;
@@ -38,6 +39,7 @@ export class QuadNode {
   }) {
     this.quadTree = args.quadTree;
     this.parentNode = args.parentNode;
+    this.id = ++QuadNode.nodeIdCounter;
     this.isLeaf = (args.size <= args.quadTree.nodeSize);
     this.sector = args.sector;
     this.xmin = args.xmin;
@@ -72,7 +74,8 @@ export class QuadNode {
       : (pointIsNorth ? QuadSector.NorthEast : QuadSector.SouthEast);
   }
 
-  setChildNode(sector: QuadSector, childNode: QuadNode) {
+  attachChildNode(sector: QuadSector, childNode: QuadNode) {
+    childNode.parentNode = this;
     childNode.sector = sector;
     switch (sector) {
       case QuadSector.NorthEast:

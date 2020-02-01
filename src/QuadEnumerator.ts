@@ -2,7 +2,7 @@ import { QuadTree } from "./QuadTree";
 import { QuadNode, QuadSector } from "./QuadNode";
 import { Enumerable } from "./enumerable";
 
-export class EnumerableQuad implements Enumerable<QuadNode>{
+export class QuadEnumerator implements Enumerable<QuadNode>{
   private currentPath: QuadNode[] = []
 
   getFirst(): QuadNode | null {
