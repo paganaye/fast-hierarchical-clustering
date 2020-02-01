@@ -26,7 +26,6 @@ export class QuadNode {
   sw?: QuadNode;
   se?: QuadNode;
   points?: Point[];
-  isLeaf: boolean;
   size: number;
   sector: QuadSector;
 
@@ -41,7 +40,8 @@ export class QuadNode {
     this.quadTree = args.quadTree;
     this.parentNode = args.parentNode;
     this.id = ++QuadNode.nodeIdCounter;
-    this.isLeaf = (args.size <= args.quadTree.nodeSize);
+    let isLeaf = (args.size <= args.quadTree.nodeSize);
+    if (isLeaf) this.points = [];
     this.sector = args.sector;
     this.xmin = args.xmin;
     this.ymin = args.ymin;
@@ -54,12 +54,32 @@ export class QuadNode {
   }
 
   addPoint(point: Point) {
-    if (!this.points) {
-      this.points = [point];
-    } else {
+    if (this.isLeaf()) {
       this.points?.push(point);
+      // if (this.points.length > 8) {
+      //    this.distributeToChildren()
+      // }
+    } else {
+      let isWest = point.x < this.xmid;
+      let isNorth = point.y < this.ymid;
+      let node = this.getOrCreateChild(isWest, isNorth);
+      node.addPoint(point)
     }
   }
+
+  isLeaf(): boolean {
+    return (this.points != null)
+  }
+
+  // distributeToChildren() {
+  //   let pointToDistribute = this.points;
+  //   if (pointToDistribute) {
+  //     this.points = undefined
+  //     for (let point of pointToDistribute) {
+  //       this.addPoint(point)
+  //     }
+  //   }
+  // }
 
   isEmpty(): boolean {
     return (!this.points || this.points.length == 0)

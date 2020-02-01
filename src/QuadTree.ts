@@ -10,9 +10,7 @@ export class QuadTree {
   nodeSize: number;
 
   constructor(config: QuadTreeConfig) {
-    // todo we don't need nodesize
-    // we could infer it as we go along
-    // as soon as we have more than X item in the same QuadNode we can automatically lower the nodesize automatically.
+    // we could lower the node size as we go along
     this.nodeSize = config.nodeSize;
 
     this.root = new QuadNode({
@@ -31,15 +29,8 @@ export class QuadTree {
       if (point.x >= node.xmin && point.x < node.xmax
         && point.y >= node.ymin && point.y < node.ymax) {
         // we're in
-        if (node.isLeaf) {
-          node.addPoint(point);
-          // and we're done
-          break;
-        } else {
-          let isWest = point.x < node.xmid;
-          let isNorth = point.y < node.ymid;
-          node = node.getOrCreateChild(isWest, isNorth);
-        }
+        node.addPoint(point)
+        break;
       } else {
         if (node.sector !== QuadSector.Root) {
           debugger;

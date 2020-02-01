@@ -6,7 +6,7 @@ import { QuadEnumerator } from "./QuadEnumerator";
 import { Neighbour, newNeighbour } from "./Neighbour";
 
 var debug = true;
-debug = false;
+//debug = false;
 
 if (debug) {
     var NB_POINTS = 300;
