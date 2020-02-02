@@ -86,8 +86,8 @@ export function buildDendrogramFast(points: Point[]): Point {
     // ideally we'd like to merge only the nearestneighbours
     var maxDistance = quad.getNodeSize()
     while (!quad.root.isLeaf() || (quad.root?.points?.length || 0) > 1) {
-        printQuadTree(quad);
-        Log.debug("merging:", maxDistance);
+        //printQuadTree(quad);
+        //Log.debug("merging:", maxDistance);
         let neighbours = getQuadTreeNeighbours(quad, maxDistance);
         sortByDistance(neighbours);
         for (let neighbour of neighbours) {
@@ -95,7 +95,7 @@ export function buildDendrogramFast(points: Point[]): Point {
             let p1: Point = neighbour.pt1;
             let p2: Point = neighbour.pt2;
             if (p1.mergedTo || p2.mergedTo) continue;
-            let mergedPoint = getMergedPoint([p1, p2], true);
+            let mergedPoint = getMergedPoint([p1, p2]);
             neighbour.n1?.remove(p1);
             neighbour.n2?.remove(p2);
             quad.add(mergedPoint);

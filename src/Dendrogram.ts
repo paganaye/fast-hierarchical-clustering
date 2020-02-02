@@ -1,30 +1,24 @@
-import { Point, getNextPointId, pointToString } from "./Point";
+import { Point, getNextPointId, pointToString, calcDistance } from "./Point";
 import { twoDec } from "./Utils";
 import { Log } from "./Log";
 
-export function getMergedPoint(points: Point[], display?: boolean): Point {
+export function getMergedPoint(points: Point[]): Point {
     let xsum = 0;
     let ysum = 0;
     let wsum = 0;
     let result = { id: getNextPointId(), x: 0, y: 0, weight: 0, children: points }
-    if (display) {
-        Log.debug("merging")
-    }
+    Log.debug("merging (distance:" + calcDistance(points[0], points[1]) + ")")
     for (var point of points) {
         xsum += point.x * point.weight;
         ysum += point.y * point.weight;
         wsum += point.weight;
         point.mergedTo = result;
-        if (display) {
-            Log.debug("   " + pointToString(point))
-        }
+        Log.debug("   " + pointToString(point))
     }
     result.x = xsum / wsum;
     result.y = ysum / wsum;
     result.weight = wsum
-    if (display) {
-        Log.debug(" => " + pointToString(result))
-    }
+    Log.debug(" => " + pointToString(result))
     return result;
 }
 

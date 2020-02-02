@@ -4,7 +4,7 @@ import { buildDendrogramFast as buildDendrogramNew } from "./NewAlgorithm";
 import { createPoints, SampleDataset } from "./SampleData";
 import { Log, LogLevel } from "./Log";
 
-Log.level = LogLevel.Info;
+Log.level = LogLevel.Debug;
 let dataset = SampleDataset.Small // or SampleDataset.Medium or SampleDataset.Large
 runNewAlgorithm();
 runClassicAlgorithm();
