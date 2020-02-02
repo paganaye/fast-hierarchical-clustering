@@ -1,4 +1,4 @@
-import { Point, getNextPointId } from "./Point";
+import { Point, getNextPointId, pointToString } from "./Point";
 import { twoDec } from "./Utils";
 
 export interface Dendrogram extends Point {
@@ -71,7 +71,5 @@ function displayDendrogramNode2(prefix1: string, prefix2: string, dendrogram: De
                 child);
         }
     }
-    console.log(prefix1 + "#" + dendrogram.id
-        + " (" + twoDec(dendrogram.x) + "," + twoDec(dendrogram.y) + ")"
-        + (dendrogram.weight > 1 ? " w:" + dendrogram.weight : ""));
+    console.log(prefix1 + pointToString(dendrogram));
 }

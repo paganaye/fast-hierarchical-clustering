@@ -1,3 +1,5 @@
+import { twoDec } from "./Utils";
+
 export interface Point {
   id: number;
   x: number;
@@ -20,4 +22,18 @@ export function resetPointIdCounter() {
 
 export function getNextPointId() {
   return ++pointIdCounter;
+}
+
+export function printPoints(prefix: string, points?: Point[]) {
+  if (points) {
+    for (var point of points) {
+      console.log(prefix + pointToString(point));
+    }
+  }
+}
+
+export function pointToString(point: Point) {
+  return "#" + point.id
+    + " (" + twoDec(point.x) + ", " + twoDec(point.y) + ")"
+    + (point.weight > 1 ? " weight " + point.weight : "");
 }
