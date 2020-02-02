@@ -29,7 +29,6 @@ function createQuad(points: Point[]): QuadTree {
 
 function getQuadTreeNeighbours(quad: QuadTree, maxDistance: number): Neighbour[] {
     let neighbours: Neighbour[] = []
-    mergeQuadTree(quad, maxDistance);
     var quadEnumerator = new QuadEnumerator(quad);
     var current = quadEnumerator.getFirst()
     while (current) {
@@ -81,29 +80,75 @@ function getNeighbours(n1: QuadNode | undefined, maxDistance: number, result: Ne
     }
 }
 
-export function buildDendrogramFast(points: Point[]): Point {
+function getNewPointNeighbours(pt1: Point, n1: QuadNode, maxDistance: number, neighbours: Neighbour[]) {
+    if (n1.points) getNewPointIntraNodeNeighbours(pt1, n1, maxDistance, neighbours);
+    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getEastNeighbour(n1), maxDistance, neighbours);
+    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthWestNeighbour(n1), maxDistance, neighbours);
+    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthNeighbour(n1), maxDistance, neighbours);
+    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthEastNeighbour(n1), maxDistance, neighbours);
+    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthWestNeighbour(n1), maxDistance, neighbours);
+    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthNeighbour(n1), maxDistance, neighbours);
+    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthEastNeighbour(n1), maxDistance, neighbours);
+    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getWestNeighbour(n1), maxDistance, neighbours);
+}
+
+function getNewPointInterNodeNeigbours(pt1: Point, n1: QuadNode, n2: QuadNode | undefined, maxDistance: number, result: Neighbour[]) {
+    if (!n2) return;
+    let points2 = n2.points || [];
+    for (let j = 0; j < points2.length; j++) {
+        let pt2 = points2[j];
+        let distance = calcDistance(pt1, pt2);
+        if (distance <= maxDistance) {
+            result.push(newNeighbour(pt1, pt2, distance, n1, n2));
+        }
+    }
+}
+
+function getNewPointIntraNodeNeighbours(pt1: Point, n1: QuadNode, maxDistance: number, result: Neighbour[]) {
+    if (!n1) return; // we have or will see this the other way round.
+    let points = n1.points || [];
+    for (let j = 0; j < points.length; j++) {
+        let pt2 = points[j];
+        if (pt2.mergedTo || pt2 == pt1) continue;
+        let distance = calcDistance(pt1, pt2);
+        if (distance <= maxDistance) {
+            result.push(newNeighbour(pt1, pt2, distance, n1, n1))
+        }
+    }
+}
+
+
+export function buildDendrogramNew(points: Point[]): Point {
     let quad = createQuad(points);
     // ideally we'd like to merge only the nearestneighbours
-    var maxDistance = quad.getNodeSize()
-    while (!quad.root.isLeaf() || (quad.root?.points?.length || 0) > 1) {
+    var nodeSize = quad.getNodeSize()
+    //printQuadTree(quad);
+
+    while (quad.root?.points?.length != 1) {
         //printQuadTree(quad);
         //Log.debug("merging:", maxDistance);
-        let neighbours = getQuadTreeNeighbours(quad, maxDistance);
+        let neighbours = getQuadTreeNeighbours(quad, nodeSize);
         sortByDistance(neighbours);
-        for (let neighbour of neighbours) {
-            // printQuadTree(quad);
+        while (neighbours.length > 0) {
+            let neighbour = neighbours.shift() as Neighbour;
             let p1: Point = neighbour.pt1;
             let p2: Point = neighbour.pt2;
             if (p1.mergedTo || p2.mergedTo) continue;
             let mergedPoint = getMergedPoint([p1, p2]);
             neighbour.n1?.remove(p1);
             neighbour.n2?.remove(p2);
-            quad.add(mergedPoint);
+            let mergePointNode = quad.add(mergedPoint);
+            getNewPointNeighbours(mergedPoint, mergePointNode, nodeSize, neighbours);
+            sortByDistance(neighbours);
+            //if (mergedPoint.id==1218){
+            //printQuadTree(quad);
+            //}            
         }
-        maxDistance *= 2
+        nodeSize *= 2
+        mergeQuadTree(quad, nodeSize);
+        //printQuadTree(quad);
     }
     return quad?.root?.points?.[0] as any;
-
 }
 
 

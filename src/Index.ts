@@ -1,13 +1,14 @@
+
 import { buildDendrogramSlow as buildDendrogramClassic } from "./ClassicAlgorithm";
 import { displayDendrogram } from "./Dendrogram";
-import { buildDendrogramFast as buildDendrogramNew } from "./NewAlgorithm";
+import { buildDendrogramNew as buildDendrogramNew } from "./NewAlgorithm";
 import { createPoints, SampleDataset } from "./SampleData";
 import { Log, LogLevel } from "./Log";
 
 Log.level = LogLevel.Debug;
-let dataset = SampleDataset.Small // or SampleDataset.Medium or SampleDataset.Large
-runNewAlgorithm();
+let dataset = SampleDataset.Medium; // or SampleDataset.Medium or SampleDataset.Large
 runClassicAlgorithm();
+runNewAlgorithm();
 
 function runClassicAlgorithm() {
     Log.measure("Classic Algorithm", ()=>{

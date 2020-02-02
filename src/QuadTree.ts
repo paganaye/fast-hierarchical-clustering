@@ -22,15 +22,14 @@ export class QuadTree {
     });
   }
 
-  add(point: Point) {
+  add(point: Point): QuadNode {
     // if (point.id==50) debugger;
     var node = this.root;
     while (node != null) {
       if (point.x >= node.xmin && point.x < node.xmax
         && point.y >= node.ymin && point.y < node.ymax) {
         // we're in
-        node.addPoint(point)
-        break;
+        return node.addPoint(point)
       } else {
         if (node.sector !== QuadSector.Root) {
           debugger;
@@ -54,6 +53,66 @@ export class QuadTree {
         }
         node = this.root;
       }
+    }
+    throw new Error("Quatree.add: Unexpected error. Did not find a new node to insert to.")
+  }
+
+  static getNorthEastNeighbour(current: QuadNode | undefined): QuadNode | undefined {
+    let parent = current?.parentNode;
+    if (!parent) return undefined;
+    switch (current?.sector) {
+      case QuadSector.NorthWest:
+        var neighbour = this.getNorthNeighbour(parent);
+        return neighbour?.se;
+      case QuadSector.NorthEast:
+        var neighbour = this.getNorthEastNeighbour(parent);
+        return neighbour?.sw;
+      case QuadSector.SouthWest:
+        return parent.ne;
+      case QuadSector.SouthEast:
+        var neighbour = this.getEastNeighbour(parent);
+        return neighbour?.nw;
+      default:
+        throw "Internal error";
+    }
+  }
+
+  static getNorthWestNeighbour(current: QuadNode | undefined): QuadNode | undefined {
+    let parent = current?.parentNode;
+    if (!parent) return undefined;
+    switch (current?.sector) {
+      case QuadSector.NorthWest: // 1
+        var neighbour = this.getNorthWestNeighbour(parent);
+        return neighbour?.se;
+      case QuadSector.NorthEast: // 2
+        var neighbour = this.getNorthNeighbour(parent);
+        return neighbour?.sw;
+      case QuadSector.SouthWest: // 3
+        var neighbour = this.getWestNeighbour(parent);
+        return neighbour?.ne;
+      case QuadSector.SouthEast: // 4
+        return parent.nw;
+      default:
+        throw "Internal error";
+    }
+  }
+
+  static getNorthNeighbour(current: QuadNode | undefined): QuadNode | undefined {
+    let parent = current?.parentNode;
+    if (!parent) return undefined;
+    switch (current?.sector) {
+      case QuadSector.NorthWest: // 1
+        var neighbour = this.getNorthNeighbour(parent);
+        return neighbour?.sw;
+      case QuadSector.NorthEast: // 2
+        var neighbour = this.getNorthNeighbour(parent);
+        return neighbour?.se;
+      case QuadSector.SouthWest: // 3
+        return parent.nw;
+      case QuadSector.SouthEast: // 4
+        return parent.ne;
+      default:
+        throw "Internal error";
     }
   }
 
@@ -161,6 +220,6 @@ export class QuadTree {
 }
 
 export function printQuadTree(tree: QuadTree) {
-  printQuadNode("", "root", tree.root);
+  printQuadNode("", tree.root);
 }
 

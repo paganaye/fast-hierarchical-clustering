@@ -23,8 +23,9 @@ function mergeNode(node: QuadNode | undefined, minSize: number, parentNode?: Qua
   } else return false;
 }
 
-export function mergeQuadTree(quadTree: QuadTree, minSize: number) {
-  mergeNode(quadTree.root, minSize);
+export function mergeQuadTree(quadTree: QuadTree, nodeSize: number) {
+  mergeNode(quadTree.root, nodeSize);
+  quadTree.nodeSize = nodeSize;
 }
 
 

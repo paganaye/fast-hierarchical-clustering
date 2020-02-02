@@ -41,8 +41,6 @@ export class QuadNode {
     this.quadTree = args.quadTree;
     this.parentNode = args.parentNode;
     this.id = ++QuadNode.nodeIdCounter;
-    let isLeaf = (args.size <= args.quadTree.nodeSize);
-    if (isLeaf) this.points = [];
     this.sector = args.sector;
     this.xmin = args.xmin;
     this.ymin = args.ymin;
@@ -73,22 +71,21 @@ export class QuadNode {
     }
   }
 
-  addPoint(point: Point) {
+  addPoint(point: Point): QuadNode {
     if (this.isLeaf()) {
-      this.points?.push(point);
-      // if (this.points.length > 8) {
-      //    this.distributeToChildren()
-      // }
+      let points = this.points || (this.points = []);
+      points.push(point);      
+      return this;
     } else {
       let isWest = point.x < this.xmid;
       let isNorth = point.y < this.ymid;
       let node = this.getOrCreateChild(isWest, isNorth);
-      node.addPoint(point)
+      return node.addPoint(point)
     }
   }
 
   isLeaf(): boolean {
-    return (this.points != null)
+    return (this.size <= this.quadTree.nodeSize);
   }
 
   // distributeToChildren() {
@@ -164,19 +161,25 @@ export class QuadNode {
       this.points?.splice(indexOfPoint, 1);
     }
   }
+
+  getLevel(): number {
+    if (this.parentNode == null) return 0
+    else return this.parentNode.getLevel() + 1;
+  }
+
 }
 
-export function printQuadNode(prefix: string, sector: string, node: QuadNode | undefined) {
+export function printQuadNode(prefix: string, node: QuadNode | undefined) {
   if (!node) return;
-  Log.debug(prefix + sector + "{")
+  //  Log.debug(prefix + '{ ')
   let prefix2 = prefix + "  ";
-  Log.debug(prefix2 + JSON.stringify({ id: node.id, xmin: node.xmin, ymin: node.ymin, xmax: node.xmax, ymax: node.ymax }))
+  Log.debug(prefix + QuadSector[node.sector] + ": " + JSON.stringify({ id: node.id, xmin: node.xmin, ymin: node.ymin, size: node.size }))
   printPoints(prefix2, node.points);
-  printQuadNode(prefix2, "nw", node.nw)
-  printQuadNode(prefix2, "ne", node.ne)
-  printQuadNode(prefix2, "sw", node.sw)
-  printQuadNode(prefix2, "se", node.se)
-  Log.debug(prefix + "} " + sector)
+  printQuadNode(prefix2, node.nw)
+  printQuadNode(prefix2, node.ne)
+  printQuadNode(prefix2, node.sw)
+  printQuadNode(prefix2, node.se)
+  //  Log.debug(prefix + '}')
 }
 
 
