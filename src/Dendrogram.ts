@@ -7,18 +7,18 @@ export function getMergedPoint(points: Point[]): Point {
     let ysum = 0;
     let wsum = 0;
     let result = { id: getNextPointId(), x: 0, y: 0, weight: 0, children: points }
-    Log.writeLine(LogLevel.Detail, "merging (distance:" + calcDistance(points[0], points[1]) + ")")
+    Log.writeLine(LogLevel.Verbose, "merging (distance:" + calcDistance(points[0], points[1]) + ")")
     for (var point of points) {
         xsum += point.x * point.weight;
         ysum += point.y * point.weight;
         wsum += point.weight;
         point.mergedTo = result;
-        Log.writeLine(LogLevel.Detail, "   " + pointToString(point))
+        Log.writeLine(LogLevel.Verbose, "   " + pointToString(point))
     }
     result.x = xsum / wsum;
     result.y = ysum / wsum;
     result.weight = wsum
-    Log.writeLine(LogLevel.Detail, " => " + pointToString(result))
+    Log.writeLine(LogLevel.Verbose, " => " + pointToString(result))
     return result;
 }
 

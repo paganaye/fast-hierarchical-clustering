@@ -2,29 +2,29 @@
 import { buildDendrogramSlow as buildDendrogramClassic } from "./ClassicAlgorithm";
 import { logDendrogram } from "./Dendrogram";
 import { buildDendrogramNew as buildDendrogramNew } from "./NewAlgorithm";
-import { createPoints, SampleDataset } from "./SampleData";
+import { createPoints } from "./SampleData";
 import { Log, LogLevel } from "./Log";
 
 Log.setLogLevel(LogLevel.Important);
-Log.writeLine(LogLevel.Detail, "Program Starting");
-let dataset = SampleDataset.Medium; // or SampleDataset.Medium or SampleDataset.Large
-runClassicAlgorithm();
-runNewAlgorithm();
-
-function runClassicAlgorithm() {
-    Log.measure(LogLevel.Important, "Classic Algorithm", () => {
-        let points = createPoints(dataset);
+Log.writeLine(LogLevel.Important, "Program Starting");
+for (let nbPoints = 1000; nbPoints < 50_000; nbPoints += 1000) {
+    runClassicAlgorithm(nbPoints);
+    runNewAlgorithm(nbPoints);
+}
+function runClassicAlgorithm(nbPoints: number) {
+    let points = createPoints(nbPoints);
+    Log.measure(LogLevel.Important, "Classic_Algorithm n=" + nbPoints, () => {
         let dendroClassic = buildDendrogramClassic(points);
-        logDendrogram(LogLevel.Important, dendroClassic)
+        logDendrogram(LogLevel.Detail, dendroClassic)
     })
 }
 
-function runNewAlgorithm() {
-    Log.measure(LogLevel.Important, "New Algorithm", () => {
-        let points = createPoints(dataset);
+function runNewAlgorithm(nbPoints: number) {
+    let points = createPoints(nbPoints);
+    Log.measure(LogLevel.Important, "New Algorithm n=" + nbPoints, () => {
         let dendroNew = buildDendrogramNew(points);
-        logDendrogram(LogLevel.Important, dendroNew)
+        logDendrogram(LogLevel.Detail, dendroNew)
     })
 }
 
-Log.writeLine(LogLevel.Important, "done")
+Log.writeLine(LogLevel.Important, "Program Complete")

@@ -1,3 +1,5 @@
+import { twoDec } from "./Utils";
+
 export enum LogLevel {
     None = 0,
     Important = 1,
@@ -9,13 +11,12 @@ export class Log {
     static setLogLevel(value: LogLevel) {
         Log.level = value;
     }
-    
+
     static measure(level: LogLevel, arg0: string, action: () => void) {
         if (this.willLog(level)) {
-            var start = process.hrtime()[1];
-            console.time(arg0)
+            let start = new Date().getTime()
             action();
-            console.timeEnd(arg0)
+            Log.writeLine(level, arg0, twoDec((new Date().getTime() - start) / 1000.0), "sec");
         } else {
             action();
         }
