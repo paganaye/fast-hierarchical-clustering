@@ -3,10 +3,10 @@
 // let result = buildDendrogram(quad);
 // //drawLines(result.lines, canvas1);
 
-// console.log(quad);
+// Log.debug(quad);
 
 // let POINT_DRAWING_SIZE = 3;
-// console.log("=================================================");
+// Log.debug("=================================================");
 
 // //let canvas1 = getCanvas();
 

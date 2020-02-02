@@ -4,8 +4,8 @@ var m_w = 123456789;
 var m_z = 987654321;
 var mask = 0xffffffff;
 
-// Takes any integer
-function seed(i: number) {
+export function randomize(i: number = 30_052_007) {
+    // Takes any integer
     m_w = (123456789 + i) & mask;
     m_z = (987654321 - i) & mask;
 }

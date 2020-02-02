@@ -2,6 +2,7 @@ import { mergePoints, sortDendrogram, displayDendrogram } from "./Dendrogram";
 import { Neighbour, newNeighbour } from "./Neighbour";
 import { calcDistance, Point } from "./Point";
 import { twoDec } from "./Utils";
+import { Log } from "./Log";
 
 function getNearestNeighbour(points: Point[]): Neighbour | null {
     let neighbours: Neighbour[] = []
@@ -14,7 +15,9 @@ function getNearestNeighbour(points: Point[]): Neighbour | null {
             let ptj = points[j];
             if (ptj.mergedTo) continue;
             let distance = calcDistance(pti, ptj);
-            if (distance <= maxDistance) {
+            if (distance < maxDistance
+                || (distance == maxDistance && pti.id < nearestNeighbour!.pt1.id)
+                || (distance == maxDistance && pti.id == nearestNeighbour!.pt1.id && ptj.id < nearestNeighbour!.pt2.id)) {
                 maxDistance = distance;
                 nearestNeighbour = newNeighbour(pti, ptj, distance)
             }
@@ -30,7 +33,7 @@ export function buildDendrogramSlow(points: Point[]): Point {
         let nearestNeighbour = getNearestNeighbour(nodes);
         if (nearestNeighbour == null) break;
         let newNode = mergePoints([nearestNeighbour.pt1, nearestNeighbour.pt2], nodes)
-        console.log("merged #" + nearestNeighbour.pt1.id + " with #" + nearestNeighbour.pt2.id + " distance " + twoDec(nearestNeighbour.distance) + " to #" + newNode.id + " weight: " + newNode.weight);
+        //Log.info("merged #" + nearestNeighbour.pt1.id + " with #" + nearestNeighbour.pt2.id + " distance " + twoDec(nearestNeighbour.distance) + " to #" + newNode.id + " weight: " + newNode.weight);
     }
     let result: Point = nodes[0];
     sortDendrogram(result);

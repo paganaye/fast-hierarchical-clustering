@@ -2,23 +2,28 @@ import { buildDendrogramSlow as buildDendrogramClassic } from "./ClassicAlgorith
 import { displayDendrogram } from "./Dendrogram";
 import { buildDendrogramFast as buildDendrogramNew } from "./NewAlgorithm";
 import { createPoints, SampleDataset } from "./SampleData";
+import { Log, LogLevel } from "./Log";
 
+Log.level = LogLevel.Info;
 let dataset = SampleDataset.Small // or SampleDataset.Medium or SampleDataset.Large
-//runClassicAlgorithm();
 runNewAlgorithm();
+runClassicAlgorithm();
 
 function runClassicAlgorithm() {
-    console.log("Classic Algorithm")
-    let points = createPoints(dataset);
-    let dendroClassic = buildDendrogramClassic(points);
-    displayDendrogram(dendroClassic)
+    Log.measure("Classic Algorithm", ()=>{
+        let points = createPoints(dataset);
+        let dendroClassic = buildDendrogramClassic(points);
+        displayDendrogram(dendroClassic)
+    })
 }
 
 function runNewAlgorithm() {
-    console.log("New Algorithm")
-    let points = createPoints(dataset);
-    let dendroNew = buildDendrogramNew(points);
-    displayDendrogram(dendroNew)
+    Log.measure("New Algorithm", ()=>{
+        Log.debug("New Algorithm")
+        let points = createPoints(dataset);
+        let dendroNew = buildDendrogramNew(points);
+        displayDendrogram(dendroNew)
+    })
 }
 
-console.log("done")
+Log.debug("done")

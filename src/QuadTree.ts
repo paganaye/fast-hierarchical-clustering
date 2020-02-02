@@ -1,4 +1,4 @@
-import { QuadNode, QuadSector } from "./QuadNode";
+import { QuadNode, QuadSector, printQuadNode } from "./QuadNode";
 import { Point } from "./Point";
 
 export interface QuadTreeConfig {
@@ -160,4 +160,7 @@ export class QuadTree {
 
 }
 
+export function printQuadTree(tree: QuadTree) {
+  printQuadNode("", "root", tree.root);
+}
 

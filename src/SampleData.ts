@@ -1,18 +1,26 @@
-import { Point, getNextPointId } from "./Point";
-import { random } from "./Random";
+import { Point, getNextPointId, resetPointIdCounter } from "./Point";
+import { random, randomize } from "./Random";
 
 export enum SampleDataset {
+    Tiny,
     Small,
     Medium,
     Large
 }
 
-export function createPoints(dataset: SampleDataset): Point[] {
+export function createPoints(dataset: SampleDataset, seed?: number): Point[] {
+    randomize(seed)
+    resetPointIdCounter();
     switch (dataset) {
+        case SampleDataset.Tiny:
+            var nbPoints = 5;
+            var areaWidth = 5;
+            var areaWeight = 5;
+            break;
         case SampleDataset.Small:
-            var nbPoints = 50;
-            var areaWidth = 50;
-            var areaWeight = 50;
+            var nbPoints = 500;
+            var areaWidth = 500;
+            var areaWeight = 500;
             break;
         case SampleDataset.Medium:
             var nbPoints = 10_000;

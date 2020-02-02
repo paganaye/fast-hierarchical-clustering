@@ -1,4 +1,5 @@
 import { twoDec } from "./Utils";
+import { Log } from "./Log";
 
 export interface Point {
   id: number;
@@ -28,7 +29,7 @@ export function getNextPointId() {
 export function printPoints(prefix: string, points?: Point[]) {
   if (points) {
     for (var point of points) {
-      console.log(prefix + pointToString(point));
+      Log.debug(prefix + pointToString(point));
     }
   }
 }

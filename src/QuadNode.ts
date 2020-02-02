@@ -1,5 +1,6 @@
 import { QuadTree } from "./QuadTree";
-import { Point } from "./Point";
+import { Point, printPoints } from "./Point";
+import { Log } from "./Log";
 
 export enum QuadSector {
   Root,
@@ -51,6 +52,25 @@ export class QuadNode {
     this.xmax = args.xmin + args.size;
     this.ymid = args.ymin + args.size / 2;
     this.ymax = args.ymin + args.size;
+  }
+
+  mergeChildren() {
+    if (!this.points) this.points = []
+    this.mergeChild(this.ne);
+    this.mergeChild(this.nw);
+    this.mergeChild(this.se);
+    this.mergeChild(this.sw);
+    this.ne = this.nw = this.se = this.sw = undefined;
+  }
+
+  private mergeChild(child?: QuadNode) {
+    if (!child) return;
+    child.mergeChildren();
+    if (child.points) {
+      for (let point of child.points) {
+        this.points?.push(point);
+      }
+    }
   }
 
   addPoint(point: Point) {
@@ -136,8 +156,28 @@ export class QuadNode {
       else return this.se || (this.se = this.createChild(isWest, isNorth));
     }
   }
+
+
+  remove(point: Point) {
+    let indexOfPoint = this.points?.indexOf(point);
+    if (indexOfPoint != null && indexOfPoint >= 0) {
+      this.points?.splice(indexOfPoint, 1);
+    }
+  }
 }
 
+export function printQuadNode(prefix: string, sector: string, node: QuadNode | undefined) {
+  if (!node) return;
+  Log.debug(prefix + sector + "{")
+  let prefix2 = prefix + "  ";
+  Log.debug(prefix2 + JSON.stringify({ id: node.id, xmin: node.xmin, ymin: node.ymin, xmax: node.xmax, ymax: node.ymax }))
+  printPoints(prefix2, node.points);
+  printQuadNode(prefix2, "nw", node.nw)
+  printQuadNode(prefix2, "ne", node.ne)
+  printQuadNode(prefix2, "sw", node.sw)
+  printQuadNode(prefix2, "se", node.se)
+  Log.debug(prefix + "} " + sector)
+}
 
 
 
