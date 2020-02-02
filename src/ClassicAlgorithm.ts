@@ -1,8 +1,8 @@
-import { mergePoints, sortDendrogram, displayDendrogram } from "./Dendrogram";
+import { mergePoints, sortDendrogram, logDendrogram } from "./Dendrogram";
 import { Neighbour, newNeighbour } from "./Neighbour";
 import { calcDistance, Point } from "./Point";
 import { twoDec } from "./Utils";
-import { Log } from "./Log";
+import { Log, LogLevel } from "./Log";
 
 function getNearestNeighbour(points: Point[]): Neighbour | null {
     let neighbours: Neighbour[] = []

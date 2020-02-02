@@ -25,11 +25,10 @@ export function createPoints(dataset: SampleDataset, seed?: number): Point[] {
             break;
         case SampleDataset.Medium:
             var nbPoints = 5_000;
-            var areaWidth = 5_000;
-            var areaWeight = 5_000;
+            var areaWidth = 2_000;
+            var areaWeight = 2_000;
             break;
         case SampleDataset.Large:
-            Log.level = LogLevel.None;
             var nbPoints = 100_000;
             var areaWidth = 100_000;
             var areaWeight = 100_000;

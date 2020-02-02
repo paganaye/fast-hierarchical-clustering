@@ -1,6 +1,6 @@
 import { QuadTree } from "./QuadTree";
 import { Point, printPoints } from "./Point";
-import { Log } from "./Log";
+import { Log, LogLevel } from "./Log";
 
 export enum QuadSector {
   Root,
@@ -74,7 +74,7 @@ export class QuadNode {
   addPoint(point: Point): QuadNode {
     if (this.isLeaf()) {
       let points = this.points || (this.points = []);
-      points.push(point);      
+      points.push(point);
       return this;
     } else {
       let isWest = point.x < this.xmid;
@@ -169,17 +169,15 @@ export class QuadNode {
 
 }
 
-export function printQuadNode(prefix: string, node: QuadNode | undefined) {
-  if (!node) return;
-  //  Log.debug(prefix + '{ ')
+export function printQuadNode(level: LogLevel, prefix: string, node: QuadNode | undefined) {
+  if (!node || !Log.willLog(level)) return;
   let prefix2 = prefix + "  ";
-  Log.debug(prefix + QuadSector[node.sector] + ": " + JSON.stringify({ id: node.id, xmin: node.xmin, ymin: node.ymin, size: node.size }))
-  printPoints(prefix2, node.points);
-  printQuadNode(prefix2, node.nw)
-  printQuadNode(prefix2, node.ne)
-  printQuadNode(prefix2, node.sw)
-  printQuadNode(prefix2, node.se)
-  //  Log.debug(prefix + '}')
+  Log.writeLine(LogLevel.Verbose, prefix + QuadSector[node.sector] + ": " + JSON.stringify({ id: node.id, xmin: node.xmin, ymin: node.ymin, size: node.size }))
+  printPoints(level, prefix2, node.points);
+  printQuadNode(level, prefix2, node.nw)
+  printQuadNode(level, prefix2, node.ne)
+  printQuadNode(level, prefix2, node.sw)
+  printQuadNode(level, prefix2, node.se)
 }
 
 

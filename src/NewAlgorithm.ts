@@ -1,4 +1,4 @@
-import { QuadTree, printQuadTree } from "./QuadTree";
+import { QuadTree, logQuadTree } from "./QuadTree";
 import { calcDistance, Point } from "./Point";
 import { QuadNode } from "./QuadNode";
 import { Neighbour, newNeighbour } from "./Neighbour";
@@ -126,7 +126,7 @@ export function buildDendrogramNew(points: Point[]): Point {
 
     while (quad.root?.points?.length != 1) {
         //printQuadTree(quad);
-        //Log.debug("merging:", maxDistance);
+        //Log.writeLine(LogLevel.Debug, "merging:", maxDistance);
         let neighbours = getQuadTreeNeighbours(quad, nodeSize);
         sortByDistance(neighbours);
         while (neighbours.length > 0) {

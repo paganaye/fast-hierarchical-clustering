@@ -1,5 +1,6 @@
-import { QuadNode, QuadSector, printQuadNode } from "./QuadNode";
+import { QuadNode, QuadSector, printQuadNode as logQuadNode } from "./QuadNode";
 import { Point } from "./Point";
+import { LogLevel } from "./Log";
 
 export interface QuadTreeConfig {
   nodeSize: number
@@ -219,7 +220,7 @@ export class QuadTree {
 
 }
 
-export function printQuadTree(tree: QuadTree) {
-  printQuadNode("", tree.root);
+export function logQuadTree(level: LogLevel, tree: QuadTree) {
+  logQuadNode(level, "", tree.root);
 }
 

@@ -3,10 +3,10 @@
 // let result = buildDendrogram(quad);
 // //drawLines(result.lines, canvas1);
 
-// Log.debug(quad);
+// Log.writeLine(LogLevel.Debug, quad);
 
 // let POINT_DRAWING_SIZE = 3;
-// Log.debug("=================================================");
+// Log.writeLine(LogLevel.Debug, "=================================================");
 
 // //let canvas1 = getCanvas();
 

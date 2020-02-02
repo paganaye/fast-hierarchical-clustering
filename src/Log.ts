@@ -1,38 +1,35 @@
 export enum LogLevel {
-    None,
-    Error,
-    Warning,
-    Info,
-    Debug
+    None = 0,
+    Important = 1,
+    Detail = 2,
+    Verbose = 3
 }
 
 export class Log {
-    static measure(arg0: string, action: () => void) {
-        var start = process.hrtime()[1];
-        console.time(arg0)
-        action();
-        console.timeEnd(arg0)
+    static setLogLevel(value: LogLevel) {
+        Log.level = value;
     }
-    public static level: LogLevel = LogLevel.Debug;
+    
+    static measure(level: LogLevel, arg0: string, action: () => void) {
+        if (this.willLog(level)) {
+            var start = process.hrtime()[1];
+            console.time(arg0)
+            action();
+            console.timeEnd(arg0)
+        } else {
+            action();
+        }
+    }
 
-    public static debug(message?: any, ...args: any) {
-        if (Log.level >= LogLevel.Debug)
+    private static level: LogLevel = LogLevel.Important;
+
+    public static writeLine(level: LogLevel, message?: any, ...args: any) {
+        if (this.willLog(level))
             console.log(message, ...args)
     }
 
-    public static info(message?: any, ...args: any) {
-        if (Log.level >= LogLevel.Info)
-            console.info(message, ...args)
-    }
-
-    public static warn(message?: any, ...args: any) {
-        if (Log.level >= LogLevel.Warning)
-            console.warn(message, ...args)
-    }
-
-    public static error(message?: any, ...args: any) {
-        if (Log.level >= LogLevel.Error)
-            console.error(message, ...args)
+    static willLog(level: LogLevel): boolean {
+        return level <= Log.level;
     }
 
 }

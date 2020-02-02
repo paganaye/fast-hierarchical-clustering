@@ -1,5 +1,5 @@
 import { twoDec } from "./Utils";
-import { Log } from "./Log";
+import { Log, LogLevel } from "./Log";
 
 export interface Point {
   id: number;
@@ -26,10 +26,10 @@ export function getNextPointId() {
   return ++pointIdCounter;
 }
 
-export function printPoints(prefix: string, points?: Point[]) {
-  if (points) {
+export function printPoints(level: LogLevel, prefix: string, points?: Point[]) {
+  if (points && Log.willLog(level)) {
     for (var point of points) {
-      Log.debug(prefix + pointToString(point));
+      Log.writeLine(level, prefix + pointToString(point));
     }
   }
 }
