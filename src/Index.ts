@@ -4,19 +4,19 @@ import { random } from "./Random";
 import { QuadNode } from "./QuadNode";
 import { QuadEnumerator } from "./QuadEnumerator";
 import { Neighbour, newNeighbour } from "./Neighbour";
-import { Dendrogram } from "./Dendogram";
+import { Dendrogram } from "./Dendrogram";
 import { runInNewContext } from "vm";
 
 var debug = true;
-//debug = false;
+// debug = false;
 
 if (debug) {
-    var NB_POINTS = 300;
+    var NB_POINTS = 50;
     var FULL_AREA_WIDTH = 50;
     var FULL_AREA_HEIGHT = 50;
     var DISPLAY_DECIMATOR = 1;
 } else {
-    var NB_POINTS = 25_000;
+    var NB_POINTS = 10_000;
     var FULL_AREA_WIDTH = 10_000;
     var FULL_AREA_HEIGHT = 10_000;
     var DISPLAY_DECIMATOR = 5000;
@@ -31,7 +31,7 @@ let dendro1 = buildDendrogramSlow();
 
 //mergeNeighboursFast(points);
 
-function mergeNeighboursFast(points: Point[]) {
+function mergeNeighboursFast(points: Dendrogram[]) {
     let quad = createQuad(points);
     // ideally we'd like to merge only the nearestneighbours
     var maxDistance = quad.getNodeSize()
@@ -46,7 +46,7 @@ function mergeNeighboursFast(points: Point[]) {
 
             if (p1.weight == 0 || p2.weight == 0) continue;
             let totalWeight = p1.weight + p2.weight;
-            let p: Point = {
+            let p: Dendrogram = {
                 id: ++pointIdCounter,
                 x: (p1.x * p1.weight + p2.x * p2.weight) / totalWeight,
                 y: (p1.y * p1.weight + p2.y * p2.weight) / totalWeight,
@@ -77,12 +77,11 @@ function sortByDistance(neighbours: Array<Neighbour>): void {
 //     }
 // }
 
-function listNeighboursSlow(points: Point[], maxDistance: number) {
+function listNeighboursSlow(points: Dendrogram[], maxDistance: number) {
     console.log("listNeighboursSlow");
     let result: Neighbour[] = [];
     getNeighbours(points, maxDistance, result)
     console.log("slow", { neighbours: result.length });
-    //printDistances(result)
 }
 
 function listNeighboursFast(points: Point[], maxDistance: number) {
@@ -192,7 +191,7 @@ function printPoint(prefix: string, point: Point) {
     console.log(prefix + "pt #" + point.id + " (" + point.x + ", " + point.y + ")")
 }
 
-function getNeighbours(points: Point[], maxDistance: number, result: Neighbour[]) {
+function getNeighbours(points: Dendrogram[], maxDistance: number, result: Neighbour[]) {
     for (let i = 0; i < points.length; i++) {
         let pti = points[i];
         if (pti.weight == 0) continue;
@@ -204,7 +203,6 @@ function getNeighbours(points: Point[], maxDistance: number, result: Neighbour[]
                 result.push(newNeighbour(pti, ptj, distance))
             }
         }
-
     }
 }
 
@@ -221,7 +219,7 @@ function printDistance(p1: Point, p2: Point) {
     console.log("      distance:", distance);
 }
 
-function mergePoints(points: Point[]): Point {
+function calcMergedPoint(points: Dendrogram[]): Dendrogram {
     let xsum = 0;
     let ysum = 0;
     let wsum = 0;
@@ -233,27 +231,72 @@ function mergePoints(points: Point[]): Point {
             point.weight = 0;
         }
     }
-    return { id: ++pointIdCounter, x: xsum / wsum, y: ysum / wsum, weight: wsum }
+    return { id: ++pointIdCounter, x: xsum / wsum, y: ysum / wsum, weight: wsum, children: points }
 }
-function getNearestNeighbour(points: Point[]): Neighbour | null {
+function getNearestNeighbour(points: Dendrogram[]): Neighbour | null {
     let neighbours: Neighbour[] = []
-    getNeighbours(points, Number.MAX_VALUE, neighbours)
-    sortByDistance(neighbours);
-    if (neighbours.length == 0) return null;
-    return neighbours[0];
+    var maxDistance = Number.MAX_VALUE;
+    var nearestNeighbour: Neighbour | null = null;
+    for (let i = 0; i < points.length; i++) {
+        let pti = points[i];
+        if (pti.weight == 0) continue;
+        for (let j = i + 1; j < points.length; j++) {
+            let ptj = points[j];
+            if (ptj.weight == 0) continue;
+            let distance = calcDistance(pti, ptj);
+            if (distance <= maxDistance) {
+                maxDistance = distance;
+                nearestNeighbour = newNeighbour(pti, ptj, distance)
+            }
+        }
+    }
+    return nearestNeighbour;
+}
+
+function mergePoints(pointsToMerge: Dendrogram[], nodes: Dendrogram[]): Dendrogram {
+    let Dendrogram = calcMergedPoint(pointsToMerge);
+    pointsToMerge.forEach((point) => {
+        let index = nodes.indexOf(point);
+        nodes.splice(index, 1);
+    });
+    nodes.push(Dendrogram);
+    return Dendrogram;
+}
+
+function displayDendrogram(dendrogram: Dendrogram) {
+    displayDendrogramNode("", "", dendrogram);
+}
+
+function twoDec(x: number) {
+    return Math.round(x * 100) / 100;
+}
+
+function displayDendrogramNode(prefix1: string, prefix2: string, dendrogram: Dendrogram) {
+    let children = (dendrogram as Dendrogram).children;
+    console.log(prefix1 + "#" + dendrogram.id + " x:" + twoDec(dendrogram.x) + ", y:" + twoDec(dendrogram.y) + " w:" + dendrogram.weight);
+    if (children) {
+
+        for (let i = 0; i < children.length; i++) {
+            let child = children[i];
+            displayDendrogramNode(
+                prefix2 + (i == children.length - 1 ? "└─" : "├─"),
+                prefix2 + (i == children.length - 1 ? "  " : "│ "),
+                child);
+        }
+    }
 }
 
 function buildDendrogramSlow(): Dendrogram {
-    let points = createPoints();
+    let nodes: Array<Dendrogram> = createPoints().map(pt => { return { x: pt.x, y: pt.id, id: pt.id, weight: 1 }; });
     let maxDistance = Number.MAX_VALUE;
-    let result: Dendrogram = []
-    while (true) {
-        let nearestNeighbour = getNearestNeighbour(points);
+    while (nodes.length > 1) {
+        let nearestNeighbour = getNearestNeighbour(nodes);
         if (nearestNeighbour == null) break;
-        let newPoint = mergePoints([nearestNeighbour.pt1, nearestNeighbour.pt2]);
-        points.push(newPoint);
-        console.log("merged #" + nearestNeighbour.pt1.id + " with #" + nearestNeighbour.pt2.id + " distance " + nearestNeighbour.distance + " to #" + newPoint.id + " weight: " + newPoint.weight);
+        let newNode = mergePoints([nearestNeighbour.pt1, nearestNeighbour.pt2], nodes)
+        console.log("merged #" + nearestNeighbour.pt1.id + " with #" + nearestNeighbour.pt2.id + " distance " + twoDec(nearestNeighbour.distance) + " to #" + newNode.id + " weight: " + newNode.weight);
     }
+    let result: Dendrogram = nodes[0];
+    displayDendrogram(result)
     return result;
 }
 
