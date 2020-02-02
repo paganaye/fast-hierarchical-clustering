@@ -4,6 +4,8 @@ import { random } from "./Random";
 import { QuadNode } from "./QuadNode";
 import { QuadEnumerator } from "./QuadEnumerator";
 import { Neighbour, newNeighbour } from "./Neighbour";
+import { Dendrogram } from "./Dendogram";
+import { runInNewContext } from "vm";
 
 var debug = true;
 //debug = false;
@@ -22,12 +24,12 @@ if (debug) {
 
 var CLUSTER_MIN_SIZE = 1;
 var pointIdCounter = 0;
-let points = createPoints();
 
+let dendro1 = buildDendrogramSlow();
 //listNeighboursFast(points, 1);
 //listNeighboursSlow(points, 1);
 
-mergeNeighboursFast(points);
+//mergeNeighboursFast(points);
 
 function mergeNeighboursFast(points: Point[]) {
     let quad = createQuad(points);
@@ -37,7 +39,7 @@ function mergeNeighboursFast(points: Point[]) {
     // getQuadDistances
     while (maxDistance < 100) {
         let neighbours = getQuadTreeNeighbours(quad, maxDistance);
-        neighbours.sort((a, b) => a.distance - b.distance)
+        sortByDistance(neighbours);
         for (let neighbour of neighbours) {
             let p1 = neighbour.pt1;
             let p2 = neighbour.pt2;
@@ -58,7 +60,9 @@ function mergeNeighboursFast(points: Point[]) {
 
 }
 
-
+function sortByDistance(neighbours: Array<Neighbour>): void {
+    neighbours.sort((a, b) => a.distance - b.distance)
+}
 // function mergeQuadPoints(quad: QuadTree, maxDistance: number) {
 //     let result: Neighbour[] = []
 //     let quadEnumerator = new QuadEnumerator(quad);
@@ -73,7 +77,6 @@ function mergeNeighboursFast(points: Point[]) {
 //     }
 // }
 
-
 function listNeighboursSlow(points: Point[], maxDistance: number) {
     console.log("listNeighboursSlow");
     let result: Neighbour[] = [];
@@ -81,7 +84,6 @@ function listNeighboursSlow(points: Point[], maxDistance: number) {
     console.log("slow", { neighbours: result.length });
     //printDistances(result)
 }
-
 
 function listNeighboursFast(points: Point[], maxDistance: number) {
     let quad = createQuad(points)
@@ -118,7 +120,6 @@ function getNodeSouthEastNeighbours(current: QuadNode, maxDistance: number, neig
     getInterNodeNeighbours(current, QuadTree.getSouthEastNeighbour(current), maxDistance, neighbours);
 }
 
-
 function printNeighbours(neighbours: Neighbour[]) {
     for (var neighbour of neighbours) {
         console.log(neighbour.pt1.id + "-" + neighbour.pt2.id + " " + neighbour.distance);
@@ -141,7 +142,6 @@ function getInterNodeNeighbours(n1: QuadNode | undefined, n2: QuadNode | undefin
     }
 }
 
-
 function enumerateQuad(quad: QuadTree) {
     let quadEnumerator = new QuadEnumerator(quad);
     var current = quadEnumerator.getFirst()
@@ -152,8 +152,6 @@ function enumerateQuad(quad: QuadTree) {
         current = quadEnumerator.getNext();
     }
 }
-
-// const CLUSTER_MAX_SIZE = 128;
 
 function createPoints(): Point[] {
     var points = new Array(NB_POINTS).fill(0).map(() => {
@@ -197,13 +195,14 @@ function printPoint(prefix: string, point: Point) {
 function getNeighbours(points: Point[], maxDistance: number, result: Neighbour[]) {
     for (let i = 0; i < points.length; i++) {
         let pti = points[i];
+        if (pti.weight == 0) continue;
         for (let j = i + 1; j < points.length; j++) {
             let ptj = points[j];
+            if (ptj.weight == 0) continue;
             let distance = calcDistance(pti, ptj);
             if (distance <= maxDistance) {
                 result.push(newNeighbour(pti, ptj, distance))
             }
-
         }
 
     }
@@ -222,4 +221,41 @@ function printDistance(p1: Point, p2: Point) {
     console.log("      distance:", distance);
 }
 
+function mergePoints(points: Point[]): Point {
+    let xsum = 0;
+    let ysum = 0;
+    let wsum = 0;
+    for (var point of points) {
+        if (point.weight > 0) {
+            xsum += point.x * point.weight;
+            ysum += point.y * point.weight;
+            wsum += point.weight;
+            point.weight = 0;
+        }
+    }
+    return { id: ++pointIdCounter, x: xsum / wsum, y: ysum / wsum, weight: wsum }
+}
+function getNearestNeighbour(points: Point[]): Neighbour | null {
+    let neighbours: Neighbour[] = []
+    getNeighbours(points, Number.MAX_VALUE, neighbours)
+    sortByDistance(neighbours);
+    if (neighbours.length == 0) return null;
+    return neighbours[0];
+}
+
+function buildDendrogramSlow(): Dendrogram {
+    let points = createPoints();
+    let maxDistance = Number.MAX_VALUE;
+    let result: Dendrogram = []
+    while (true) {
+        let nearestNeighbour = getNearestNeighbour(points);
+        if (nearestNeighbour == null) break;
+        let newPoint = mergePoints([nearestNeighbour.pt1, nearestNeighbour.pt2]);
+        points.push(newPoint);
+        console.log("merged #" + nearestNeighbour.pt1.id + " with #" + nearestNeighbour.pt2.id + " distance " + nearestNeighbour.distance + " to #" + newPoint.id + " weight: " + newPoint.weight);
+    }
+    return result;
+}
+
 console.log("done")
+
