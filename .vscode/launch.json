@@ -42,10 +42,10 @@
         },
         {
             "type": "node",
-            "name": "Debug index.ts",
+            "name": "Debug Index.ts",
             "request": "launch",
             "args": [
-                "src/index.ts"
+                "src/Index.ts"
             ],
             "runtimeArgs": [
                 "--nolazy",

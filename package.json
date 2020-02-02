@@ -2,7 +2,7 @@
   "name": "vscode-typescript-mocha",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "Index.js",
   "scripts": {
     "test": "mocha",
     "test:watch": "mocha --watch"
