@@ -1,55 +1,18 @@
 import { QuadTree } from "./QuadTree";
-import { Point, calcDistance, getNextPointId, printPoints } from "./Point";
+import { calcDistance, getNextPointId, printPoints, Point } from "./Point";
 import { QuadNode } from "./QuadNode";
 import { QuadEnumerator } from "./QuadEnumerator";
 import { Neighbour, newNeighbour } from "./Neighbour";
-import { Dendrogram, sortDendrogram, displayDendrogram, mergePoints } from "./Dendrogram";
+import { sortDendrogram, displayDendrogram, mergePoints } from "./Dendrogram";
 import { twoDec } from "./Utils";
 
-
-var CLUSTER_MIN_SIZE = 1;
-
-//listNeighboursFast(points, 1);
-//listNeighboursSlow(points, 1);
-
-//mergeNeighboursFast(points);
-
-function mergeNeighboursFast(points: Dendrogram[]) {
-    let quad = createQuad(points);
-    // ideally we'd like to merge only the nearestneighbours
-    var maxDistance = quad.getNodeSize()
-    // let result = mergeQuadPoints(quad, maxDistance);
-    // getQuadDistances
-    while (maxDistance < 100) {
-        let neighbours = getQuadTreeNeighbours(quad, maxDistance);
-        sortByDistance(neighbours);
-        for (let neighbour of neighbours) {
-            let p1 = neighbour.pt1;
-            let p2 = neighbour.pt2;
-
-            if (p1.merged || p2.merged) continue;
-            let weight1 = p1.weight || 1;
-            let weight2 = p2.weight || 1;
-            let totalWeight = weight1 + weight2;
-            let p: Dendrogram = {
-                id: getNextPointId(),
-                x: (p1.x * weight1 + p2.x * weight2) / totalWeight,
-                y: (p1.y * weight1 + p2.y * weight2) / totalWeight,
-                weight: totalWeight
-            }
-        }
-        maxDistance *= 2
-
-    }
-    //console.log("fast", { neighbours: result.length });
-
-}
+const CLUSTER_MIN_SIZE = 1;
 
 function sortByDistance(neighbours: Array<Neighbour>): void {
     neighbours.sort((a, b) => a.distance - b.distance)
 }
 
-function listNeighboursSlow(points: Dendrogram[], maxDistance: number) {
+function listNeighboursSlow(points: Point[], maxDistance: number) {
     console.log("listNeighboursSlow");
     let result: Neighbour[] = [];
     getNeighbours(points, maxDistance, result)
@@ -135,13 +98,13 @@ function printQuad(node: QuadNode | undefined, sector: string, prefix: string) {
     console.log(prefix + "} " + sector)
 }
 
-function getNeighbours(points: Dendrogram[], maxDistance: number, result: Neighbour[]) {
+function getNeighbours(points: Point[], maxDistance: number, result: Neighbour[]) {
     for (let i = 0; i < points.length; i++) {
         let pti = points[i];
-        if (pti.merged) continue;
+        if (pti.mergedTo) continue;
         for (let j = i + 1; j < points.length; j++) {
             let ptj = points[j];
-            if (ptj.merged) continue;
+            if (ptj.mergedTo) continue;
             let distance = calcDistance(pti, ptj);
             if (distance <= maxDistance) {
                 result.push(newNeighbour(pti, ptj, distance))
@@ -150,9 +113,35 @@ function getNeighbours(points: Dendrogram[], maxDistance: number, result: Neighb
     }
 }
 
-export function buildDendrogramFast(points: Point[]): Dendrogram {
+export function buildDendrogramFast(points: Point[]): Point {
+    let quad = createQuad(points);
+    // ideally we'd like to merge only the nearestneighbours
+    var maxDistance = quad.getNodeSize()
+    // let result = mergeQuadPoints(quad, maxDistance);
+    // getQuadDistances
+    while (maxDistance < 100) {
+        let neighbours = getQuadTreeNeighbours(quad, maxDistance);
+        sortByDistance(neighbours);
+        for (let neighbour of neighbours) {
+            let p1 = neighbour.pt1;
+            let p2 = neighbour.pt2;
+
+            if (p1.mergedTo || p2.mergedTo) continue;
+            let weight1 = p1.weight || 1;
+            let weight2 = p2.weight || 1;
+            let totalWeight = weight1 + weight2;
+            let p: Point = {
+                id: getNextPointId(),
+                x: (p1.x * weight1 + p2.x * weight2) / totalWeight,
+                y: (p1.y * weight1 + p2.y * weight2) / totalWeight,
+                weight: totalWeight
+            }
+            
+        }
+        maxDistance *= 2
+    }
     return { x: 1, y: 1, id: 1, weight: 1 };
+
 }
 
-console.log("done")
 

@@ -1,6 +1,5 @@
 import { QuadTree } from "./QuadTree";
 import { Point } from "./Point";
-import { Dendrogram } from "./Dendrogram";
 
 export enum QuadSector {
   Root,
@@ -26,7 +25,7 @@ export class QuadNode {
   ne?: QuadNode;
   sw?: QuadNode;
   se?: QuadNode;
-  points?: Dendrogram[];
+  points?: Point[];
   size: number;
   sector: QuadSector;
 

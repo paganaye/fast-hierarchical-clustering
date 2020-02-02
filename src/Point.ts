@@ -5,7 +5,8 @@ export interface Point {
   x: number;
   y: number;
   weight: number;
-  merged?: boolean;
+  mergedTo?: Point;
+  children?: Array<Point>;
 }
 
 export function calcDistance(p1: Point, p2: Point): number {
