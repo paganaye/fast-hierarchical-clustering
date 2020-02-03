@@ -1,0 +1,2 @@
+include ':app', ':com.ganaye-pascal-fast-hierarchical-clustering', ':classic-hierarchical-clustering'
+rootProject.name='FastHierarchicalClusteringSampleAndroidApplication'
