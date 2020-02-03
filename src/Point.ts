@@ -26,7 +26,7 @@ export function getNextPointId() {
   return ++pointIdCounter;
 }
 
-export function printPoints(level: LogLevel, prefix: string, points?: Point[]) {
+export function logPoints(level: LogLevel, prefix: string, points?: Point[]) {
   if (points && Log.willLog(level)) {
     for (var point of points) {
       Log.writeLine(level, prefix + pointToString(point));

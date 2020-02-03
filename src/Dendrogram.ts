@@ -42,8 +42,9 @@ export function sortDendrogram(dendrogram: Point) {
     }
 }
 
-export function logDendrogram(logLevel: LogLevel, dendrogram: Point) {
-    logBottomUpDendrogram(logLevel, "", "", dendrogram);
+export function logDendrogram(logLevel: LogLevel, dendrogram?: Point | undefined) {
+    if (!dendrogram) Log.writeLine(logLevel, "null");
+    else logBottomUpDendrogram(logLevel, "", "", dendrogram);
 }
 
 function logTopDownDendrogram(logLevel: LogLevel, prefix1: string, prefix2: string, dendrogram: Point) {

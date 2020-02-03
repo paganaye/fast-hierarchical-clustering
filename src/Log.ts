@@ -2,9 +2,10 @@ import { twoDec } from "./Utils";
 
 export enum LogLevel {
     None = 0,
-    Important = 1,
-    Detail = 2,
-    Verbose = 3
+    Error = 1,
+    Important = 2,
+    Detail = 3,
+    Verbose = 4
 }
 
 export class Log {

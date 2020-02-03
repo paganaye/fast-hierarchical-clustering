@@ -1,5 +1,5 @@
 import { QuadTree } from "./QuadTree";
-import { Point, printPoints } from "./Point";
+import { Point, logPoints } from "./Point";
 import { Log, LogLevel } from "./Log";
 
 export enum QuadSector {
@@ -173,7 +173,7 @@ export function printQuadNode(level: LogLevel, prefix: string, node: QuadNode | 
   if (!node || !Log.willLog(level)) return;
   let prefix2 = prefix + "  ";
   Log.writeLine(LogLevel.Verbose, prefix + QuadSector[node.sector] + ": " + JSON.stringify({ id: node.id, xmin: node.xmin, ymin: node.ymin, size: node.size }))
-  printPoints(level, prefix2, node.points);
+  logPoints(level, prefix2, node.points);
   printQuadNode(level, prefix2, node.nw)
   printQuadNode(level, prefix2, node.ne)
   printQuadNode(level, prefix2, node.sw)

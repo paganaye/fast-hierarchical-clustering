@@ -1,21 +1,19 @@
 import { QuadTree, logQuadTree } from "./QuadTree";
-import { calcDistance, Point } from "./Point";
+import { calcDistance, Point, logPoints } from "./Point";
 import { QuadNode } from "./QuadNode";
-import { Neighbour, newNeighbour } from "./Neighbour";
+import { Neighbour, newNeighbour, logNeighbours, neighbourToString } from "./Neighbour";
 import { getMergedPoint } from "./Dendrogram";
 import { QuadEnumerator } from "./QuadEnumerator";
 import { mergeQuadTree } from "./QuadMerger";
-import { Log } from "./Log";
+import { Log, LogLevel } from "./Log";
 
 const CLUSTER_MIN_SIZE = 1;
 
-function sortByDistance(neighbours: Array<Neighbour>): void {
-    neighbours.sort((a, b) => {
-        var res = a.distance - b.distance
-        if (res == 0) res = a.pt1.id - b.pt1.id
-        if (res == 0) res = a.pt2.id - a.pt2.id
-        return res;
-    })
+function neighbourComparer(a: Neighbour, b: Neighbour) {
+    var res = (a.distance - b.distance)
+        || (a.pt1.id - b.pt1.id)
+        || (a.pt2.id - a.pt2.id);
+    return res;
 }
 
 function createQuad(points: Point[]): QuadTree {
@@ -117,6 +115,47 @@ function getNewPointIntraNodeNeighbours(pt1: Point, n1: QuadNode, maxDistance: n
     }
 }
 
+function getInsertionPoint<T>(item: T, array: T[], comparer: (a: T, b: T) => number): number {
+    let min = 0;
+    let max = array.length - 1;
+    while (min <= max) {
+        let mid = Math.trunc((min + max) / 2)
+        let midItem = array[mid];
+        let result = comparer(item, midItem);
+        if (result >= 0) min = mid + 1;
+        else if (result < 0) max = mid - 1;
+        else return mid; // identical we'll insert before
+    }
+    return min;
+}
+
+var mergeCpt = 0;
+
+function mergeIntoSortedArray(src: Neighbour[], dst: Neighbour[]): void {
+    var original = ([] as Neighbour[]).concat(src);
+    var expectedArray = ([] as Neighbour[]).concat(src).concat(dst);
+    expectedArray.sort(neighbourComparer);
+
+    ++mergeCpt;
+    for (let neighbour of src) {
+        // Log.writeLine(LogLevel.Important, "inserting " + neighbourToString(neighbour));
+        let insertionPos = getInsertionPoint(neighbour, dst, neighbourComparer);
+        // Log.writeLine(LogLevel.Important, "insertion pos: " + insertionPos);
+        dst.splice(insertionPos, 0, neighbour);
+        // logNeighbours(LogLevel.Important, "dst: ", dst)
+    }
+    for (let i = 0; i < expectedArray.length; i++) {
+        if (expectedArray[i] != dst[i]) {
+            Log.writeLine(LogLevel.Important, "merging #" + (++mergeCpt))
+            logNeighbours(LogLevel.Important, "original: ", original)
+            logNeighbours(LogLevel.Important, "inserted: ", src)
+            logNeighbours(LogLevel.Important, "expected: ", expectedArray)
+            logNeighbours(LogLevel.Important, "actual: ", dst)
+            debugger;
+        }
+    }
+
+}
 
 export function buildDendrogramNew(points: Point[]): Point {
     let quad = createQuad(points);
@@ -128,7 +167,8 @@ export function buildDendrogramNew(points: Point[]): Point {
         //printQuadTree(quad);
         //Log.writeLine(LogLevel.Debug, "merging:", maxDistance);
         let neighbours = getQuadTreeNeighbours(quad, nodeSize);
-        sortByDistance(neighbours);
+        neighbours.sort(neighbourComparer)
+
         while (neighbours.length > 0) {
             let neighbour = neighbours.shift() as Neighbour;
             let p1: Point = neighbour.pt1;
@@ -138,8 +178,9 @@ export function buildDendrogramNew(points: Point[]): Point {
             neighbour.n1?.remove(p1);
             neighbour.n2?.remove(p2);
             let mergePointNode = quad.add(mergedPoint);
-            getNewPointNeighbours(mergedPoint, mergePointNode, nodeSize, neighbours);
-            sortByDistance(neighbours);
+            let newNeighbours: Neighbour[] = [];
+            getNewPointNeighbours(mergedPoint, mergePointNode, nodeSize, newNeighbours);
+            mergeIntoSortedArray(newNeighbours, neighbours)
             //if (mergedPoint.id==1218){
             //printQuadTree(quad);
             //}            
