@@ -7,10 +7,21 @@ import { Log, LogLevel } from "./Log";
 
 Log.setLogLevel(LogLevel.Important);
 Log.writeLine(LogLevel.Important, "Program Starting");
-for (let nbPoints = 1000; nbPoints < 50_000; nbPoints += 1000) {
-    runClassicAlgorithm(nbPoints);
-    runNewAlgorithm(nbPoints);
+testNewAlgorithm();
+
+function testNewAlgorithm() {
+    for (let nbPoints = 1_000; nbPoints < 50_000; nbPoints += 1000) {
+        runNewAlgorithm(nbPoints);
+    }
 }
+
+function testSideBySide() {
+    for (let nbPoints = 1000; nbPoints < 50_000; nbPoints += 1000) {
+        runClassicAlgorithm(nbPoints);
+        runNewAlgorithm(nbPoints);
+    }
+}
+
 function runClassicAlgorithm(nbPoints: number) {
     let points = createPoints(nbPoints);
     Log.measure(LogLevel.Important, "Classic_Algorithm n=" + nbPoints, () => {
