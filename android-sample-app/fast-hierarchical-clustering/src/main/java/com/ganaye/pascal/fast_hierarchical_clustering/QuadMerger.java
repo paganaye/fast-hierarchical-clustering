@@ -19,13 +19,13 @@ public class QuadMerger {
         if (pruneSmallBranches(node.southWest, minSize, newParentQuadNode)) node.southWest = null;
         if (mustPrune) {
             if (node.clusters != null && newParentQuadNode != null) {
-                ArrayList<NewCluster> parentPoints = newParentQuadNode.clusters;
-                if (parentPoints == null) {
-                    parentPoints = newParentQuadNode.clusters = new ArrayList<>();
+                ArrayList<NewCluster> parentNodeClusters = newParentQuadNode.clusters;
+                if (parentNodeClusters == null) {
+                    parentNodeClusters = newParentQuadNode.clusters = new ArrayList<>();
                 }
                 for (NewCluster cluster : node.clusters) {
                     cluster.quadNode = newParentQuadNode;
-                    parentPoints.add(cluster);
+                    parentNodeClusters.add(cluster);
                 }
             }
             return true;

@@ -12,10 +12,10 @@ public class NeighbourComparator implements Comparator<QuadNeighbour> {
         if (dres > 0) return 1;
         else if (dres < 0) return -1;
 
-        int ires = (n2.pt1.id - n1.pt1.id);
+        int ires = (n2.cluster1.id - n1.cluster1.id);
         if (ires != 0) return ires;
 
-        ires = (n2.pt2.id - n1.pt2.id);
+        ires = (n2.cluster2.id - n1.cluster2.id);
         return ires;
     }
 

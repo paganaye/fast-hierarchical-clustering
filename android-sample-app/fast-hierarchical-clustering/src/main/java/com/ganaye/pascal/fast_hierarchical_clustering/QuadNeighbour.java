@@ -4,23 +4,23 @@ package com.ganaye.pascal.fast_hierarchical_clustering;
 import static com.ganaye.pascal.utils.DoubleUtils.twoDec;
 
 public class QuadNeighbour {
-    public NewCluster pt1;
-    public NewCluster pt2;
+    public NewCluster cluster1;
+    public NewCluster cluster2;
     public double distance;
 
-    public QuadNeighbour(NewCluster pt1, NewCluster pt2, double distance) {
-        if (pt1.id <= pt2.id) {
-            this.pt1 = pt1;
-            this.pt2 = pt2;
+    public QuadNeighbour(NewCluster cluster1, NewCluster cluster2, double distance) {
+        if (cluster1.id <= cluster2.id) {
+            this.cluster1 = cluster1;
+            this.cluster2 = cluster2;
         } else {
-            this.pt1 = pt2;
-            this.pt2 = pt1;
+            this.cluster1 = cluster2;
+            this.cluster2 = cluster1;
         }
         this.distance = distance;
     }
 
     @Override
     public String toString() {
-        return pt1.id + "..." + pt2.id + " " + twoDec(distance);
+        return cluster1.id + "..." + cluster2.id + " " + twoDec(distance);
     }
 }

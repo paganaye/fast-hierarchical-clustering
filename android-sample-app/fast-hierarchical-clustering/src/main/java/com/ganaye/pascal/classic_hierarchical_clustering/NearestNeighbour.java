@@ -3,17 +3,17 @@ package com.ganaye.pascal.classic_hierarchical_clustering;
 import com.ganaye.pascal.utils.Cluster;
 
 public class NearestNeighbour {
-    public Cluster pt1;
-    public Cluster pt2;
+    public Cluster cluster1;
+    public Cluster cluster2;
     public double distance;
 
-    public NearestNeighbour(Cluster pt1, Cluster pt2, double distance) {
-        if (pt1.id <= pt2.id) {
-            this.pt1 = pt1;
-            this.pt2 = pt2;
+    public NearestNeighbour(Cluster cluster1, Cluster cluster2, double distance) {
+        if (cluster1.id <= cluster2.id) {
+            this.cluster1 = cluster1;
+            this.cluster2 = cluster2;
         } else {
-            this.pt1 = pt2;
-            this.pt2 = pt1;
+            this.cluster1 = cluster2;
+            this.cluster2 = cluster1;
         }
         this.distance = distance;
     }

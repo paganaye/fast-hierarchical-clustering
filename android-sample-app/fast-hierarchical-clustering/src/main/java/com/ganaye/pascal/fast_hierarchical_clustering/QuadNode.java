@@ -52,7 +52,7 @@ public class QuadNode {
 //    if (this.parentNode == null) return 0
 //    else return this.parentNode.getLevel() + 1;
 //  }
-    public static void logPoints(LogLevel level, String prefix, List<NewCluster> clusters) {
+    public static void logClusterList(LogLevel level, String prefix, List<NewCluster> clusters) {
         if (clusters != null && Log.willLog(level)) {
             for (NewCluster cluster : clusters) {
                 Log.writeLine(level, prefix + cluster.toString());
@@ -65,7 +65,7 @@ public class QuadNode {
         String prefix2 = prefix + "  ";
         Log.writeLine(LogLevel.Verbose, prefix + node.sector.name() + " id:" + node.id
                 + " (" + node.xmin + ", " + node.ymin + "; size " + node.size + ")");
-        logPoints(level, prefix2, node.clusters);
+        logClusterList(level, prefix2, node.clusters);
         logQuadNode(level, prefix2, node.northWest);
         logQuadNode(level, prefix2, node.northEast);
         logQuadNode(level, prefix2, node.southWest);
@@ -103,12 +103,12 @@ public class QuadNode {
 
     public QuadNode addCluster(NewCluster cluster) {
         if (this.isLeaf()) {
-            ArrayList<NewCluster> points = this.clusters;
-            if (points == null) {
-                points = new ArrayList<>();
-                this.clusters = points;
+            ArrayList<NewCluster> clusters = this.clusters;
+            if (clusters == null) {
+                clusters = new ArrayList<>();
+                this.clusters = clusters;
             }
-            points.add(cluster);
+            clusters.add(cluster);
             cluster.quadNode = this;
             return this;
         } else {

@@ -10,21 +10,21 @@ import static com.ganaye.pascal.utils.Cluster.calcDistance;
 
 
 public class ClassicAlgorithm {
-    public static NearestNeighbour getNearestNeighbour(List<Cluster> points) {
+    public static NearestNeighbour getNearestNeighbour(List<Cluster> clusters) {
         double maxDistance = Double.MAX_VALUE;
         NearestNeighbour nearestNeighbour = null;
-        for (int i = 0; i < points.size(); i++) {
-            Cluster pti = points.get(i);
-            if (pti.parent != null) continue;
-            for (int j = i + 1; j < points.size(); j++) {
-                Cluster ptj = points.get(j);
-                if (ptj.parent != null) continue;
-                double distance = calcDistance(pti, ptj);
+        for (int i = 0; i < clusters.size(); i++) {
+            Cluster clusterI = clusters.get(i);
+            if (clusterI.parent != null) continue;
+            for (int j = i + 1; j < clusters.size(); j++) {
+                Cluster clusterJ = clusters.get(j);
+                if (clusterJ.parent != null) continue;
+                double distance = calcDistance(clusterI, clusterJ);
                 if (distance < maxDistance
-                        || (distance == maxDistance && pti.id < nearestNeighbour.pt1.id)
-                        || (distance == maxDistance && pti.id == nearestNeighbour.pt1.id && ptj.id < nearestNeighbour.pt2.id)) {
+                        || (distance == maxDistance && clusterI.id < nearestNeighbour.cluster1.id)
+                        || (distance == maxDistance && clusterI.id == nearestNeighbour.cluster1.id && clusterJ.id < nearestNeighbour.cluster2.id)) {
                     maxDistance = distance;
-                    nearestNeighbour = new NearestNeighbour(pti, ptj, distance);
+                    nearestNeighbour = new NearestNeighbour(clusterI, clusterJ, distance);
                 }
             }
         }
@@ -33,14 +33,16 @@ public class ClassicAlgorithm {
 
     public static Cluster buildDendrogramClassic(List<Point> points) {
         ArrayList<Cluster> clusters = new ArrayList<>();
-        for (Point point : points) clusters.add(new Cluster(point));
+        for (Point point : points) {
+            clusters.add(new Cluster(point));
+        }
 
         while (clusters.size() > 1) {
             NearestNeighbour nearestNeighbour = getNearestNeighbour(clusters);
             Cluster newCluster = new Cluster();
-            newCluster.mergeTwoClusters(nearestNeighbour.pt1, nearestNeighbour.pt2);
-            clusters.remove(nearestNeighbour.pt1);
-            clusters.remove(nearestNeighbour.pt2);
+            newCluster.mergeTwoClusters(nearestNeighbour.cluster1, nearestNeighbour.cluster2);
+            clusters.remove(nearestNeighbour.cluster1);
+            clusters.remove(nearestNeighbour.cluster2);
             clusters.add(newCluster);
         }
         Cluster result = clusters.get(0);
