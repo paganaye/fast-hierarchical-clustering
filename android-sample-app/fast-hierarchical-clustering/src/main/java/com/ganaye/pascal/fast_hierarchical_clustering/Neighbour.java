@@ -2,6 +2,8 @@ package com.ganaye.pascal.fast_hierarchical_clustering;
 
 import com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram;
 
+import static com.ganaye.pascal.utils.Utils.twoDec;
+
 public class Neighbour {
     public Dendrogram pt1;
     public Dendrogram pt2;
@@ -22,5 +24,10 @@ public class Neighbour {
             this.n2 = n1;
         }
         this.distance = distance;
+    }
+
+    @Override
+    public String toString() {
+        return pt1.id + "..." + pt2.id + " " + twoDec(distance);
     }
 }

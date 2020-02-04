@@ -11,7 +11,11 @@ import static com.ganaye.pascal.utils.Utils.oneDec;
 
 public class SampleData {
     public static List<Point> createPoints(int nbPoints) {
-        return createPoints(nbPoints, 100_000, 30052007);
+        return createPoints(nbPoints, 100_000);
+    }
+
+    public static List<Point> createPoints(int nbPoints, double areaSize) {
+        return createPoints(nbPoints, areaSize, 30052007);
     }
 
     public static List<Point> createPoints(int nbPoints, double areaSize, int seed) {

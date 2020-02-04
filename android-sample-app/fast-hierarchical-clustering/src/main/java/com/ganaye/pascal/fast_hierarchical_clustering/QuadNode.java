@@ -60,7 +60,7 @@ public class QuadNode {
         if (node == null || !Log.willLog(level)) return;
         String prefix2 = prefix + "  ";
         Log.writeLine(LogLevel.Verbose, prefix + node.sector.name() + " id:" + node.id
-                + "xmin:" + node.xmin + " ymin:" + node.ymin + " size:" + node.size);
+                + " (" + node.xmin + ", " + node.ymin + "; size " + node.size + ")");
         logPoints(level, prefix2, node.points);
         logQuadNode(level, prefix2, node.nw);
         logQuadNode(level, prefix2, node.ne);
@@ -78,8 +78,8 @@ public class QuadNode {
         if (child == null) return;
         child.mergeChildren();
         if (child.points != null) {
-            for (Dendrogram point : child.points) {
-                this.points.add(point);
+            for (Dendrogram dendrogram : child.points) {
+                this.points.add(dendrogram);
             }
         }
     }
@@ -97,20 +97,20 @@ public class QuadNode {
         return (this.size <= this.quadTree.nodeSize);
     }
 
-    public QuadNode addPoint(Dendrogram point) {
+    public QuadNode addPoint(Dendrogram dendrogram) {
         if (this.isLeaf()) {
             ArrayList<Dendrogram> points = this.points;
             if (points == null) {
                 points = new ArrayList<>();
                 this.points = points;
             }
-            points.add(point);
+            points.add(dendrogram);
             return this;
         } else {
-            boolean isWest = point.x < this.xmid;
-            boolean isNorth = point.y < this.ymid;
+            boolean isWest = dendrogram.x < this.xmid;
+            boolean isNorth = dendrogram.y < this.ymid;
             QuadNode node = this.getOrCreateChild(isWest, isNorth);
-            return node.addPoint(point);
+            return node.addPoint(dendrogram);
         }
     }
 
@@ -178,12 +178,18 @@ public class QuadNode {
         }
     }
 
-    void remove(Dendrogram point) {
-        int indexOfPoint = this.points.indexOf(point);
+    void remove(Dendrogram dendrogram) {
+        int indexOfPoint = this.points.indexOf(dendrogram);
         if (indexOfPoint >= 0) {
             this.points.remove(indexOfPoint);
         }
     }
 
 
+    @Override
+    public String toString() {
+        return "#" + this.id
+                + " (" + this.xmin + ", " + this.ymin + "; size: " + this.size + ") "
+                + (this.points == null ? "" : (" " + this.points.size() + " point(s)"));
+    }
 }

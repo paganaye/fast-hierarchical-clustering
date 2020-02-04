@@ -14,7 +14,7 @@ public class NeighbourComparator implements Comparator<Neighbour> {
 
     @Override
     public int compare(Neighbour n1, Neighbour n2) {
-        return ascending ? cmp(n1, n2) : cmp(n2, n1);
+        return ascending ? cmp(n2, n1) : cmp(n1, n2);
     }
 
     private int cmp(Neighbour n1, Neighbour n2) {

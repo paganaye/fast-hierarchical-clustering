@@ -35,8 +35,8 @@ public class Dendrogram {
 
     public static Dendrogram mergePoints(ArrayList<Dendrogram> pointsToMerge, ArrayList<Dendrogram> nodes) {
         Dendrogram newPoint = getMergedPoint(pointsToMerge);
-        for (Dendrogram point : pointsToMerge) {
-            nodes.remove(point);
+        for (Dendrogram dendrogram : pointsToMerge) {
+            nodes.remove(dendrogram);
         }
         nodes.add(newPoint);
         return newPoint;
@@ -50,12 +50,12 @@ public class Dendrogram {
         Dendrogram result = new Dendrogram(0, 0);
         result.children = points;
         Log.writeLine(LogLevel.Verbose, "merging (distance:" + calcDistance(points.get(0), points.get(1)) + ")");
-        for (Dendrogram point : points) {
-            xsum += point.x * point.weight;
-            ysum += point.y * point.weight;
-            wsum += point.weight;
-            point.mergedTo = result;
-            Log.writeLine(LogLevel.Verbose, "   " + point.toString());
+        for (Dendrogram dendrogram : points) {
+            xsum += dendrogram.x * dendrogram.weight;
+            ysum += dendrogram.y * dendrogram.weight;
+            wsum += dendrogram.weight;
+            dendrogram.mergedTo = result;
+            Log.writeLine(LogLevel.Verbose, "   " + dendrogram.toString());
         }
         result.x = xsum / wsum;
         result.y = ysum / wsum;
@@ -121,8 +121,8 @@ public class Dendrogram {
 
     public static void logPoints(LogLevel level, String prefix, List<Dendrogram> points) {
         if (points != null && Log.willLog(level)) {
-            for (Dendrogram point : points) {
-                Log.writeLine(level, prefix + point.toString());
+            for (Dendrogram dendrogram : points) {
+                Log.writeLine(level, prefix + dendrogram.toString());
             }
         }
     }

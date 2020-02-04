@@ -16,12 +16,13 @@ public class TestApp {
     public static void main(String[] args) {
         Log.logLevel = LogLevel.Verbose;
         System.out.println("Hello world");
+        runSideBySide(50, 50);
 //        runClassicAlgorithm(1_000);
-        runNewAlgorithm(1_000);
+//        runNewAlgorithm(1_000);
     }
 
-    static void runClassicAlgorithm(int nbPoints) {
-        final List<Point> points = createPoints(nbPoints);
+    static void runClassicAlgorithm(int nbPoints, double areaSize) {
+        final List<Point> points = createPoints(nbPoints, areaSize);
         Log.measure(LogLevel.Important, "Classic_Algorithm n=" + nbPoints, new Runnable() {
             @Override
             public void run() {
@@ -31,8 +32,8 @@ public class TestApp {
         });
     }
 
-    static void runNewAlgorithm(int nbPoints) {
-        final List<Point> points = createPoints(nbPoints);
+    static void runNewAlgorithm(int nbPoints, double areaSize) {
+        final List<Point> points = createPoints(nbPoints, areaSize);
         Log.measure(LogLevel.Important, "New_Algorithm n=" + nbPoints, new Runnable() {
             @Override
             public void run() {
@@ -41,9 +42,9 @@ public class TestApp {
             }
         });
     }
-}
 
-//
+
+    //
 //import { buildDendrogramSlow as buildDendrogramClassic } from "./ClassicAlgorithm";
 //import { logDendrogram } from "./Dendrogram";
 //import { buildDendrogramNew as buildDendrogramNew } from "./NewAlgorithm";
@@ -60,14 +61,13 @@ public class TestApp {
 //    }
 //}
 //
-//function testSideBySide() {
-//    for (let nbPoints = 1000; nbPoints < 50_000; nbPoints += 1000) {
-//        runClassicAlgorithm(nbPoints);
-//        runNewAlgorithm(nbPoints);
-//    }
-//}
-//
+    static void runSideBySide(int count, double areaSize) {
+        runClassicAlgorithm(count, areaSize);
+        runNewAlgorithm(count, areaSize);
+    }
+
 
 //
 
 //Log.writeLine(LogLevel.Important, "Program Complete")
+}

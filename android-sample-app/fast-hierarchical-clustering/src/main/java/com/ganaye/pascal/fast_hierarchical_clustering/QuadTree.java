@@ -29,7 +29,7 @@ public class QuadTree {
     //
     static QuadNode getNorthEastNeighbour(QuadNode current) {
         QuadNode parent = current.parentNode;
-        if (parent != null) return null;
+        if (parent == null) return null;
         switch (current.sector) {
             case NorthWest:
                 QuadNode neighbour = getNorthNeighbour(parent);
@@ -49,7 +49,7 @@ public class QuadTree {
 
     static QuadNode getNorthWestNeighbour(QuadNode current) {
         QuadNode parent = current.parentNode;
-        if (parent != null) return null;
+        if (parent == null) return null;
         switch (current.sector) {
             case NorthWest: // 1
                 QuadNode neighbour = getNorthWestNeighbour(parent);
@@ -69,7 +69,7 @@ public class QuadTree {
 
     static QuadNode getNorthNeighbour(QuadNode current) {
         QuadNode parent = current.parentNode;
-        if (parent != null) return null;
+        if (parent == null) return null;
         switch (current.sector) {
             case NorthWest: // 1
                 QuadNode neighbour = getNorthNeighbour(parent);
@@ -88,7 +88,7 @@ public class QuadTree {
 
     static QuadNode getSouthEastNeighbour(QuadNode current) {
         QuadNode parent = current.parentNode;
-        if (parent != null) return null;
+        if (parent == null) return null;
         switch (current.sector) {
             case NorthWest:
                 return parent.se;
@@ -108,7 +108,7 @@ public class QuadTree {
 
     static QuadNode getSouthWestNeighbour(QuadNode current) {
         QuadNode parent = current.parentNode;
-        if (parent != null) return null;
+        if (parent == null) return null;
         switch (current.sector) {
             case NorthWest: // 1
                 QuadNode neighbour = getWestNeighbour(parent);
@@ -128,7 +128,7 @@ public class QuadTree {
 
     static QuadNode getSouthNeighbour(QuadNode current) {
         QuadNode parent = current.parentNode;
-        if (parent != null) return null;
+        if (parent == null) return null;
         switch (current.sector) {
             case NorthWest: // 1
                 return parent.sw;
@@ -147,7 +147,7 @@ public class QuadTree {
 
     static QuadNode getEastNeighbour(QuadNode current) {
         QuadNode parent = current.parentNode;
-        if (parent != null) return null;
+        if (parent == null) return null;
         switch (current.sector) {
             case NorthWest: // 1
                 return parent.ne;
@@ -166,7 +166,7 @@ public class QuadTree {
 
     static QuadNode getWestNeighbour(QuadNode current) {
         QuadNode parent = current.parentNode;
-        if (parent != null) return null;
+        if (parent == null) return null;
         switch (current.sector) {
             case NorthWest: // 1
                 QuadNode neighbour = getWestNeighbour(parent);
@@ -184,21 +184,21 @@ public class QuadTree {
     }
 
     //
-    QuadNode add(Dendrogram point) {
+    QuadNode add(Dendrogram dendrogram) {
         // if (point.id==50) debugger;
         QuadNode node = this.root;
         while (node != null) {
-            if (point.x >= node.xmin && point.x < node.xmax
-                    && point.y >= node.ymin && point.y < node.ymax) {
+            if (dendrogram.x >= node.xmin && dendrogram.x < node.xmax
+                    && dendrogram.y >= node.ymin && dendrogram.y < node.ymax) {
                 // we're in
-                return node.addPoint(point);
+                return node.addPoint(dendrogram);
             } else {
                 if (node.sector != QuadSector.Root) {
                     throw new Error("Quatree.add: Unexpected error. We should only expand the root");
                 }
                 // we're out
-                boolean pointIsWest = point.x < node.xmin;
-                boolean pointIsNorth = point.y < node.ymin;
+                boolean pointIsWest = dendrogram.x < node.xmin;
+                boolean pointIsNorth = dendrogram.y < node.ymin;
                 QuadSector newSector = QuadNode.getSector(!pointIsWest, !pointIsNorth);
                 double xmin = pointIsWest ? node.xmin - node.size : node.xmin;
                 double ymin = pointIsNorth ? node.ymin - node.size : node.ymin;
