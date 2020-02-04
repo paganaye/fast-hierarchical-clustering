@@ -5,7 +5,6 @@ package com.ganaye.pascal.fast_hierarchical_clustering;
 //import { LogLevel } from "./Log";
 //
 
-import com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram;
 import com.ganaye.pascal.utils.LogLevel;
 
 public class QuadTree {
@@ -14,9 +13,9 @@ public class QuadTree {
 
     //
     QuadTree(double nodeSize) {
-//    // we could lower the node size as we go along
+        // we could lower the node size as we go along
         this.nodeSize = nodeSize;
-//
+
         this.root = new QuadNode(
                 this,
                 null,
@@ -33,15 +32,15 @@ public class QuadTree {
         switch (current.sector) {
             case NorthWest:
                 QuadNode neighbour = getNorthNeighbour(parent);
-                return neighbour == null ? null : neighbour.se;
+                return neighbour == null ? null : neighbour.southEast;
             case NorthEast:
                 neighbour = getNorthEastNeighbour(parent);
-                return neighbour == null ? null : neighbour.sw;
+                return neighbour == null ? null : neighbour.southWest;
             case SouthWest:
-                return parent.ne;
+                return parent.northEast;
             case SouthEast:
                 neighbour = getEastNeighbour(parent);
-                return neighbour == null ? null : neighbour.nw;
+                return neighbour == null ? null : neighbour.northWest;
             default:
                 throw new Error("Internal error");
         }
@@ -53,15 +52,15 @@ public class QuadTree {
         switch (current.sector) {
             case NorthWest: // 1
                 QuadNode neighbour = getNorthWestNeighbour(parent);
-                return neighbour == null ? null : neighbour.se;
+                return neighbour == null ? null : neighbour.southEast;
             case NorthEast: // 2
                 neighbour = getNorthNeighbour(parent);
-                return neighbour == null ? null : neighbour.sw;
+                return neighbour == null ? null : neighbour.southWest;
             case SouthWest: // 3
                 neighbour = getWestNeighbour(parent);
-                return neighbour == null ? null : neighbour.ne;
+                return neighbour == null ? null : neighbour.northEast;
             case SouthEast: // 4
-                return parent.nw;
+                return parent.northWest;
             default:
                 throw new Error("Internal error");
         }
@@ -73,14 +72,14 @@ public class QuadTree {
         switch (current.sector) {
             case NorthWest: // 1
                 QuadNode neighbour = getNorthNeighbour(parent);
-                return neighbour == null ? null : neighbour.sw;
+                return neighbour == null ? null : neighbour.southWest;
             case NorthEast: // 2
                 neighbour = getNorthNeighbour(parent);
-                return neighbour == null ? null : neighbour.se;
+                return neighbour == null ? null : neighbour.southEast;
             case SouthWest: // 3
-                return parent.nw;
+                return parent.northWest;
             case SouthEast: // 4
-                return parent.ne;
+                return parent.northEast;
             default:
                 throw new Error("Internal error");
         }
@@ -91,16 +90,16 @@ public class QuadTree {
         if (parent == null) return null;
         switch (current.sector) {
             case NorthWest:
-                return parent.se;
+                return parent.southEast;
             case NorthEast:
                 QuadNode neighbour = getEastNeighbour(parent);
-                return neighbour == null ? null : neighbour.sw;
+                return neighbour == null ? null : neighbour.southWest;
             case SouthWest:
                 neighbour = getSouthNeighbour(parent);
-                return neighbour == null ? null : neighbour.ne;
+                return neighbour == null ? null : neighbour.northEast;
             case SouthEast:
                 neighbour = getSouthEastNeighbour(parent);
-                return neighbour == null ? null : neighbour.nw;
+                return neighbour == null ? null : neighbour.northWest;
             default:
                 throw new Error("Internal error");
         }
@@ -112,15 +111,15 @@ public class QuadTree {
         switch (current.sector) {
             case NorthWest: // 1
                 QuadNode neighbour = getWestNeighbour(parent);
-                return neighbour == null ? null : neighbour.se;
+                return neighbour == null ? null : neighbour.southEast;
             case NorthEast: // 2
-                return parent.sw;
+                return parent.southWest;
             case SouthWest: // 3
                 neighbour = getSouthWestNeighbour(parent);
-                return neighbour == null ? null : neighbour.ne;
+                return neighbour == null ? null : neighbour.northEast;
             case SouthEast: // 4
                 neighbour = getSouthNeighbour(parent);
-                return neighbour == null ? null : neighbour.nw;
+                return neighbour == null ? null : neighbour.northWest;
             default:
                 throw new Error("Internal error");
         }
@@ -131,15 +130,15 @@ public class QuadTree {
         if (parent == null) return null;
         switch (current.sector) {
             case NorthWest: // 1
-                return parent.sw;
+                return parent.southWest;
             case NorthEast: // 2
-                return parent.se;
+                return parent.southEast;
             case SouthWest: // 3
                 QuadNode neighbour = getSouthNeighbour(parent);
-                return neighbour == null ? null : neighbour.nw;
+                return neighbour == null ? null : neighbour.northWest;
             case SouthEast: // 4
                 neighbour = getSouthNeighbour(parent);
-                return neighbour == null ? null : neighbour.ne;
+                return neighbour == null ? null : neighbour.northEast;
             default:
                 throw new Error("Internal error");
         }
@@ -150,15 +149,15 @@ public class QuadTree {
         if (parent == null) return null;
         switch (current.sector) {
             case NorthWest: // 1
-                return parent.ne;
+                return parent.northEast;
             case NorthEast: // 2
                 QuadNode neighbour = getEastNeighbour(parent);
-                return neighbour == null ? null : neighbour.nw;
+                return neighbour == null ? null : neighbour.northWest;
             case SouthWest: // 3
-                return parent.se;
+                return parent.southEast;
             case SouthEast: // 4
                 neighbour = getEastNeighbour(parent);
-                return neighbour == null ? null : neighbour.sw;
+                return neighbour == null ? null : neighbour.southWest;
             default:
                 throw new Error("Internal error");
         }
@@ -170,35 +169,35 @@ public class QuadTree {
         switch (current.sector) {
             case NorthWest: // 1
                 QuadNode neighbour = getWestNeighbour(parent);
-                return neighbour == null ? null : neighbour.ne;
+                return neighbour == null ? null : neighbour.northEast;
             case NorthEast: // 2
-                return parent.nw;
+                return parent.northWest;
             case SouthWest: // 3
                 neighbour = getWestNeighbour(parent);
-                return neighbour == null ? null : neighbour.se;
+                return neighbour == null ? null : neighbour.southEast;
             case SouthEast: // 4
-                return parent.sw;
+                return parent.southWest;
             default:
                 throw new Error("Internal error");
         }
     }
 
     //
-    QuadNode add(Dendrogram dendrogram) {
+    QuadNode add(NewCluster cluster) {
         // if (point.id==50) debugger;
         QuadNode node = this.root;
         while (node != null) {
-            if (dendrogram.x >= node.xmin && dendrogram.x < node.xmax
-                    && dendrogram.y >= node.ymin && dendrogram.y < node.ymax) {
+            if (cluster.x >= node.xmin && cluster.x < node.xmax
+                    && cluster.y >= node.ymin && cluster.y < node.ymax) {
                 // we're in
-                return node.addPoint(dendrogram);
+                return node.addCluster(cluster);
             } else {
                 if (node.sector != QuadSector.Root) {
                     throw new Error("Quatree.add: Unexpected error. We should only expand the root");
                 }
                 // we're out
-                boolean pointIsWest = dendrogram.x < node.xmin;
-                boolean pointIsNorth = dendrogram.y < node.ymin;
+                boolean pointIsWest = cluster.x < node.xmin;
+                boolean pointIsNorth = cluster.y < node.ymin;
                 QuadSector newSector = QuadNode.getSector(!pointIsWest, !pointIsNorth);
                 double xmin = pointIsWest ? node.xmin - node.size : node.xmin;
                 double ymin = pointIsNorth ? node.ymin - node.size : node.ymin;

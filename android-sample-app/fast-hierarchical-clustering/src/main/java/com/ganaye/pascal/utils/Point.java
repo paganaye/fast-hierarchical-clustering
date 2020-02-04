@@ -1,4 +1,4 @@
-package com.ganaye.pascal.classic_hierarchical_clustering;
+package com.ganaye.pascal.utils;
 
 public class Point {
     private static int pointIdCounter = 0;
@@ -16,7 +16,7 @@ public class Point {
         pointIdCounter = 0;
     }
 
-    static int getNextPointId() {
+    public static int getNextPointId() {
         return ++pointIdCounter;
     }
 

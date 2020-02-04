@@ -1,6 +1,6 @@
 package com.ganaye.pascal.utils;
 
-public class Utils {
+public class DoubleUtils {
     public static double oneDec(double value) {
         return Math.round(value * 10.0) / 10.0;
     }

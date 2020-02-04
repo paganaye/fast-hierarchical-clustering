@@ -1,32 +1,31 @@
 package com.ganaye.pascal.fast_hierarchical_clustering;
 
-import com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram;
-
 import java.util.ArrayList;
 
 public class QuadMerger {
 
-    public static void mergeQuadTree(QuadTree quadTree, double nodeSize) {
-        mergeNode(quadTree.root, nodeSize, null);
+    public static void pruneQuadTree(QuadTree quadTree, double nodeSize) {
+        pruneSmallBranches(quadTree.root, nodeSize, null);
         quadTree.nodeSize = nodeSize;
     }
 
-    public static boolean mergeNode(QuadNode node, double minSize, QuadNode parentNode) {
+    public static boolean pruneSmallBranches(QuadNode node, double minSize, QuadNode newParentQuadNode) {
         if (node == null) return false;
-        boolean mustMerge = (node.size < minSize);
-        if (!mustMerge) parentNode = node;
-        if (mergeNode(node.ne, minSize, parentNode)) node.ne = null;
-        if (mergeNode(node.nw, minSize, parentNode)) node.nw = null;
-        if (mergeNode(node.se, minSize, parentNode)) node.se = null;
-        if (mergeNode(node.sw, minSize, parentNode)) node.sw = null;
-        if (mustMerge) {
-            if (node.points != null && parentNode != null) {
-                ArrayList<Dendrogram> parentPoints = parentNode.points;
+        boolean mustPrune = (node.size < minSize);
+        if (!mustPrune) newParentQuadNode = node;
+        if (pruneSmallBranches(node.northEast, minSize, newParentQuadNode)) node.northEast = null;
+        if (pruneSmallBranches(node.northWest, minSize, newParentQuadNode)) node.northWest = null;
+        if (pruneSmallBranches(node.southEast, minSize, newParentQuadNode)) node.southEast = null;
+        if (pruneSmallBranches(node.southWest, minSize, newParentQuadNode)) node.southWest = null;
+        if (mustPrune) {
+            if (node.clusters != null && newParentQuadNode != null) {
+                ArrayList<NewCluster> parentPoints = newParentQuadNode.clusters;
                 if (parentPoints == null) {
-                    parentPoints = parentNode.points = new ArrayList<>();
+                    parentPoints = newParentQuadNode.clusters = new ArrayList<>();
                 }
-                for (Dendrogram dendrogram : node.points) {
-                    parentPoints.add(dendrogram);
+                for (NewCluster cluster : node.clusters) {
+                    cluster.quadNode = newParentQuadNode;
+                    parentPoints.add(cluster);
                 }
             }
             return true;

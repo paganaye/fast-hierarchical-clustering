@@ -25,10 +25,10 @@ public class QuadEnumerator implements Iterator<QuadNode> {
     private QuadNode getNorthWesterest(QuadNode current) {
         while (current != null) {
             this.currentPath.add(current);
-            QuadNode nextNode = current.nw;
-            if (nextNode == null) nextNode = current.ne;
-            if (nextNode == null) nextNode = current.sw;
-            if (nextNode == null) nextNode = current.se;
+            QuadNode nextNode = current.northWest;
+            if (nextNode == null) nextNode = current.northEast;
+            if (nextNode == null) nextNode = current.southWest;
+            if (nextNode == null) nextNode = current.southEast;
 
             if (nextNode == null) return current;
             else current = nextNode;
@@ -59,16 +59,16 @@ public class QuadEnumerator implements Iterator<QuadNode> {
             QuadNode next = null;
             switch (previous.sector) {
                 case NorthWest:
-                    next = current.ne;
-                    if (next == null) next = current.sw;
-                    if (next == null) next = current.se;
+                    next = current.northEast;
+                    if (next == null) next = current.southWest;
+                    if (next == null) next = current.southEast;
                     break;
                 case NorthEast:
-                    next = current.sw;
-                    if (next == null) next = current.se;
+                    next = current.southWest;
+                    if (next == null) next = current.southEast;
                     break;
                 case SouthWest:
-                    next = current.se;
+                    next = current.southEast;
                     break;
                 default:
                     next = null;

@@ -1,13 +1,11 @@
 package com.ganaye.pascal.utils;
 
-import com.ganaye.pascal.classic_hierarchical_clustering.Point;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.ganaye.pascal.utils.Random.random;
 import static com.ganaye.pascal.utils.Random.randomize;
-import static com.ganaye.pascal.utils.Utils.oneDec;
+import static com.ganaye.pascal.utils.DoubleUtils.oneDec;
 
 public class SampleData {
     public static List<Point> createPoints(int nbPoints) {

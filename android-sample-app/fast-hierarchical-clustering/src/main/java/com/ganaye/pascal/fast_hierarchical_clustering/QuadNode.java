@@ -1,13 +1,10 @@
 package com.ganaye.pascal.fast_hierarchical_clustering;
 
-import com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram;
 import com.ganaye.pascal.utils.Log;
 import com.ganaye.pascal.utils.LogLevel;
 
 import java.util.ArrayList;
-
-import static com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram.logPoints;
-
+import java.util.List;
 
 //
 public class QuadNode {
@@ -21,11 +18,11 @@ public class QuadNode {
     final double ymax;
     final double ymid;
     final double size;
-    QuadNode nw;
-    QuadNode ne;
-    QuadNode sw;
-    QuadNode se;
-    ArrayList<Dendrogram> points;
+    QuadNode northWest;
+    QuadNode northEast;
+    QuadNode southWest;
+    QuadNode southEast;
+    ArrayList<NewCluster> clusters;
     QuadSector sector;
 
     QuadNode parentNode;
@@ -51,21 +48,28 @@ public class QuadNode {
 
     }
 
-//  double getLevel() {
+    //  double getLevel() {
 //    if (this.parentNode == null) return 0
 //    else return this.parentNode.getLevel() + 1;
 //  }
+    public static void logPoints(LogLevel level, String prefix, List<NewCluster> clusters) {
+        if (clusters != null && Log.willLog(level)) {
+            for (NewCluster cluster : clusters) {
+                Log.writeLine(level, prefix + cluster.toString());
+            }
+        }
+    }
 
     static void logQuadNode(LogLevel level, String prefix, QuadNode node) {
         if (node == null || !Log.willLog(level)) return;
         String prefix2 = prefix + "  ";
         Log.writeLine(LogLevel.Verbose, prefix + node.sector.name() + " id:" + node.id
                 + " (" + node.xmin + ", " + node.ymin + "; size " + node.size + ")");
-        logPoints(level, prefix2, node.points);
-        logQuadNode(level, prefix2, node.nw);
-        logQuadNode(level, prefix2, node.ne);
-        logQuadNode(level, prefix2, node.sw);
-        logQuadNode(level, prefix2, node.se);
+        logPoints(level, prefix2, node.clusters);
+        logQuadNode(level, prefix2, node.northWest);
+        logQuadNode(level, prefix2, node.northEast);
+        logQuadNode(level, prefix2, node.southWest);
+        logQuadNode(level, prefix2, node.southEast);
     }
 
     public static QuadSector getSector(boolean isWest, boolean isNorth) {
@@ -77,60 +81,50 @@ public class QuadNode {
     private void mergeChild(QuadNode child) {
         if (child == null) return;
         child.mergeChildren();
-        if (child.points != null) {
-            for (Dendrogram dendrogram : child.points) {
-                this.points.add(dendrogram);
+        if (child.clusters != null) {
+            for (NewCluster cluster : child.clusters) {
+                this.clusters.add(cluster);
             }
         }
     }
 
     void mergeChildren() {
-        if (this.points == null) this.points = new ArrayList<>();
-        this.mergeChild(this.ne);
-        this.mergeChild(this.nw);
-        this.mergeChild(this.se);
-        this.mergeChild(this.sw);
-        this.ne = this.nw = this.se = this.sw = null;
+        if (this.clusters == null) this.clusters = new ArrayList<>();
+        this.mergeChild(this.northEast);
+        this.mergeChild(this.northWest);
+        this.mergeChild(this.southEast);
+        this.mergeChild(this.southWest);
+        this.northEast = this.northWest = this.southEast = this.southWest = null;
     }
 
     boolean isLeaf() {
         return (this.size <= this.quadTree.nodeSize);
     }
 
-    public QuadNode addPoint(Dendrogram dendrogram) {
+    public QuadNode addCluster(NewCluster cluster) {
         if (this.isLeaf()) {
-            ArrayList<Dendrogram> points = this.points;
+            ArrayList<NewCluster> points = this.clusters;
             if (points == null) {
                 points = new ArrayList<>();
-                this.points = points;
+                this.clusters = points;
             }
-            points.add(dendrogram);
+            points.add(cluster);
+            cluster.quadNode = this;
             return this;
         } else {
-            boolean isWest = dendrogram.x < this.xmid;
-            boolean isNorth = dendrogram.y < this.ymid;
+            boolean isWest = cluster.x < this.xmid;
+            boolean isNorth = cluster.y < this.ymid;
             QuadNode node = this.getOrCreateChild(isWest, isNorth);
-            return node.addPoint(dendrogram);
+            return node.addCluster(cluster);
         }
     }
 
-    // we don't expand this way just yet.
-    //  // distributeToChildren() {
-    //  //   let pointToDistribute = this.points;
-    //  //   if (pointToDistribute) {
-    //  //     this.points = null
-    //  //     for (let point of pointToDistribute) {
-    //  //       this.addPoint(point)
-    //  //     }
-    //  //   }
-    //  // }
-
     boolean isEmpty() {
-        return (this.points == null || this.points.size() == 0)
-                && (this.nw == null || this.nw.isEmpty())
-                && (this.ne == null || this.ne.isEmpty())
-                && (this.sw == null || this.sw.isEmpty())
-                && (this.se == null || this.se.isEmpty());
+        return (this.clusters == null || this.clusters.size() == 0)
+                && (this.northWest == null || this.northWest.isEmpty())
+                && (this.northEast == null || this.northEast.isEmpty())
+                && (this.southWest == null || this.southWest.isEmpty())
+                && (this.southEast == null || this.southEast.isEmpty());
     }
 
     void attachChildNode(QuadSector sector, QuadNode childNode) {
@@ -138,16 +132,16 @@ public class QuadNode {
         childNode.sector = sector;
         switch (sector) {
             case NorthEast:
-                this.ne = childNode;
+                this.northEast = childNode;
                 break;
             case NorthWest:
-                this.nw = childNode;
+                this.northWest = childNode;
                 break;
             case SouthEast:
-                this.se = childNode;
+                this.southEast = childNode;
                 break;
             case SouthWest:
-                this.sw = childNode;
+                this.southWest = childNode;
                 break;
         }
     }
@@ -167,21 +161,21 @@ public class QuadNode {
     QuadNode getOrCreateChild(boolean isWest, boolean isNorth) {
         if (isWest) {
             if (isNorth)
-                return this.nw != null ? this.nw : (this.nw = this.createChild(isWest, isNorth));
+                return this.northWest != null ? this.northWest : (this.northWest = this.createChild(isWest, isNorth));
             else
-                return this.sw != null ? this.sw : (this.sw = this.createChild(isWest, isNorth));
+                return this.southWest != null ? this.southWest : (this.southWest = this.createChild(isWest, isNorth));
         } else {
             if (isNorth)
-                return this.ne != null ? this.ne : (this.ne = this.createChild(isWest, isNorth));
+                return this.northEast != null ? this.northEast : (this.northEast = this.createChild(isWest, isNorth));
             else
-                return this.se != null ? this.se : (this.se = this.createChild(isWest, isNorth));
+                return this.southEast != null ? this.southEast : (this.southEast = this.createChild(isWest, isNorth));
         }
     }
 
-    void remove(Dendrogram dendrogram) {
-        int indexOfPoint = this.points.indexOf(dendrogram);
+    void remove(NewCluster cluster) {
+        int indexOfPoint = this.clusters.indexOf(cluster);
         if (indexOfPoint >= 0) {
-            this.points.remove(indexOfPoint);
+            this.clusters.remove(indexOfPoint);
         }
     }
 
@@ -190,6 +184,6 @@ public class QuadNode {
     public String toString() {
         return "#" + this.id
                 + " (" + this.xmin + ", " + this.ymin + "; size: " + this.size + ") "
-                + (this.points == null ? "" : (" " + this.points.size() + " point(s)"));
+                + (this.clusters == null ? "" : (" " + this.clusters.size() + " point(s)"));
     }
 }

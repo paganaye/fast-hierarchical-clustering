@@ -1,49 +1,49 @@
 package com.ganaye.pascal.classic_hierarchical_clustering;
 
-import com.ganaye.pascal.fast_hierarchical_clustering.Neighbour;
+import com.ganaye.pascal.utils.Cluster;
+import com.ganaye.pascal.utils.Point;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram.calcDistance;
-import static com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram.mergePoints;
+import static com.ganaye.pascal.utils.Cluster.calcDistance;
+
 
 public class ClassicAlgorithm {
-    public static Neighbour getNearestNeighbour(List<Dendrogram> points) {
+    public static NearestNeighbour getNearestNeighbour(List<Cluster> points) {
         double maxDistance = Double.MAX_VALUE;
-        Neighbour nearestNeighbour = null;
+        NearestNeighbour nearestNeighbour = null;
         for (int i = 0; i < points.size(); i++) {
-            Dendrogram pti = points.get(i);
-            if (pti.mergedTo != null) continue;
+            Cluster pti = points.get(i);
+            if (pti.parent != null) continue;
             for (int j = i + 1; j < points.size(); j++) {
-                Dendrogram ptj = points.get(j);
-                if (ptj.mergedTo != null) continue;
+                Cluster ptj = points.get(j);
+                if (ptj.parent != null) continue;
                 double distance = calcDistance(pti, ptj);
                 if (distance < maxDistance
                         || (distance == maxDistance && pti.id < nearestNeighbour.pt1.id)
                         || (distance == maxDistance && pti.id == nearestNeighbour.pt1.id && ptj.id < nearestNeighbour.pt2.id)) {
                     maxDistance = distance;
-                    nearestNeighbour = new Neighbour(pti, ptj, distance, null, null);
+                    nearestNeighbour = new NearestNeighbour(pti, ptj, distance);
                 }
             }
         }
         return nearestNeighbour;
     }
 
-    public static Dendrogram buildDendrogramClassic(List<Point> points) {
-        double maxDistance = Double.MAX_VALUE;
-        ArrayList<Dendrogram> nodes = new ArrayList<>();
-        for (Point point : points) nodes.add(new Dendrogram(point));
+    public static Cluster buildDendrogramClassic(List<Point> points) {
+        ArrayList<Cluster> clusters = new ArrayList<>();
+        for (Point point : points) clusters.add(new Cluster(point));
 
-        while (nodes.size() > 1) {
-            Neighbour nearestNeighbour = getNearestNeighbour(nodes);
-            if (nearestNeighbour == null) break;
-            ArrayList<Dendrogram> list = new ArrayList<Dendrogram>(2);
-            list.add(nearestNeighbour.pt1);
-            list.add(nearestNeighbour.pt2);
-            Dendrogram newNode = mergePoints(list, nodes);
+        while (clusters.size() > 1) {
+            NearestNeighbour nearestNeighbour = getNearestNeighbour(clusters);
+            Cluster newCluster = new Cluster();
+            newCluster.mergeTwoClusters(nearestNeighbour.pt1, nearestNeighbour.pt2);
+            clusters.remove(nearestNeighbour.pt1);
+            clusters.remove(nearestNeighbour.pt2);
+            clusters.add(newCluster);
         }
-        Dendrogram result = nodes.get(0);
+        Cluster result = clusters.get(0);
         return result;
     }
 }

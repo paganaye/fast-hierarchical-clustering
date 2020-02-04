@@ -1,6 +1,6 @@
 package com.ganaye.pascal.utils;
 
-import static com.ganaye.pascal.utils.Utils.twoDec;
+import static com.ganaye.pascal.utils.DoubleUtils.twoDec;
 
 //
 public class Log {
