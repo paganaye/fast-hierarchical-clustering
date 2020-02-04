@@ -49,18 +49,26 @@ public class Dendrogram {
 
         Dendrogram result = new Dendrogram(0, 0);
         result.children = points;
-        Log.writeLine(LogLevel.Verbose, "merging (distance:" + calcDistance(points.get(0), points.get(1)) + ")");
+        StringBuilder line = new StringBuilder();
+        if (Log.willLog(LogLevel.Verbose)) {
+            line.append("merging (distance:" + twoDec(calcDistance(points.get(0), points.get(1))) + ")");
+        }
         for (Dendrogram dendrogram : points) {
             xsum += dendrogram.x * dendrogram.weight;
             ysum += dendrogram.y * dendrogram.weight;
             wsum += dendrogram.weight;
             dendrogram.mergedTo = result;
-            Log.writeLine(LogLevel.Verbose, "   " + dendrogram.toString());
+            if (Log.willLog(LogLevel.Verbose)) {
+                line.append(" " + dendrogram.toString());
+            }
         }
         result.x = xsum / wsum;
         result.y = ysum / wsum;
         result.weight = wsum;
-        Log.writeLine(LogLevel.Verbose, " => " + result.toString());
+        if (Log.willLog(LogLevel.Verbose)) {
+            line.append(" => " + result.toString());
+            Log.writeLine(LogLevel.Verbose, line.toString());
+        }
         return result;
     }
 

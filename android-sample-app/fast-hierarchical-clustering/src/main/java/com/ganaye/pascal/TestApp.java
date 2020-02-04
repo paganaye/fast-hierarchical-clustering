@@ -16,7 +16,7 @@ public class TestApp {
     public static void main(String[] args) {
         Log.logLevel = LogLevel.Verbose;
         System.out.println("Hello world");
-        runSideBySide(50, 50);
+        runSideBySide(10_000, 1000);
 //        runClassicAlgorithm(1_000);
 //        runNewAlgorithm(1_000);
     }
@@ -44,23 +44,6 @@ public class TestApp {
     }
 
 
-    //
-//import { buildDendrogramSlow as buildDendrogramClassic } from "./ClassicAlgorithm";
-//import { logDendrogram } from "./Dendrogram";
-//import { buildDendrogramNew as buildDendrogramNew } from "./NewAlgorithm";
-//import { createPoints } from "./SampleData";
-//import { Log, LogLevel } from "./Log";
-//
-//Log.setLogLevel(LogLevel.Important);
-//Log.writeLine(LogLevel.Important, "Program Starting");
-//testNewAlgorithm();
-//
-//function testNewAlgorithm() {
-//    for (let nbPoints = 1_000; nbPoints < 50_000; nbPoints += 1000) {
-//        runNewAlgorithm(nbPoints);
-//    }
-//}
-//
     static void runSideBySide(int count, double areaSize) {
         runClassicAlgorithm(count, areaSize);
         runNewAlgorithm(count, areaSize);

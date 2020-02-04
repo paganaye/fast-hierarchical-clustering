@@ -10,7 +10,6 @@ import static com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram.merge
 
 public class ClassicAlgorithm {
     public static Neighbour getNearestNeighbour(List<Dendrogram> points) {
-        ArrayList<Neighbour> neighbours = new ArrayList<Neighbour>();
         double maxDistance = Double.MAX_VALUE;
         Neighbour nearestNeighbour = null;
         for (int i = 0; i < points.size(); i++) {

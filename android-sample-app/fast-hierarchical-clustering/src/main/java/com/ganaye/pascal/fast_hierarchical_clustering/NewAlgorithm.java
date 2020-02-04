@@ -2,7 +2,6 @@ package com.ganaye.pascal.fast_hierarchical_clustering;
 
 import com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram;
 import com.ganaye.pascal.classic_hierarchical_clustering.Point;
-import com.ganaye.pascal.utils.LogLevel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +45,7 @@ public class NewAlgorithm {
                 sortByDistanceDesc(neighbours);
             }
             nodeSize *= 2;
-             mergeQuadTree(quad, nodeSize);
+            mergeQuadTree(quad, nodeSize);
             //printQuadTree(quad);
         }
         return quad.root.points.get(0);
@@ -89,7 +88,6 @@ public class NewAlgorithm {
         getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getWestNeighbour(n1), maxDistance, neighbours);
     }
 
-    //
     static void getNewPointInterNodeNeigbours(Dendrogram pt1, QuadNode n1, QuadNode n2,
                                               double maxDistance, ArrayList<Neighbour> result) {
         if (n2 == null) return;
