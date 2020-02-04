@@ -4,14 +4,14 @@
 //import { Point } from "./Point";
 //
 //
-//function mergeNode(node: QuadNode | undefined, minSize: number, parentNode?: QuadNode): boolean {
+//function boolean mergeNode(node, double minSize, parentNode?: QuadNode) {
 //  if (!node) return false;
 //  let mustMerge = (node.size < minSize);
 //  if (!mustMerge) parentNode = node;
-//  if (mergeNode(node.ne, minSize, parentNode)) node.ne = undefined;
-//  if (mergeNode(node.nw, minSize, parentNode)) node.nw = undefined;
-//  if (mergeNode(node.se, minSize, parentNode)) node.se = undefined;
-//  if (mergeNode(node.sw, minSize, parentNode)) node.sw = undefined;
+//  if (mergeNode(node.ne, minSize, parentNode)) node.ne = null;
+//  if (mergeNode(node.nw, minSize, parentNode)) node.nw = null;
+//  if (mergeNode(node.se, minSize, parentNode)) node.se = null;
+//  if (mergeNode(node.sw, minSize, parentNode)) node.sw = null;
 //  if (mustMerge) {
 //    if (node.points && parentNode) {
 //      let parentPoints = parentNode.points || (parentNode.points = []);
@@ -23,7 +23,7 @@
 //  } else return false;
 //}
 //
-//export function mergeQuadTree(quadTree: QuadTree, nodeSize: number) {
+//public function mergeQuadTree(QuadTree quadTree, double nodeSize) {
 //  mergeNode(quadTree.root, nodeSize);
 //  quadTree.nodeSize = nodeSize;
 //}

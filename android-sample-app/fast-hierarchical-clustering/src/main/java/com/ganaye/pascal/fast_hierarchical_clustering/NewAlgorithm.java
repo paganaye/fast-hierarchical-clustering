@@ -1,3 +1,15 @@
+package com.ganaye.pascal.fast_hierarchical_clustering;
+
+import com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram;
+import com.ganaye.pascal.classic_hierarchical_clustering.Point;
+import com.ganaye.pascal.utils.LogLevel;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.ganaye.pascal.classic_hierarchical_clustering.Dendrogram.getMergedPoint;
+
 //import { QuadTree, logQuadTree } from "./QuadTree";
 //import { calcDistance, Point } from "./Point";
 //import { QuadNode } from "./QuadNode";
@@ -7,38 +19,71 @@
 //import { mergeQuadTree } from "./QuadMerger";
 //import { Log } from "./Log";
 //
-//const CLUSTER_MIN_SIZE = 1;
 //
-//function sortByDistance(neighbours: Array<Neighbour>): void {
-//    neighbours.sort((a, b) => {
-//        var res = a.distance - b.distance
-//        if (res == 0) res = a.pt1.id - b.pt1.id
-//        if (res == 0) res = a.pt2.id - a.pt2.id
-//        return res;
-//    })
-//}
+public class NewAlgorithm {
+    static final int CLUSTER_MIN_SIZE = 1;
+
+    //
 //
-//function createQuad(points: Point[]): QuadTree {
-//    let quad = new QuadTree({ nodeSize: CLUSTER_MIN_SIZE });
-//    points.forEach((point) => {
-//        //if (point.id % DISPLAY_DECIMATOR == 0) printPoint("adding point...", point)
-//        quad.add(point)
-//    });
-//    return quad;
-//}
-//
-//function getQuadTreeNeighbours(quad: QuadTree, maxDistance: number): Neighbour[] {
-//    let neighbours: Neighbour[] = []
-//    var quadEnumerator = new QuadEnumerator(quad);
-//    var current = quadEnumerator.getFirst()
-//    while (current) {
+    public static Dendrogram buildDendrogramNew(List<Point> points) {
+        QuadTree quad = createQuad(points);
+        double nodeSize = quad.getNodeSize();
+        //printQuadTree(quad);
+
+        while (quad.root.points == null || quad.root.size != 1) {
+            quad.log(LogLevel.Important);
+
+            //Log.writeLine(LogLevel.Verbose, "merging:", maxDistance);
+            ArrayList<Neighbour> neighbours = getQuadTreeNeighbours(quad, nodeSize);
+            sortByDistanceDesc(neighbours);
+            while (neighbours.size() > 0) {
+                Neighbour neighbour = neighbours.get(neighbours.size() - 1);
+                neighbours.remove(neighbours.size() - 1);
+                Dendrogram p1 = neighbour.pt1;
+                Dendrogram p2 = neighbour.pt2;
+                if (p1.mergedTo != null || p2.mergedTo != null) continue;
+                ArrayList<Dendrogram> list = new ArrayList<>(2);
+                list.add(p1);
+                list.add(p2);
+                Dendrogram mergedPoint = getMergedPoint(list);
+                neighbour.n1.remove(p1);
+                neighbour.n2.remove(p2);
+                QuadNode mergePointNode = quad.add(mergedPoint);
+                getNewPointNeighbours(mergedPoint, mergePointNode, nodeSize, neighbours);
+                sortByDistanceDesc(neighbours);
+            }
+            nodeSize *= 2;
+//        mergeQuadTree(quad, nodeSize);
+//        //printQuadTree(quad);
+        }
+        return quad.root.points.get(0);
+    }
+
+    static QuadTree createQuad(List<Point> points) {
+        QuadTree quad = new QuadTree(CLUSTER_MIN_SIZE);
+        for (Point point : points) {
+            quad.add(new Dendrogram(point));
+        }
+        return quad;
+    }
+
+    static ArrayList<Neighbour> getQuadTreeNeighbours(QuadTree quad, double maxDistance) {
+        ArrayList<Neighbour> neighbours = new ArrayList<>();
+        QuadEnumerator quadEnumerator = new QuadEnumerator(quad);
+        QuadNode current;
+        while (quadEnumerator.hasNext()) {
+            current = quadEnumerator.next();
 //        getNodeSouthEastNeighbours(current, maxDistance, neighbours);
-//        current = quadEnumerator.getNext();
-//    }
-//    return neighbours;
-//}
-//
-//function getNodeSouthEastNeighbours(current: QuadNode, maxDistance: number, neighbours: Neighbour[]) {
+        }
+        return neighbours;
+    }
+
+    static void sortByDistanceDesc(List<Neighbour> neighbours) {
+        Collections.sort(neighbours, NeighbourComparator.instanceDesc);
+    }
+
+    //
+//Neighbour[] function getNodeSouthEastNeighbours(current: QuadNode, double maxDistance, neighbours) {
 //    if (current.points) getNeighbours(current, maxDistance, neighbours);
 //    getInterNodeNeighbours(current, QuadTree.getEastNeighbour(current), maxDistance, neighbours);
 //    getInterNodeNeighbours(current, QuadTree.getSouthWestNeighbour(current), maxDistance, neighbours);
@@ -46,7 +91,7 @@
 //    getInterNodeNeighbours(current, QuadTree.getSouthEastNeighbour(current), maxDistance, neighbours);
 //}
 //
-//function getInterNodeNeighbours(n1: QuadNode | undefined, n2: QuadNode | undefined, maxDistance: number, result: Neighbour[]) {
+//Neighbour[] function getInterNodeNeighbours(n1, n2, double maxDistance, result) {
 //    if (!n1 || !n2) return; // we have or will see this the other way round.
 //    let pts1 = n1.points || [];
 //    let pts2 = n2.points || [];
@@ -63,7 +108,7 @@
 //}
 //
 //
-//function getNeighbours(n1: QuadNode | undefined, maxDistance: number, result: Neighbour[]) {
+//function getNeighbours(n1, double maxDistance, Neighbour[] result) {
 //    if (!n1) return; // we have or will see this the other way round.
 //    let points = n1.points || [];
 //    for (let i = 0; i < points.length; i++) {
@@ -80,19 +125,21 @@
 //    }
 //}
 //
-//function getNewPointNeighbours(pt1: Point, n1: QuadNode, maxDistance: number, neighbours: Neighbour[]) {
-//    if (n1.points) getNewPointIntraNodeNeighbours(pt1, n1, maxDistance, neighbours);
-//    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getEastNeighbour(n1), maxDistance, neighbours);
-//    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthWestNeighbour(n1), maxDistance, neighbours);
-//    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthNeighbour(n1), maxDistance, neighbours);
-//    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthEastNeighbour(n1), maxDistance, neighbours);
-//    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthWestNeighbour(n1), maxDistance, neighbours);
-//    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthNeighbour(n1), maxDistance, neighbours);
-//    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthEastNeighbour(n1), maxDistance, neighbours);
-//    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getWestNeighbour(n1), maxDistance, neighbours);
-//}
-//
-//function getNewPointInterNodeNeigbours(pt1: Point, n1: QuadNode, n2: QuadNode | undefined, maxDistance: number, result: Neighbour[]) {
+    static void getNewPointNeighbours(Dendrogram pt1, QuadNode n1, double maxDistance, ArrayList<
+            Neighbour> neighbours) {
+        if (n1.points != null) getNewPointIntraNodeNeighbours(pt1, n1, maxDistance, neighbours);
+        getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getEastNeighbour(n1), maxDistance, neighbours);
+        getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthWestNeighbour(n1), maxDistance, neighbours);
+        getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthNeighbour(n1), maxDistance, neighbours);
+        getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthEastNeighbour(n1), maxDistance, neighbours);
+        getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthWestNeighbour(n1), maxDistance, neighbours);
+        getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthNeighbour(n1), maxDistance, neighbours);
+        getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthEastNeighbour(n1), maxDistance, neighbours);
+        getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getWestNeighbour(n1), maxDistance, neighbours);
+    }
+
+    //
+    static void getNewPointInterNodeNeigbours(Dendrogram pt1, QuadNode n1, QuadNode n2, double maxDistance, ArrayList<Neighbour> result) {
 //    if (!n2) return;
 //    let points2 = n2.points || [];
 //    for (let j = 0; j < points2.length; j++) {
@@ -102,9 +149,10 @@
 //            result.push(newNeighbour(pt1, pt2, distance, n1, n2));
 //        }
 //    }
-//}
-//
-//function getNewPointIntraNodeNeighbours(pt1: Point, n1: QuadNode, maxDistance: number, result: Neighbour[]) {
+    }
+
+    //
+    static void getNewPointIntraNodeNeighbours(Dendrogram pt1, QuadNode n1, double maxDistance, ArrayList<Neighbour> result) {
 //    if (!n1) return; // we have or will see this the other way round.
 //    let points = n1.points || [];
 //    for (let j = 0; j < points.length; j++) {
@@ -115,40 +163,5 @@
 //            result.push(newNeighbour(pt1, pt2, distance, n1, n1))
 //        }
 //    }
-//}
-//
-//
-//export function buildDendrogramNew(points: Point[]): Point {
-//    let quad = createQuad(points);
-//    // ideally we'd like to merge only the nearestneighbours
-//    var nodeSize = quad.getNodeSize()
-//    //printQuadTree(quad);
-//
-//    while (quad.root?.points?.length != 1) {
-//        //printQuadTree(quad);
-//        //Log.writeLine(LogLevel.Debug, "merging:", maxDistance);
-//        let neighbours = getQuadTreeNeighbours(quad, nodeSize);
-//        sortByDistance(neighbours);
-//        while (neighbours.length > 0) {
-//            let neighbour = neighbours.shift() as Neighbour;
-//            let p1: Point = neighbour.pt1;
-//            let p2: Point = neighbour.pt2;
-//            if (p1.mergedTo || p2.mergedTo) continue;
-//            let mergedPoint = getMergedPoint([p1, p2]);
-//            neighbour.n1?.remove(p1);
-//            neighbour.n2?.remove(p2);
-//            let mergePointNode = quad.add(mergedPoint);
-//            getNewPointNeighbours(mergedPoint, mergePointNode, nodeSize, neighbours);
-//            sortByDistance(neighbours);
-//            //if (mergedPoint.id==1218){
-//            //printQuadTree(quad);
-//            //}
-//        }
-//        nodeSize *= 2
-//        mergeQuadTree(quad, nodeSize);
-//        //printQuadTree(quad);
-//    }
-//    return quad?.root?.points?.[0] as any;
-//}
-//
-//
+    }
+}

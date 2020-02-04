@@ -6,7 +6,7 @@
    it('The dog should bark', function() {
 //     let dog = new Dog();
 //     assert.equal("woof", dog.sound());
-    let x = new SampleData()
+//    let x = new SampleData()
    });
  });
 
