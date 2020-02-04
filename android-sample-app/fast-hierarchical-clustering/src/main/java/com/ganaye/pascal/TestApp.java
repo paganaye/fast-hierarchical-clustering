@@ -14,11 +14,11 @@ import static com.ganaye.pascal.utils.SampleData.createPoints;
 
 public class TestApp {
     public static void main(String[] args) {
-        Log.logLevel = LogLevel.Verbose;
+        Log.logLevel = LogLevel.Important;
         System.out.println("Hello world");
-        runSideBySide(1000, 1000);
-//        runClassicAlgorithm(1_000);
-//        runNewAlgorithm(1_000);
+        // runSideBySide(1000, 1000);
+        runNewAlgorithm(25_000, 1000);
+        // 1.05 seconds
     }
 
     static void runClassicAlgorithm(int nbPoints, double areaSize) {
