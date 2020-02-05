@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.ganaye.pascal.fast_hierarchical_clustering.NewCluster.calcDistance;
+import static com.ganaye.pascal.fast_hierarchical_clustering.QuadCluster.calcDistance;
 import static com.ganaye.pascal.fast_hierarchical_clustering.QuadMerger.pruneQuadTree;
 
 
@@ -14,7 +14,7 @@ public class NewAlgorithm {
     static final int CLUSTER_MIN_SIZE = 1;
 
 
-    public static NewCluster buildDendrogramNew(List<Point> points) {
+    public static QuadCluster buildDendrogramNew(List<Point> points) {
         QuadTree quad = createQuad(points);
         double nodeSize = quad.getNodeSize();
         //quad.log(LogLevel.Important);
@@ -22,20 +22,23 @@ public class NewAlgorithm {
 
         while (quad.root.clusters == null || quad.root.clusters.size() != 1) {
             ArrayList<QuadNeighbour> neighbours = getQuadTreeNeighbours(quad, nodeSize);
+            ArrayList<QuadNeighbour> newNeighbours = new ArrayList<>();
             sortByDistanceDesc(neighbours);
             while (neighbours.size() > 0) {
                 QuadNeighbour neighbour = neighbours.get(neighbours.size() - 1);
                 neighbours.remove(neighbours.size() - 1);
-                NewCluster p1 = neighbour.cluster1;
-                NewCluster p2 = neighbour.cluster2;
+                QuadCluster p1 = neighbour.cluster1;
+                QuadCluster p2 = neighbour.cluster2;
                 if (p1.parent != null || p2.parent != null) continue;
-                NewCluster mergedPoint = new NewCluster();
+                QuadCluster mergedPoint = new QuadCluster();
                 mergedPoint.mergeTwoClusters(p1, p2);
                 p1.quadNode.remove(p1);
                 p2.quadNode.remove(p2);
                 quad.add(mergedPoint);
-                getNewPointNeighbours(mergedPoint, nodeSize, neighbours);
-                sortByDistanceDesc(neighbours);
+                newNeighbours.clear();
+                getNewPointNeighbours(mergedPoint, nodeSize, newNeighbours);
+                //sortByDistanceDesc(neighbours);
+                insertIntoSortedList(newNeighbours, neighbours, NeighbourComparator.instanceDesc);
             }
             nodeSize *= 2;
             pruneQuadTree(quad, nodeSize);
@@ -44,11 +47,22 @@ public class NewAlgorithm {
         return quad.root.clusters.get(0);
     }
 
+    private static void insertIntoSortedList(ArrayList<QuadNeighbour> newNeighbours,
+                                             ArrayList<QuadNeighbour> neighbours,
+                                             NeighbourComparator neighbourComparator) {
+        for (QuadNeighbour n : newNeighbours) {
+            int pos = Collections.binarySearch(neighbours, n, neighbourComparator);
+            if (pos < 0) {
+                neighbours.add(-pos - 1, n);
+            }
+        }
+    }
+
 
     static QuadTree createQuad(List<Point> points) {
         QuadTree quad = new QuadTree(CLUSTER_MIN_SIZE);
         for (Point point : points) {
-            quad.add(new NewCluster(point));
+            quad.add(new QuadCluster(point));
         }
         return quad;
     }
@@ -69,7 +83,7 @@ public class NewAlgorithm {
     }
 
     //
-    static void getNewPointNeighbours(NewCluster cluster1, double maxDistance, ArrayList<
+    static void getNewPointNeighbours(QuadCluster cluster1, double maxDistance, ArrayList<
             QuadNeighbour> neighbours) {
         QuadNode n1 = cluster1.quadNode;
         if (n1.clusters != null) getNewPointIntraNodeNeighbours(cluster1, maxDistance, neighbours);
@@ -83,13 +97,13 @@ public class NewAlgorithm {
         getNewPointInterNodeNeigbours(cluster1, QuadTree.getWestNeighbour(n1), maxDistance, neighbours);
     }
 
-    static void getNewPointInterNodeNeigbours(NewCluster cluster1, QuadNode n2,
+    static void getNewPointInterNodeNeigbours(QuadCluster cluster1, QuadNode n2,
                                               double maxDistance, ArrayList<QuadNeighbour> result) {
         if (n2 == null) return;
-        ArrayList<NewCluster> clusters2 = n2.clusters;
+        ArrayList<QuadCluster> clusters2 = n2.clusters;
         if (clusters2 == null) return;
         for (int j = 0; j < clusters2.size(); j++) {
-            NewCluster cluster2 = clusters2.get(j);
+            QuadCluster cluster2 = clusters2.get(j);
             double distance = calcDistance(cluster1, cluster2);
             if (distance <= maxDistance) {
                 result.add(new QuadNeighbour(cluster1, cluster2, distance));
@@ -97,14 +111,14 @@ public class NewAlgorithm {
         }
     }
 
-    static void getNewPointIntraNodeNeighbours(NewCluster cluster1,
+    static void getNewPointIntraNodeNeighbours(QuadCluster cluster1,
                                                double maxDistance, ArrayList<QuadNeighbour> result) {
         QuadNode n1 = cluster1.quadNode;
         if (n1 == null) return; // we have or will see this the other way round.
-        ArrayList<NewCluster> clusters = n1.clusters;
+        ArrayList<QuadCluster> clusters = n1.clusters;
         if (clusters == null) return;
         for (int j = 0; j < clusters.size(); j++) {
-            NewCluster cluster2 = clusters.get(j);
+            QuadCluster cluster2 = clusters.get(j);
             if (cluster2.parent != null || cluster2 == cluster1) continue;
             double distance = calcDistance(cluster1, cluster2);
             if (distance <= maxDistance) {
@@ -125,13 +139,13 @@ public class NewAlgorithm {
 
     static void getNeighbours(QuadNode n1, double maxDistance, ArrayList<QuadNeighbour> result) {
         if (n1 == null) return; // we have or will see this the other way round.
-        ArrayList<NewCluster> clusters = n1.clusters;
+        ArrayList<QuadCluster> clusters = n1.clusters;
         if (clusters != null) {
             for (int i = 0; i < clusters.size(); i++) {
-                NewCluster clusterI = clusters.get(i);
+                QuadCluster clusterI = clusters.get(i);
                 if (clusterI.parent != null) continue;
                 for (int j = i + 1; j < clusters.size(); j++) {
-                    NewCluster clusterJ = clusters.get(j);
+                    QuadCluster clusterJ = clusters.get(j);
                     if (clusterJ.parent != null) continue;
                     double distance = calcDistance(clusterI, clusterJ);
                     if (distance <= maxDistance) {
@@ -146,14 +160,14 @@ public class NewAlgorithm {
     //
     static void getInterNodeNeighbours(QuadNode n1, QuadNode n2, double maxDistance, ArrayList<QuadNeighbour> result) {
         if (n1 == null || n2 == null) return; // we have or will see this the other way round.
-        ArrayList<NewCluster> pts1 = n1.clusters;
-        ArrayList<NewCluster> pts2 = n2.clusters;
+        ArrayList<QuadCluster> pts1 = n1.clusters;
+        ArrayList<QuadCluster> pts2 = n2.clusters;
         if (pts1 == null || pts2 == null) return;
 
         for (int i = 0; i < pts1.size(); i++) {
-            NewCluster clusterI = pts1.get(i);
+            QuadCluster clusterI = pts1.get(i);
             for (int j = 0; j < pts2.size(); j++) {
-                NewCluster clusterJ = pts2.get(j);
+                QuadCluster clusterJ = pts2.get(j);
                 double distance = calcDistance(clusterI, clusterJ);
                 if (distance <= maxDistance) {
                     result.add(new QuadNeighbour(clusterI, clusterJ, distance));

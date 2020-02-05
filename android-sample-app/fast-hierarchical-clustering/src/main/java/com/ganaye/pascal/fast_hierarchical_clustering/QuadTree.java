@@ -183,7 +183,7 @@ public class QuadTree {
     }
 
     //
-    QuadNode add(NewCluster cluster) {
+    QuadNode add(QuadCluster cluster) {
         // if (point.id==50) debugger;
         QuadNode node = this.root;
         while (node != null) {

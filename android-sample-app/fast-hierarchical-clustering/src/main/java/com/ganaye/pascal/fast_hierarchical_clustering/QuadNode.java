@@ -22,7 +22,7 @@ public class QuadNode {
     QuadNode northEast;
     QuadNode southWest;
     QuadNode southEast;
-    ArrayList<NewCluster> clusters;
+    ArrayList<QuadCluster> clusters;
     QuadSector sector;
 
     QuadNode parentNode;
@@ -52,9 +52,9 @@ public class QuadNode {
 //    if (this.parentNode == null) return 0
 //    else return this.parentNode.getLevel() + 1;
 //  }
-    public static void logClusterList(LogLevel level, String prefix, List<NewCluster> clusters) {
+    public static void logClusterList(LogLevel level, String prefix, List<QuadCluster> clusters) {
         if (clusters != null && Log.willLog(level)) {
-            for (NewCluster cluster : clusters) {
+            for (QuadCluster cluster : clusters) {
                 Log.writeLine(level, prefix + cluster.toString());
             }
         }
@@ -82,7 +82,7 @@ public class QuadNode {
         if (child == null) return;
         child.mergeChildren();
         if (child.clusters != null) {
-            for (NewCluster cluster : child.clusters) {
+            for (QuadCluster cluster : child.clusters) {
                 this.clusters.add(cluster);
             }
         }
@@ -101,9 +101,9 @@ public class QuadNode {
         return (this.size <= this.quadTree.nodeSize);
     }
 
-    public QuadNode addCluster(NewCluster cluster) {
+    public QuadNode addCluster(QuadCluster cluster) {
         if (this.isLeaf()) {
-            ArrayList<NewCluster> clusters = this.clusters;
+            ArrayList<QuadCluster> clusters = this.clusters;
             if (clusters == null) {
                 clusters = new ArrayList<>();
                 this.clusters = clusters;
@@ -172,7 +172,7 @@ public class QuadNode {
         }
     }
 
-    void remove(NewCluster cluster) {
+    void remove(QuadCluster cluster) {
         int indexOfPoint = this.clusters.indexOf(cluster);
         if (indexOfPoint >= 0) {
             this.clusters.remove(indexOfPoint);
