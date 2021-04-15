@@ -53,8 +53,15 @@ export function getPoints(dendrogram: Dendrogram, pts: Point[] = []): Point[] {
     return pts;
 }
 
+export var calculatedDistances: number = 0;
+
+export function clearCalculatedDistances() {
+    calculatedDistances = 0;
+}
+
 export function getDistance(pt1: Dendrogram, pt2: Dendrogram) {
     let dx = pt1.x - pt2.x;
     let dy = pt1.y - pt2.y;
+    calculatedDistances += 1;
     return Math.sqrt(dx * dx + dy * dy);
 }

@@ -1,4 +1,4 @@
-import { Cluster, Dendrogram } from './Cluster';
+import { Cluster, Dendrogram, getDistance } from './Cluster';
 import { IAlgorithm, Pair } from './IAlgorithm';
 import { Point } from './Point';
 
@@ -20,9 +20,7 @@ export class ClassicAlgorithm implements IAlgorithm {
             let point1 = this.dendrograms[i1];
             for (let i2 = i1 + 1; i2 < this.dendrograms.length; i2++) {
                 let point2 = this.dendrograms[i2];
-                let dx = point1.x - point2.x;
-                let dy = point1.y - point2.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
+                let distance = getDistance(point1, point2);
                 if (distance < distanceMin) {
                     distanceMin = distance;
                     best = [i1, i2];

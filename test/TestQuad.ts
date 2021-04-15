@@ -14,9 +14,9 @@ describe('A Quad', function () {
     let quad = new QuadTree(3);
     quad.insert(new Point(0, 0));
 
-    expect(quad.root.fullSize()).to.eq(1); // 2
-    expect(quad.root.topLeft?.fullSize()).to.eq(0.5); // 1
-    expect(quad.root.topLeft?.topLeft?.fullSize()).to.eq(0.25); // 0
+    expect(quad.root.nodeSize()).to.eq(1); // 2
+    expect(quad.root.topLeft?.nodeSize()).to.eq(0.5); // 1
+    expect(quad.root.topLeft?.topLeft?.nodeSize()).to.eq(0.25); // 0
     expect(quad.root.topLeft?.topLeft?.points![0].x).to.eq(0.0);
   });
 
@@ -24,10 +24,10 @@ describe('A Quad', function () {
     let quad = new QuadTree(4);
     quad.insert(new Point(0, 0));
 
-    expect(quad.root.fullSize()).to.eq(1);
-    expect(quad.root.topLeft?.fullSize()).to.eq(0.5);
-    expect(quad.root.topLeft?.topLeft?.fullSize()).to.eq(0.25);
-    expect(quad.root.topLeft?.topLeft?.topLeft?.fullSize()).to.eq(0.125);
+    expect(quad.root.nodeSize()).to.eq(1);
+    expect(quad.root.topLeft?.nodeSize()).to.eq(0.5);
+    expect(quad.root.topLeft?.topLeft?.nodeSize()).to.eq(0.25);
+    expect(quad.root.topLeft?.topLeft?.topLeft?.nodeSize()).to.eq(0.125);
     expect(quad.root.topLeft?.topLeft?.topLeft?.points![0].x).to.eq(0.0);
   });
 
@@ -35,28 +35,28 @@ describe('A Quad', function () {
     let quad = new QuadTree(4);
     quad.insert(new Point(0, 0));
 
-    expect(quad.root.fullSize()).to.eq(1);
-    expect(quad.root.topLeft?.fullSize()).to.eq(0.5);
-    expect(quad.root.topLeft?.topLeft?.fullSize()).to.eq(0.25);
-    expect(quad.root.topLeft?.topLeft?.topLeft?.fullSize()).to.eq(0.125);
+    expect(quad.root.nodeSize()).to.eq(1);
+    expect(quad.root.topLeft?.nodeSize()).to.eq(0.5);
+    expect(quad.root.topLeft?.topLeft?.nodeSize()).to.eq(0.25);
+    expect(quad.root.topLeft?.topLeft?.topLeft?.nodeSize()).to.eq(0.125);
     expect(quad.root.topLeft?.topLeft?.topLeft?.points![0].x).to.eq(0.0);
 
     quad.trim()
 
-    expect(quad.root.fullSize()).to.eq(1);
-    expect(quad.root.topLeft?.fullSize()).to.eq(0.5);
-    expect(quad.root.topLeft?.topLeft?.fullSize()).to.eq(0.25);
+    expect(quad.root.nodeSize()).to.eq(1);
+    expect(quad.root.topLeft?.nodeSize()).to.eq(0.5);
+    expect(quad.root.topLeft?.topLeft?.nodeSize()).to.eq(0.25);
     expect(quad.root.topLeft?.topLeft?.points![0].x).to.eq(0.0);
 
     quad.trim()
 
-    expect(quad.root.fullSize()).to.eq(1);
-    expect(quad.root.topLeft?.fullSize()).to.eq(0.5);
+    expect(quad.root.nodeSize()).to.eq(1);
+    expect(quad.root.topLeft?.nodeSize()).to.eq(0.5);
     expect(quad.root.topLeft?.points![0].x).to.eq(0.0);
 
     quad.trim();
 
-    expect(quad.root.fullSize()).to.eq(1);
+    expect(quad.root.nodeSize()).to.eq(1);
     expect(quad.root.points![0].x).to.eq(0.0);
 
   });
@@ -72,6 +72,10 @@ describe('A Quad', function () {
     // A B
     // C D
     let pairs = quad.getNeighbours();
+    expect(pairs.length).to.eq(0);
+
+    quad.trim();
+    pairs = quad.getNeighbours();
     expect(pairs.length).to.eq(6);
     expect(pairs[0].toString()).to.eq("#A #B 0.5");
     expect(pairs[1].toString()).to.eq("#A #C 0.5");
@@ -98,7 +102,10 @@ describe('A Quad', function () {
     quad.insert(new Point(0.875, 0.875, "P"));
 
     let pairs = quad.getNeighbours();
-    expect(pairs[0].point1.tag)
+    expect(pairs.length).to.eq(0);
+
+    quad.trim();
+    pairs = quad.getNeighbours();
     expect(pairs.length).to.eq(7);
     expect(pairs[0].toString()).to.eq("#A #B 0.25");
     expect(pairs[1].toString()).to.eq("#A #F 0.3535533905932738");

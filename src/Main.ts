@@ -10,13 +10,13 @@ import { AlgorithmRunner } from './AlgorithmRunner';
 export class App {
     points: Point[] = [];
     palette: string[] = [];
-    clusterCount = 10;
+    clusterCount = 35;
     dotSize = 3;
-    nbPointPerCluster = 1;
+    nbPointPerCluster = 25;
     clusterSize = 0.05;
     algorithm!: IAlgorithm;
-    canvasWidth: number = 300;
-    canvasHeight: number = 300;
+    canvasWidth: number = 600;
+    canvasHeight: number = 600;
     dendrogramCount: number = 6;
     classicAlgorithm!: AlgorithmRunner;
     newAlgorithm!: AlgorithmRunner;

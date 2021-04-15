@@ -4,7 +4,11 @@ import { Point } from './Point';
 import { QuadPair, QuadNode, QuadTree } from './QuadTree';
 
 export class NewAlgorithm implements IAlgorithm {
-    quadTree: QuadTree = new QuadTree();
+    quadTree: QuadTree;
+
+    constructor(private initialLevels: number = 32) {
+        this.quadTree = new QuadTree(initialLevels);
+    }
 
     init(points: Point[]): void {
         for (let point of points) {

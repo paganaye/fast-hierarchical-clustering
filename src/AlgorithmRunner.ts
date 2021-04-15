@@ -1,4 +1,4 @@
-import { Cluster, Dendrogram, getPoints } from './Cluster';
+import { calculatedDistances, clearCalculatedDistances, Cluster, Dendrogram, getPoints } from './Cluster';
 import { getHull } from './GrahamScan';
 import { IAlgorithm, Pair } from './IAlgorithm';
 import { App } from './Main';
@@ -26,10 +26,12 @@ export class AlgorithmRunner {
     async run() {
         return new Promise<void>((resolve, reject) => {
             let startTime = new Date().getTime();
+            clearCalculatedDistances();
+
             this.findNearestPoints(() => {
                 var timeDiff = new Date().getTime() - startTime; //in ms
                 // strip the ms
-                this.preElt.innerText = timeDiff / 1000 + "ms"
+                this.preElt.innerText = timeDiff / 1000 + "sec ("+Math.round(calculatedDistances/1_000_00) / 10 +"M distances compared)"
 
                 resolve();
             });
@@ -53,13 +55,15 @@ export class AlgorithmRunner {
 
     displayDendrograms(dendrograms: Dendrogram[]) {
         this.ctx.clearRect(0, 0, this.app.canvasWidth, this.app.canvasHeight);
-        for (let i = 0; i < dendrograms.length; i++) {
-            let color = this.app.palette[dendrograms.length <= this.app.palette.length ? i : this.app.palette.length - 1];
+        let sortedDendrograms = dendrograms.slice();
+        sortedDendrograms.sort((a, b) => a.getCount() - b.getCount())
+        for (let i = 0; i < sortedDendrograms.length; i++) {
+            let color = this.app.palette[sortedDendrograms.length <= this.app.palette.length ? i : this.app.palette.length - 1];
 
-            let points = getPoints(dendrograms[i])
+            let points = getPoints(sortedDendrograms[i])
             let hull = getHull(points);
             this.displayHull(hull, color);
-            this.displayDendrogram(undefined, dendrograms[i], color);
+            this.displayDendrogram(undefined, sortedDendrograms[i], color);
         }
     }
 

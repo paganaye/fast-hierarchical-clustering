@@ -39,7 +39,7 @@ export class QuadTree {
 
     getNeighbours(): QuadPair[] {
         let result: QuadPair[] = [];
-        this.root.getNeighbours(undefined, undefined, undefined, undefined, undefined, result);
+        this.root.getNeighbours({}, result);
         return result;
     }
 
@@ -49,6 +49,9 @@ export class QuadTree {
         return result;
     }
 
+    print() {
+        this.root.print('');
+    }
 }
 
 enum Quarter {
@@ -60,6 +63,7 @@ enum Quarter {
 
 export class QuadNode {
 
+    nodeSize: number;
     quarterSize: number;
     topLeft: QuadNode | undefined;
     topRight: QuadNode | undefined;
@@ -68,57 +72,54 @@ export class QuadNode {
     points: Dendrogram[] | undefined;
 
     constructor(public level: number, readonly x: number, readonly y: number, halfSize: number) {
+        this.nodeSize = halfSize * 2;
         this.quarterSize = halfSize / 2;
     }
 
-    getNeighbours(leftSibling: QuadNode | undefined,
-        rightSibling: QuadNode | undefined,
-        bottomLeftSibling: QuadNode | undefined,
-        bottomSibling: QuadNode | undefined,
-        bottomRightSibling: QuadNode | undefined,
+    getNeighbours(siblings: Siblings,
         result: QuadPair[]) {
 
 
         if (this.level == 0) {
             this.addSelfPairs(result);
-            this.addPairsWith(rightSibling, result) // 🡺
-            this.addPairsWith(bottomLeftSibling, result) // 🡿
-            this.addPairsWith(bottomSibling, result)  // 🡻
-            this.addPairsWith(bottomRightSibling, result)  // 🡾 
+            this.addPairsWith(siblings.right, result) // 🡺
+            this.addPairsWith(siblings.bottomLeft, result) // 🡿
+            this.addPairsWith(siblings.bottom, result)  // 🡻
+            this.addPairsWith(siblings.bottomRight, result)  // 🡾 
             // 🡸🡽🡹🡼 done the other way round                    
         } else {
 
-            this.topLeft?.getNeighbours(
-                leftSibling = leftSibling?.topRight,
-                rightSibling = this.topRight,
-                bottomLeftSibling = leftSibling?.bottomRight,
-                bottomSibling = this.bottomLeft,
-                bottomRightSibling = this.bottomRight,
-                result); // ⌜
+            this.topLeft?.getNeighbours({
+                left: siblings.left?.topRight,
+                right: this.topRight,
+                bottomLeft: siblings.left?.bottomRight,
+                bottom: this.bottomLeft,
+                bottomRight: this.bottomRight
+            }, result); // ⌜
 
-            this.topRight?.getNeighbours(
-                leftSibling = this.topLeft,
-                rightSibling = rightSibling?.topLeft,
-                bottomLeftSibling = this.bottomLeft,
-                bottomSibling = this.bottomRight,
-                bottomRightSibling = rightSibling?.bottomLeft,
-                result);// ⌝
+            this.topRight?.getNeighbours({
+                left: this.topLeft,
+                right: siblings.right?.topLeft,
+                bottomLeft: this.bottomLeft,
+                bottom: this.bottomRight,
+                bottomRight: siblings.right?.bottomLeft
+            }, result);// ⌝
 
-            this.bottomLeft?.getNeighbours(
-                leftSibling = leftSibling?.bottomRight,
-                rightSibling = this.bottomRight,
-                bottomLeftSibling = bottomLeftSibling?.topRight,
-                bottomSibling = bottomSibling?.topLeft,
-                bottomRightSibling = bottomSibling?.topRight,
-                result);// ⌞
+            this.bottomLeft?.getNeighbours({
+                left: siblings.left?.bottomRight,
+                right: this.bottomRight,
+                bottomLeft: siblings.bottomLeft?.topRight,
+                bottom: siblings.bottom?.topLeft,
+                bottomRight: siblings.bottom?.topRight
+            }, result);// ⌞
 
-            this.bottomRight?.getNeighbours(
-                leftSibling = this.bottomLeft,
-                rightSibling = rightSibling?.bottomLeft,
-                bottomLeftSibling = bottomSibling?.topLeft,
-                bottomSibling = bottomSibling?.topRight,
-                bottomRightSibling = bottomRightSibling?.topLeft,
-                result);// ⌟
+            this.bottomRight?.getNeighbours({
+                left: this.bottomLeft,
+                right: siblings.right?.bottomLeft,
+                bottomLeft: siblings.bottom?.topLeft,
+                bottom: siblings.bottom?.topRight,
+                bottomRight: siblings.bottomRight?.topLeft
+            }, result);// ⌟
         }
     }
 
@@ -129,7 +130,7 @@ export class QuadNode {
             for (let j = i + 1; j < this.points.length; j++) {
                 let point2 = this.points[j];
                 let distance = getDistance(point1, point2);
-                result.push(new QuadPair(point1, point2, distance))
+                if (distance < this.nodeSize) result.push(new QuadPair(point1, point2, distance))
             }
         }
     }
@@ -142,14 +143,10 @@ export class QuadNode {
             for (let point1 of this.points) {
                 for (let point2 of points2) {
                     let distance = getDistance(point1, point2);
-                    result.push(new QuadPair(point1, point2, distance))
+                    if (distance < this.nodeSize) result.push(new QuadPair(point1, point2, distance))
                 }
             }
         }
-    }
-
-    fullSize() {
-        return this.quarterSize * 4;
     }
 
     insert(point: Dendrogram) {
@@ -237,8 +234,39 @@ export class QuadNode {
             result.push(...this.points);
         }
     }
+
+    print(prefix: string) {
+        if (this.topLeft) {
+            console.log(prefix + "topleft")
+            this.topLeft.print(prefix + "  ");
+        }
+        if (this.topRight) {
+            console.log(prefix + "topright")
+            this.topRight.print(prefix + "  ");
+        }
+        if (this.bottomLeft) {
+            console.log(prefix + "bottomleft")
+            this.bottomLeft.print(prefix + "  ");
+        }
+        if (this.bottomRight) {
+            console.log(prefix + "bottomright")
+            this.bottomRight.print(prefix + "  ");
+        }
+        if (this.points) {
+            for (let pt of this.points) {
+                console.log(prefix + " - " + pt.toString())
+            }
+        }
+    }
 }
 
+interface Siblings {
+    left?: QuadNode,
+    right?: QuadNode,
+    bottomLeft?: QuadNode,
+    bottom?: QuadNode,
+    bottomRight?: QuadNode
+}
 
 export class QuadPair {
     constructor(readonly point1: Dendrogram, readonly point2: Dendrogram, readonly distance: number) { }
