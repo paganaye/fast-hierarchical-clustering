@@ -1,2 +1,0 @@
-include ':fast-hierarchical-clustering'
-rootProject.name='FastHierarchicalClustering'

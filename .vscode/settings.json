@@ -4,6 +4,5 @@
     "mochaExplorer.files": "test/**/*.ts",
     "mocha.requires": [
         "ts-node/register"
-    ],
-    "codewindProfiling.showProfiling": true
+    ]
 }

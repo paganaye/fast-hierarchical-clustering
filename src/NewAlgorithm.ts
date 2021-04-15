@@ -1,195 +1,49 @@
-import { QuadTree, logQuadTree } from "./QuadTree";
-import { calcDistance, Point, logPoints } from "./Point";
-import { QuadNode } from "./QuadNode";
-import { Neighbour, newNeighbour, logNeighbours, neighbourToString } from "./Neighbour";
-import { getMergedPoint } from "./Dendrogram";
-import { QuadEnumerator } from "./QuadEnumerator";
-import { mergeQuadTree } from "./QuadMerger";
-import { Log, LogLevel } from "./Log";
+import { Cluster, Dendrogram } from './Cluster';
+import { IAlgorithm } from './IAlgorithm';
+import { Point } from './Point';
+import { Pair, QuadNode, QuadTree } from './QuadTree';
 
-const CLUSTER_MIN_SIZE = 1;
+export class NewAlgorithm implements IAlgorithm {
+    initialNegligibleDistance = 1e-6;
+    quadTree: QuadTree = new QuadTree();
+    clusterCountTarget!: number;
+    paint!: (dendrograms: Dendrogram[]) => void;
+    finished!: (dendrograms: Dendrogram[]) => void;
+    neighbours: Pair[] = [];
 
-function neighbourComparer(a: Neighbour, b: Neighbour) {
-    var res = (a.distance - b.distance)
-        || (a.pt1.id - b.pt1.id)
-        || (a.pt2.id - a.pt2.id);
-    return res;
-}
-
-function createQuad(points: Point[]): QuadTree {
-    let quad = new QuadTree({ nodeSize: CLUSTER_MIN_SIZE });
-    points.forEach((point) => {
-        //if (point.id % DISPLAY_DECIMATOR == 0) printPoint("adding point...", point)
-        quad.add(point)
-    });
-    return quad;
-}
-
-function getQuadTreeNeighbours(quad: QuadTree, maxDistance: number): Neighbour[] {
-    let neighbours: Neighbour[] = []
-    var quadEnumerator = new QuadEnumerator(quad);
-    var current = quadEnumerator.getFirst()
-    while (current) {
-        getNodeSouthEastNeighbours(current, maxDistance, neighbours);
-        current = quadEnumerator.getNext();
-    }
-    return neighbours;
-}
-
-function getNodeSouthEastNeighbours(current: QuadNode, maxDistance: number, neighbours: Neighbour[]) {
-    if (current.points) getNeighbours(current, maxDistance, neighbours);
-    getInterNodeNeighbours(current, QuadTree.getEastNeighbour(current), maxDistance, neighbours);
-    getInterNodeNeighbours(current, QuadTree.getSouthWestNeighbour(current), maxDistance, neighbours);
-    getInterNodeNeighbours(current, QuadTree.getSouthNeighbour(current), maxDistance, neighbours);
-    getInterNodeNeighbours(current, QuadTree.getSouthEastNeighbour(current), maxDistance, neighbours);
-}
-
-function getInterNodeNeighbours(n1: QuadNode | undefined, n2: QuadNode | undefined, maxDistance: number, result: Neighbour[]) {
-    if (!n1 || !n2) return; // we have or will see this the other way round.
-    let pts1 = n1.points || [];
-    let pts2 = n2.points || [];
-    for (let i = 0; i < pts1.length; i++) {
-        let pti = pts1[i];
-        for (let j = 0; j < pts2.length; j++) {
-            let ptj = pts2[j];
-            let distance = calcDistance(pti, ptj);
-            if (distance <= maxDistance) {
-                result.push(newNeighbour(pti, ptj, distance, n1, n2));
-            }
+    run(points: Point[], clusterCount: number, paint: (dendrograms: Dendrogram[]) => void, finished: (dendrograms: Dendrogram[]) => void): void {
+        // throw new Error('Method not implemented.');
+        this.clusterCountTarget = clusterCount;
+        this.paint = paint;
+        this.finished = finished;
+        for (let point of points) {
+            this.quadTree.insert(point);
         }
+        this.getNextNeighbours();
+        setTimeout(() => this.groupTwo(), 0);
     }
-}
 
-
-function getNeighbours(n1: QuadNode | undefined, maxDistance: number, result: Neighbour[]) {
-    if (!n1) return; // we have or will see this the other way round.
-    let points = n1.points || [];
-    for (let i = 0; i < points.length; i++) {
-        let pti = points[i];
-        if (pti.mergedTo) continue;
-        for (let j = i + 1; j < points.length; j++) {
-            let ptj = points[j];
-            if (ptj.mergedTo) continue;
-            let distance = calcDistance(pti, ptj);
-            if (distance <= maxDistance) {
-                result.push(newNeighbour(pti, ptj, distance, n1, n1))
-            }
-        }
-    }
-}
-
-function getNewPointNeighbours(pt1: Point, n1: QuadNode, maxDistance: number, neighbours: Neighbour[]) {
-    if (n1.points) getNewPointIntraNodeNeighbours(pt1, n1, maxDistance, neighbours);
-    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getEastNeighbour(n1), maxDistance, neighbours);
-    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthWestNeighbour(n1), maxDistance, neighbours);
-    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthNeighbour(n1), maxDistance, neighbours);
-    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getSouthEastNeighbour(n1), maxDistance, neighbours);
-    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthWestNeighbour(n1), maxDistance, neighbours);
-    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthNeighbour(n1), maxDistance, neighbours);
-    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getNorthEastNeighbour(n1), maxDistance, neighbours);
-    getNewPointInterNodeNeigbours(pt1, n1, QuadTree.getWestNeighbour(n1), maxDistance, neighbours);
-}
-
-function getNewPointInterNodeNeigbours(pt1: Point, n1: QuadNode, n2: QuadNode | undefined, maxDistance: number, result: Neighbour[]) {
-    if (!n2) return;
-    let points2 = n2.points || [];
-    for (let j = 0; j < points2.length; j++) {
-        let pt2 = points2[j];
-        let distance = calcDistance(pt1, pt2);
-        if (distance <= maxDistance) {
-            result.push(newNeighbour(pt1, pt2, distance, n1, n2));
-        }
-    }
-}
-
-function getNewPointIntraNodeNeighbours(pt1: Point, n1: QuadNode, maxDistance: number, result: Neighbour[]) {
-    if (!n1) return; // we have or will see this the other way round.
-    let points = n1.points || [];
-    for (let j = 0; j < points.length; j++) {
-        let pt2 = points[j];
-        if (pt2.mergedTo || pt2 == pt1) continue;
-        let distance = calcDistance(pt1, pt2);
-        if (distance <= maxDistance) {
-            result.push(newNeighbour(pt1, pt2, distance, n1, n1))
-        }
-    }
-}
-
-function getInsertionPoint<T>(item: T, array: T[], comparer: (a: T, b: T) => number): number {
-    let min = 0;
-    let max = array.length - 1;
-    while (min <= max) {
-        let mid = Math.trunc((min + max) / 2)
-        let midItem = array[mid];
-        let result = comparer(item, midItem);
-        if (result >= 0) min = mid + 1;
-        else if (result < 0) max = mid - 1;
-        else return mid; // identical we'll insert before
-    }
-    return min;
-}
-
-var mergeCpt = 0;
-
-function mergeIntoSortedArray(src: Neighbour[], dst: Neighbour[]): void {
-    var original = ([] as Neighbour[]).concat(src);
-    var expectedArray = ([] as Neighbour[]).concat(src).concat(dst);
-    expectedArray.sort(neighbourComparer);
-
-    ++mergeCpt;
-    for (let neighbour of src) {
-        // Log.writeLine(LogLevel.Important, "inserting " + neighbourToString(neighbour));
-        let insertionPos = getInsertionPoint(neighbour, dst, neighbourComparer);
-        // Log.writeLine(LogLevel.Important, "insertion pos: " + insertionPos);
-        dst.splice(insertionPos, 0, neighbour);
-        // logNeighbours(LogLevel.Important, "dst: ", dst)
-    }
-    for (let i = 0; i < expectedArray.length; i++) {
-        if (expectedArray[i] != dst[i]) {
-            Log.writeLine(LogLevel.Important, "merging #" + (++mergeCpt))
-            logNeighbours(LogLevel.Important, "original: ", original)
-            logNeighbours(LogLevel.Important, "inserted: ", src)
-            logNeighbours(LogLevel.Important, "expected: ", expectedArray)
-            logNeighbours(LogLevel.Important, "actual: ", dst)
-            debugger;
+    groupTwo() {
+        if (this.neighbours.length) {
+            let last = this.neighbours.pop();
+            let newCluster = new Cluster([last!.point1, last!.point2]);
+            this.quadTree.delete(last!.point1);
+            this.quadTree.delete(last!.point1);
+            this.quadTree.insert(newCluster);
+            this.paint(this.quadTree.getDendrograms());
+        } else {
+            if (this.getNextNeighbours()) setTimeout(() => this.groupTwo(), 0);
+            else this.finished(this.quadTree.getDendrograms());
         }
     }
 
-}
-
-export function buildDendrogramNew(points: Point[]): Point {
-    let quad = createQuad(points);
-    // ideally we'd like to merge only the nearestneighbours
-    var nodeSize = quad.getNodeSize()
-    //printQuadTree(quad);
-
-    while (quad.root?.points?.length != 1) {
-        //printQuadTree(quad);
-        //Log.writeLine(LogLevel.Debug, "merging:", maxDistance);
-        let neighbours = getQuadTreeNeighbours(quad, nodeSize);
-        neighbours.sort(neighbourComparer)
-
-        while (neighbours.length > 0) {
-            let neighbour = neighbours.shift() as Neighbour;
-            let p1: Point = neighbour.pt1;
-            let p2: Point = neighbour.pt2;
-            if (p1.mergedTo || p2.mergedTo) continue;
-            let mergedPoint = getMergedPoint([p1, p2]);
-            neighbour.n1?.remove(p1);
-            neighbour.n2?.remove(p2);
-            let mergePointNode = quad.add(mergedPoint);
-            let newNeighbours: Neighbour[] = [];
-            getNewPointNeighbours(mergedPoint, mergePointNode, nodeSize, newNeighbours);
-            mergeIntoSortedArray(newNeighbours, neighbours)
-            //if (mergedPoint.id==1218){
-            //printQuadTree(quad);
-            //}            
+    getNextNeighbours() {
+        let result = this.quadTree.trim();
+        if (result) {
+            this.neighbours = this.quadTree.getNeighbours();
+            this.neighbours.sort((a, b) => a.distance - b.distance);
+            return true;
         }
-        nodeSize *= 2
-        mergeQuadTree(quad, nodeSize);
-        //printQuadTree(quad);
+        else return false;
     }
-    return quad?.root?.points?.[0] as any;
 }
-
-
