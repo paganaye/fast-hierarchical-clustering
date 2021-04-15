@@ -10,6 +10,7 @@ export interface IPoint {
 export class QuadTree {
     private currentLevels: number;
     root: QuadNode;
+    pointCount = 0;
 
     constructor(private initialLevels: number = 32) {
         this.currentLevels = initialLevels
@@ -17,11 +18,16 @@ export class QuadTree {
     }
 
     insert(point: Dendrogram) {
+        this.pointCount += 1;
         this.root.insert(point);
     }
 
-    delete(point: Dendrogram) {
-        this.root.delete(point);
+    delete(point: Dendrogram): boolean {
+        if (!point.deleted && this.root.delete(point)) {
+            point.deleted = true;
+            this.pointCount -= 1;
+            return true;
+        } else return false;
     }
 
     trim(): boolean {
@@ -157,16 +163,20 @@ export class QuadNode {
         }
     }
 
-    delete(point: Dendrogram) {
+    delete(point: Dendrogram): boolean {
         if (this.level > 0) {
             let quarter = this.getQuarter(point);
             let node = this.getNode(quarter);
-            if (node) node.delete(point);
+            if (node) return node.delete(point);
+            else return false;
         } else {
             if (this.points) {
                 let index = this.points.indexOf(point);
-                if (index >= 0) this.points.splice(index, 1);
-            }
+                if (index >= 0) {
+                    this.points.splice(index, 1);
+                    return true;
+                } else return false;
+            } else return false;
         }
     }
 
@@ -233,10 +243,10 @@ export class QuadNode {
 
 export class Pair {
     constructor(readonly point1: Dendrogram, readonly point2: Dendrogram, readonly distance: number) {
-        console.log(this.toString());
+        console.log("new Pair", this.toString());
     }
     toString() {
-        return this.point1.tag + " " + this.point2.tag + " " + this.distance;
+        return this.point1.toString() + " " + this.point2.toString() + " " + this.distance;
     }
 
 }

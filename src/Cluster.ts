@@ -7,6 +7,7 @@ export class Cluster {
     readonly x: number; // mean point
     readonly y: number; // mean point
     tag: string | undefined;
+    deleted: true | undefined;
 
     constructor(readonly dendrograms: Dendrogram[]) {
         let sumX = 0;
@@ -29,6 +30,11 @@ export class Cluster {
         this.x = sumX / count;
         this.y = sumY / count;
     }
+
+    toString() {
+        return this.tag ? `Cl#${this.tag}` : `Cl(${this.x},${this.y} ${this.count} points)`;
+    }
+
 }
 
 export type Dendrogram = Cluster | Point;

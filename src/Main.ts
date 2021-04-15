@@ -1,7 +1,7 @@
 import { ClassicAlgorithm } from './ClassicAlgorithm';
 import { NewAlgorithm } from './NewAlgorithm';
 import { Cluster, Dendrogram, getPoints } from './Cluster';
-import { getHull } from './grahamscan';
+import { getHull } from './GrahamScan';
 import { IAlgorithm } from './IAlgorithm';
 import { Point } from './Point';
 import { Points } from './Points';
@@ -111,8 +111,6 @@ export class App {
         this.ctx.closePath();
         this.ctx.fill();
     }
-
-
 
 }
 

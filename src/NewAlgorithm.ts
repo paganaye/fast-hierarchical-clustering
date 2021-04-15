@@ -26,11 +26,16 @@ export class NewAlgorithm implements IAlgorithm {
     groupTwo() {
         if (this.neighbours.length) {
             let last = this.neighbours.pop();
-            let newCluster = new Cluster([last!.point1, last!.point2]);
-            this.quadTree.delete(last!.point1);
-            this.quadTree.delete(last!.point1);
-            this.quadTree.insert(newCluster);
-            this.paint(this.quadTree.getDendrograms());
+            if (!last!.point1.deleted && !last!.point2.deleted) {
+                this.quadTree.delete(last!.point1);
+                this.quadTree.delete(last!.point2);
+                let newCluster = new Cluster([last!.point1, last!.point2]);
+                this.quadTree.insert(newCluster);
+                this.paint(this.quadTree.getDendrograms());
+                console.log("quad is now", this.quadTree.pointCount);
+                if (this.quadTree.pointCount == this.clusterCountTarget) return;
+            }
+            setTimeout(() => this.groupTwo(), 0);
         } else {
             if (this.getNextNeighbours()) setTimeout(() => this.groupTwo(), 0);
             else this.finished(this.quadTree.getDendrograms());
@@ -41,6 +46,7 @@ export class NewAlgorithm implements IAlgorithm {
         let result = this.quadTree.trim();
         if (result) {
             this.neighbours = this.quadTree.getNeighbours();
+            console.log({ neighbours: this.neighbours });
             this.neighbours.sort((a, b) => a.distance - b.distance);
             return true;
         }
