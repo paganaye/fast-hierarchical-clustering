@@ -23,8 +23,7 @@ export class QuadTree {
     }
 
     delete(point: Dendrogram): boolean {
-        if (!point.deleted && this.root.delete(point)) {
-            point.deleted = true;
+        if (this.root.delete(point)) {
             this.pointCount -= 1;
             return true;
         } else return false;
@@ -233,7 +232,7 @@ export class QuadNode {
         this.topLeft?.getDendrograms(result);
         this.topRight?.getDendrograms(result);
         this.bottomLeft?.getDendrograms(result);
-        this.bottomLeft?.getDendrograms(result);
+        this.bottomRight?.getDendrograms(result);
         if (this.points && this.points.length) {
             result.push(...this.points);
         }

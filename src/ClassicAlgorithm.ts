@@ -1,38 +1,21 @@
 import { Cluster, Dendrogram } from './Cluster';
-import { IAlgorithm } from './IAlgorithm';
+import { IAlgorithm, IPair } from './IAlgorithm';
 import { Point } from './Point';
 
 export class ClassicAlgorithm implements IAlgorithm {
     dendrograms: Dendrogram[] = [];
-    clusterCountTarget!: number;
-    paint!: (dendrograms: Dendrogram[]) => void;
-    finished!: (dendrograms: Dendrogram[]) => void;
 
-    run(points: Point[], clusterCount: number, paint: (dendrograms: Dendrogram[]) => void, finished: (dendrograms: Dendrogram[]) => void): void {
-        // throw new Error('Method not implemented.');
-        this.dendrograms = [...points]
-        this.clusterCountTarget = clusterCount;
-        this.paint = paint;
-        this.finished = finished;
 
-        setTimeout(() => this.groupTwo(), 0);
+    init(points: Point[]): void {
+        this.dendrograms = points.slice();
     }
 
-    groupTwo() {
-        let pair = this.findNearestTwoPoints()
-        if (pair) {
-            let newCluster = new Cluster([this.dendrograms[pair[0]], this.dendrograms[pair[1]]]);
-            this.dendrograms[pair[0]] = newCluster; // replace one
-            this.dendrograms.splice(pair[1], 1); // delete the other
-            this.paint(this.dendrograms);
-            if (this.dendrograms.length > this.clusterCountTarget) setTimeout(() => this.groupTwo(), 0);
-            else this.finished(this.dendrograms);
-        }
-    }
 
-    findNearestTwoPoints(): number[] | undefined {
+    findNearestTwoPoints(): IPair | undefined {
         let distanceMin = Number.MAX_VALUE;
         let result = undefined;
+        let best: number[] | undefined;
+        let pt2!: Point;
         for (let i1 = 0; i1 < this.dendrograms.length; i1++) {
             let point1 = this.dendrograms[i1];
             for (let i2 = i1 + 1; i2 < this.dendrograms.length; i2++) {
@@ -42,11 +25,27 @@ export class ClassicAlgorithm implements IAlgorithm {
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < distanceMin) {
                     distanceMin = distance;
-                    result = [i1, i2];
+                    best = [i1, i2];
                 }
             }
         }
-        return result;
+        if (best) {
+            return {
+                point1: this.dendrograms[best[0]],
+                point2: this.dendrograms[best[1]],
+                merge: () => {
+                    let newCluster = new Cluster([this.dendrograms[best![0]], this.dendrograms[best![1]]]);
+                    this.dendrograms[best![0]] = newCluster; // replace one
+                    this.dendrograms.splice(best![1], 1); // delete the other        
+                }
+            }
+        }
     }
+    getCurrentDendrograms(): Dendrogram[] {
+        return this.dendrograms;
+    }
+
+
+
 
 }

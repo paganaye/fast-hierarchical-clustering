@@ -2,7 +2,6 @@ import type { Cluster } from './Cluster';
 
 export class Point {
     tag: String | undefined;
-    deleted: true | undefined;
 
     constructor(readonly x: number, readonly y: number, tag: string | undefined = undefined) {
         if (tag) this.tag = tag;

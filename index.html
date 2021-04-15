@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Page Title</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
-    <script src='main.js'></script>
-</head>
-<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="main.js"></script>
+    <style>
+      .algorithmBox {
+        float: left;
+      }
+    </style>
+  </head>
+  <body>
     <h1>hi</h1>
-    <canvas width="1024" height="1024" id="canvas1">
-
-    </canvas>
+    <div class="algorithmBox">
+      <h2>Standard Algorithm</h2>
+      <pre id="output1"></pre>
+      <canvas id="canvas1"></canvas>
+    </div>
+    <div class="algorithmBox">
+      <h2>New Algorithm</h2>
+      <pre id="output2"></pre>
+      <canvas id="canvas2"></canvas>
+    </div>
     <script type="module" src="src/Main.js"></script>
-</body>
+  </body>
 </html>
