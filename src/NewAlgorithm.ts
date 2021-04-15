@@ -24,7 +24,9 @@ export class NewAlgorithm implements IAlgorithm {
     }
 
     groupTwo() {
+        this.neighbours = this.quadTree.getNeighbours();
         if (this.neighbours.length) {
+            this.neighbours.sort((a, b) => b.distance - a.distance);
             let last = this.neighbours.pop();
             if (!last!.point1.deleted && !last!.point2.deleted) {
                 this.quadTree.delete(last!.point1);
@@ -45,9 +47,9 @@ export class NewAlgorithm implements IAlgorithm {
     getNextNeighbours() {
         let result = this.quadTree.trim();
         if (result) {
-            this.neighbours = this.quadTree.getNeighbours();
-            console.log({ neighbours: this.neighbours });
-            this.neighbours.sort((a, b) => a.distance - b.distance);
+            // this.neighbours = this.quadTree.getNeighbours();
+            // console.log({ neighbours: this.neighbours });
+            // this.neighbours.sort((a, b) => a.distance - b.distance);
             return true;
         }
         else return false;
