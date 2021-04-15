@@ -1,17 +1,15 @@
 import { Point } from './Point';
-export class Points {
-    
-    readonly points: Point[]=[];
+export abstract class Points {
 
-    addRandomPoints(count: number) {
-        for(let i = 0; i< count;i++) {
-            this.points.push(Point.randomPoint());
+    static addRandomPoints(points: Point[], count: number) {
+        for (let i = 0; i < count; i++) {
+            points.push(Point.randomPoint());
         }
     }
 
-    addRandomPointsAround(count: number, point: Point, distance: number) {
-        for(let i = 0; i< count;i++) {
-            this.points.push(Point.randomPointAround(point, distance));
+    static addRandomPointsAround(points: Point[], count: number, point: Point, distance: number) {
+        for (let i = 0; i < count; i++) {
+            points.push(Point.randomPointAround(point, distance));
         }
-    }    
+    }
 }

@@ -73,12 +73,12 @@ describe('A Quad', function () {
     // C D
     let pairs = quad.getNeighbours();
     expect(pairs.length).to.eq(6);
-    expect(pairs[0].toString()).to.eq("A B 0.5");
-    expect(pairs[1].toString()).to.eq("A C 0.5");
-    expect(pairs[2].toString()).to.eq("A D 0.7071067811865476");
-    expect(pairs[3].toString()).to.eq("B C 0.7071067811865476");
-    expect(pairs[4].toString()).to.eq("B D 0.5");
-    expect(pairs[5].toString()).to.eq("C D 0.5");
+    expect(pairs[0].toString()).to.eq("#A #B 0.5");
+    expect(pairs[1].toString()).to.eq("#A #C 0.5");
+    expect(pairs[2].toString()).to.eq("#A #D 0.7071067811865476");
+    expect(pairs[3].toString()).to.eq("#B #C 0.7071067811865476");
+    expect(pairs[4].toString()).to.eq("#B #D 0.5");
+    expect(pairs[5].toString()).to.eq("#C #D 0.5");
   });
 
 
@@ -100,13 +100,13 @@ describe('A Quad', function () {
     let pairs = quad.getNeighbours();
     expect(pairs[0].point1.tag)
     expect(pairs.length).to.eq(7);
-    expect(pairs[0].toString()).to.eq("A B 0.25");
-    expect(pairs[1].toString()).to.eq("A F 0.3535533905932738");
-    expect(pairs[2].toString()).to.eq("B F 0.25");
-    expect(pairs[3].toString()).to.eq("N O 0.25");
-    expect(pairs[4].toString()).to.eq("L O 0.3535533905932738");
-    expect(pairs[5].toString()).to.eq("L P 0.25");
-    expect(pairs[6].toString()).to.eq("O P 0.25");
+    expect(pairs[0].toString()).to.eq("#A #B 0.25");
+    expect(pairs[1].toString()).to.eq("#A #F 0.3535533905932738");
+    expect(pairs[2].toString()).to.eq("#B #F 0.25");
+    expect(pairs[3].toString()).to.eq("#N #O 0.25");
+    expect(pairs[4].toString()).to.eq("#L #O 0.3535533905932738");
+    expect(pairs[5].toString()).to.eq("#L #P 0.25");
+    expect(pairs[6].toString()).to.eq("#O #P 0.25");
   });
 
 });

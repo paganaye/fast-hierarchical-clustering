@@ -1,6 +1,6 @@
 import { Cluster, Dendrogram, getPoints } from './Cluster';
 import { getHull } from './GrahamScan';
-import { IAlgorithm, IPair } from './IAlgorithm';
+import { IAlgorithm, Pair } from './IAlgorithm';
 import { App } from './Main';
 import { Point } from './Point';
 
@@ -20,7 +20,7 @@ export class AlgorithmRunner {
         this.canvas.setAttribute("height", app.canvasHeight + "px")
         this.ctx = this.canvas.getContext("2d")!!;
         this.algorithm = algorithm;
-        this.algorithm.init(app.points.points);
+        this.algorithm.init(app.points);
     }
 
     async run() {
@@ -68,9 +68,8 @@ export class AlgorithmRunner {
         let y = dendrogram.y * this.app.canvasHeight;
 
         if ('count' in dendrogram) {
-            for (let innerPoint of dendrogram.dendrograms) {
-                this.displayDendrogram(dendrogram, innerPoint, color);
-            }
+            this.displayDendrogram(dendrogram, dendrogram.dendrogram1, color);
+            this.displayDendrogram(dendrogram, dendrogram.dendrogram2, color);
         } else {
             this.ctx.fillStyle = color; // Red color
             this.ctx.beginPath(); //Start path

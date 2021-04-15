@@ -6,34 +6,40 @@ export class Cluster {
     readonly count: number;
     readonly x: number; // mean point
     readonly y: number; // mean point
+    readonly dendrogram1: Dendrogram;
+    readonly dendrogram2: Dendrogram
     tag: string | undefined;
     deleted: true | undefined;
 
-    constructor(readonly dendrograms: Dendrogram[]) {
-        let sumX = 0;
-        let sumY = 0;
-        let count = 0;
-        for (let part of dendrograms) {
-            if ("count" in part) {
-                sumX += part.sumX;
-                sumY += part.sumY;
-                count += part.count;
-            } else {
-                sumX += part.x;
-                sumY += part.y;
-                count += 1;
-            }
+    constructor(dendrogram1: Dendrogram, dendrogram2: Dendrogram, tag: string | undefined = undefined) {
+        if (tag) this.tag = tag;
+        if (dendrogram1.x > dendrogram2.x || dendrogram1.x == dendrogram2.x && dendrogram1.y > dendrogram2.y) {
+            // we swap them for consistency when comparing different algorithms.
+            // this should have little effect.
+            this.dendrogram1 = dendrogram2;
+            this.dendrogram2 = dendrogram1;
+        } else {
+            this.dendrogram1 = dendrogram1;
+            this.dendrogram2 = dendrogram2;
         }
-        this.sumX = sumX;
-        this.sumY = sumY;
-        this.count = count;
-        this.x = sumX / count;
-        this.y = sumY / count;
+
+
+        this.sumX = dendrogram1.getSumX() + dendrogram2.getSumX();
+        this.sumY = dendrogram1.getSumY() + dendrogram2.getSumY();
+        this.count = dendrogram1.getCount() + dendrogram2.getCount();
+
+        this.x = this.sumX / this.count;
+        this.y = this.sumY / this.count;
     }
 
     toString() {
-        return this.tag ? `Cl#${this.tag}` : `Cl(${this.x},${this.y} ${this.count} points)`;
+        let content: string = this.dendrogram1 + "," + this.dendrogram2;
+        return (this.tag ? `#${this.tag}` : `Cl(${this.x},${this.y})`) + ` [${content}]`;
     }
+
+    getSumX() { return this.sumX; }
+    getSumY() { return this.sumY; }
+    getCount() { return this.count; }
 
 }
 
@@ -41,9 +47,8 @@ export type Dendrogram = Cluster | Point;
 
 export function getPoints(dendrogram: Dendrogram, pts: Point[] = []): Point[] {
     if ('count' in dendrogram) {
-        for (let innerPoint of dendrogram.dendrograms) {
-            getPoints(innerPoint, pts);
-        }
+        getPoints(dendrogram.dendrogram1, pts);
+        getPoints(dendrogram.dendrogram2, pts);
     } else pts.push(dendrogram);
     return pts;
 }

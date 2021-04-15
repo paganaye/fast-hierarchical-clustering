@@ -1,4 +1,3 @@
-import type { Cluster } from './Cluster';
 
 export class Point {
     tag: String | undefined;
@@ -18,7 +17,11 @@ export class Point {
         return new Point(x, y)
     }
     toString() {
-        return this.tag ? `Pt#${this.tag}` : `Pt(${this.x},${this.y})`;
+        return this.tag ? `#${this.tag}` : `(${this.x},${this.y})`;
     }
+
+    getSumX() { return this.x; }
+    getSumY() { return this.y; }
+    getCount() { return 1; }
 }
 

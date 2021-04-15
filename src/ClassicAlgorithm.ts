@@ -1,5 +1,5 @@
 import { Cluster, Dendrogram } from './Cluster';
-import { IAlgorithm, IPair } from './IAlgorithm';
+import { IAlgorithm, Pair } from './IAlgorithm';
 import { Point } from './Point';
 
 export class ClassicAlgorithm implements IAlgorithm {
@@ -11,7 +11,7 @@ export class ClassicAlgorithm implements IAlgorithm {
     }
 
 
-    findNearestTwoPoints(): IPair | undefined {
+    findNearestTwoPoints(): Pair | undefined {
         let distanceMin = Number.MAX_VALUE;
         let result = undefined;
         let best: number[] | undefined;
@@ -30,22 +30,19 @@ export class ClassicAlgorithm implements IAlgorithm {
             }
         }
         if (best) {
-            return {
-                point1: this.dendrograms[best[0]],
-                point2: this.dendrograms[best[1]],
-                merge: () => {
-                    let newCluster = new Cluster([this.dendrograms[best![0]], this.dendrograms[best![1]]]);
+            return new Pair(
+                this.dendrograms[best[0]],
+                this.dendrograms[best[1]],
+                () => {
+                    let newCluster = new Cluster(this.dendrograms[best![0]], this.dendrograms[best![1]]);
                     this.dendrograms[best![0]] = newCluster; // replace one
                     this.dendrograms.splice(best![1], 1); // delete the other        
-                }
-            }
+                });
         }
     }
+
     getCurrentDendrograms(): Dendrogram[] {
         return this.dendrograms;
     }
-
-
-
 
 }

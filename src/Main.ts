@@ -8,7 +8,7 @@ import { Points } from './Points';
 import { AlgorithmRunner } from './AlgorithmRunner';
 
 export class App {
-    points: Points = new Points();
+    points: Point[] = [];
     palette: string[] = [];
     clusterCount = 10;
     dotSize = 3;
@@ -24,7 +24,7 @@ export class App {
     constructor() {
         for (let i = 0; i < this.clusterCount; i++) {
             let point0 = Point.randomPoint();
-            this.points.addRandomPointsAround(this.nbPointPerCluster, point0, this.clusterSize);
+            Points.addRandomPointsAround(this.points, this.nbPointPerCluster, point0, this.clusterSize);
         }
 
         for (let r of ['00', 'c0'])

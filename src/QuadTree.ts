@@ -37,8 +37,8 @@ export class QuadTree {
         }
     }
 
-    getNeighbours(): Pair[] {
-        let result: Pair[] = [];
+    getNeighbours(): QuadPair[] {
+        let result: QuadPair[] = [];
         this.root.getNeighbours(undefined, undefined, undefined, undefined, undefined, result);
         return result;
     }
@@ -76,7 +76,7 @@ export class QuadNode {
         bottomLeftSibling: QuadNode | undefined,
         bottomSibling: QuadNode | undefined,
         bottomRightSibling: QuadNode | undefined,
-        result: Pair[]) {
+        result: QuadPair[]) {
 
 
         if (this.level == 0) {
@@ -122,27 +122,27 @@ export class QuadNode {
         }
     }
 
-    addSelfPairs(result: Pair[]) {
+    addSelfPairs(result: QuadPair[]) {
         if (!this.points || this.points.length < 2) return;
         for (let i = 0; i < this.points.length; i++) {
             let point1 = this.points[i];
             for (let j = i + 1; j < this.points.length; j++) {
                 let point2 = this.points[j];
                 let distance = getDistance(point1, point2);
-                result.push(new Pair(point1, point2, distance))
+                result.push(new QuadPair(point1, point2, distance))
             }
         }
     }
 
     addPairsWith(node2: QuadNode | undefined,
-        result: Pair[]) {
+        result: QuadPair[]) {
         if (!this.points || this.points.length == 0) return;
         let points2 = node2?.points;
         if (points2 && points2.length) {
             for (let point1 of this.points) {
                 for (let point2 of points2) {
                     let distance = getDistance(point1, point2);
-                    result.push(new Pair(point1, point2, distance))
+                    result.push(new QuadPair(point1, point2, distance))
                 }
             }
         }
@@ -240,10 +240,8 @@ export class QuadNode {
 }
 
 
-export class Pair {
-    constructor(readonly point1: Dendrogram, readonly point2: Dendrogram, readonly distance: number) {
-        console.log("new Pair", this.toString());
-    }
+export class QuadPair {
+    constructor(readonly point1: Dendrogram, readonly point2: Dendrogram, readonly distance: number) { }
     toString() {
         return this.point1.toString() + " " + this.point2.toString() + " " + this.distance;
     }

@@ -3,12 +3,14 @@ import { Dendrogram } from './Cluster';
 
 export interface IAlgorithm {
     init(points: Point[]): void;
-    findNearestTwoPoints(): IPair | undefined;
+    findNearestTwoPoints(): Pair | undefined;
     getCurrentDendrograms(): Dendrogram[];
 }
 
-export interface IPair {
-    point1: Dendrogram;
-    point2: Dendrogram;
-    merge: () => void;
+export class Pair {
+    constructor(readonly point1: Dendrogram, readonly point2: Dendrogram, readonly merge: () => void) { }
+
+    toString() {
+        return `${this.point1}-${this.point2}`;
+    }
 }
