@@ -10,7 +10,7 @@ import { AlgorithmRunner } from './AlgorithmRunner';
 export class App {
     points: Point[] = [];
     palette: string[] = [];
-    clusterCount = 80;
+    clusterCount = 200;
     dotSize = 3;
     nbPointPerCluster = 5;
     clusterSize = 0.05;

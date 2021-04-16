@@ -12,7 +12,7 @@ export class QuadTree {
     root: QuadNode;
     pointCount = 0;
 
-    constructor(private initialLevels: number = 32) {
+    constructor(private initialLevels: number = 20) {
         this.currentLevels = initialLevels
         this.root = new QuadNode(initialLevels - 1, 0.5, 0.5, 0.5);
         this.root.nodeSize = 2; // we need to allow the root node to group points that are further than 1.0 appart.

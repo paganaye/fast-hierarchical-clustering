@@ -43,11 +43,12 @@ export class AlgorithmRunner {
         if (pair) {
             pair.merge();
         }
-        let dendograms = this.algorithm.getCurrentDendrograms();
-        this.displayDendrograms(dendograms);
-        if (pair && dendograms.length > this.app.dendrogramCount) {
+        let dendogramsCount = this.algorithm.getDendrogramsCount();
+        if (pair && dendogramsCount > this.app.dendrogramCount) {
             setTimeout(() => this.findNearestPoints(resolve), 0);
         } else {
+            let dendograms = this.algorithm.getCurrentDendrograms();
+            this.displayDendrograms(dendograms);
             resolve()
         }
     }

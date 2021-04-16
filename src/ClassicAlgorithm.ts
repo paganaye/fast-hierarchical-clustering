@@ -45,4 +45,7 @@ export class ClassicAlgorithm implements IAlgorithm {
         return this.dendrograms;
     }
 
+    getDendrogramsCount(): number {
+        return this.dendrograms.length;
+    }    
 }

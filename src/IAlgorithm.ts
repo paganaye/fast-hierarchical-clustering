@@ -5,6 +5,7 @@ export interface IAlgorithm {
     init(points: Point[]): void;
     findNearestTwoPoints(): Pair | undefined;
     getCurrentDendrograms(): Dendrogram[];
+    getDendrogramsCount(): number;
 }
 
 export class Pair {
