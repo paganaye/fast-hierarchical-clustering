@@ -5,6 +5,7 @@ import { QuadPair, QuadNode, QuadTree } from './QuadTree';
 
 export class NewAlgorithm implements IAlgorithm {
     quadTree: QuadTree;
+    neighbours: QuadPair[] = [];
 
     constructor(private initialLevels: number = 32) {
         this.quadTree = new QuadTree(initialLevels);
@@ -14,26 +15,34 @@ export class NewAlgorithm implements IAlgorithm {
         for (let point of points) {
             this.quadTree.insert(point);
         }
+        this.neighbours = this.quadTree.getNeighbours();
+        this.neighbours.sort((a, b) => (b.distance - a.distance));
     }
 
     findNearestTwoPoints(): Pair | undefined {
-        do {
-            let neighbours = this.quadTree.getNeighbours();
-            if (neighbours.length > 0) {
-                neighbours.sort((a, b) => b.distance - a.distance);
-                let last = neighbours.pop();
-                return new Pair(
-                    last!.point1,
-                    last!.point2,
-                    () => {
-                        this.quadTree.delete(last!.point1);
-                        this.quadTree.delete(last!.point2);
-                        let newCluster = new Cluster(last!.point1, last!.point2);
-                        this.quadTree.insert(newCluster);
-                    });
-
+        while (true) {
+            while (this.neighbours.length == 0) {
+                if (!this.quadTree.trim()) return undefined;
+                this.neighbours = this.quadTree.getNeighbours();
+                this.neighbours.sort((a, b) => (b.distance - a.distance));
             }
-        } while (this.quadTree.trim());
+            let { point1, point2 } = this.neighbours.pop()!;
+            return new Pair(
+                point1,
+                point2,
+                () => {
+                    this.quadTree.delete(point1);
+                    this.quadTree.delete(point2);
+                    let newCluster = new Cluster(point1, point2);
+                    let neighbours0 = this.neighbours.filter(it => it.point1 != point1 && it.point1 != point2 && it.point2 != point1 && it.point2 != point2);
+                    this.quadTree.insertAndAddNeighbours(newCluster, neighbours0);
+                    neighbours0.sort((a, b) => (b.distance - a.distance));
+                    // this.quadTree.insert(newCluster);  
+                    this.neighbours = this.quadTree.getNeighbours();
+                    this.neighbours.sort((a, b) => (b.distance - a.distance));
+                });
+
+        }
     }
 
     getCurrentDendrograms(): Dendrogram[] {

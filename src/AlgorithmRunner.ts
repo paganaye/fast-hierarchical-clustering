@@ -31,7 +31,7 @@ export class AlgorithmRunner {
             this.findNearestPoints(() => {
                 var timeDiff = new Date().getTime() - startTime; //in ms
                 // strip the ms
-                this.preElt.innerText = timeDiff / 1000 + "sec ("+Math.round(calculatedDistances/1_000_00) / 10 +"M distances compared)"
+                this.preElt.innerText = timeDiff / 1000 + "sec (" + Math.round(calculatedDistances / 1_000_00) / 10 + "M distances compared)"
 
                 resolve();
             });
@@ -56,7 +56,7 @@ export class AlgorithmRunner {
     displayDendrograms(dendrograms: Dendrogram[]) {
         this.ctx.clearRect(0, 0, this.app.canvasWidth, this.app.canvasHeight);
         let sortedDendrograms = dendrograms.slice();
-        sortedDendrograms.sort((a, b) => a.getCount() - b.getCount())
+        sortedDendrograms.sort((a, b) => (a.y - b.y) || (a.x - b.x))
         for (let i = 0; i < sortedDendrograms.length; i++) {
             let color = this.app.palette[sortedDendrograms.length <= this.app.palette.length ? i : this.app.palette.length - 1];
 

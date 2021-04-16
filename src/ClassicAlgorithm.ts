@@ -24,6 +24,8 @@ export class ClassicAlgorithm implements IAlgorithm {
                 if (distance < distanceMin) {
                     distanceMin = distance;
                     best = [i1, i2];
+                } else if (distance == distanceMin) {
+                    console.warn("We got equal distances");
                 }
             }
         }

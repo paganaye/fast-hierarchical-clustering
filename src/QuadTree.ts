@@ -1,4 +1,4 @@
-import { Dendrogram, getDistance } from './Cluster';
+import { Cluster, Dendrogram, getDistance } from './Cluster';
 import { Point } from './Point';
 
 //import { Point } from './Point';
@@ -15,6 +15,7 @@ export class QuadTree {
     constructor(private initialLevels: number = 32) {
         this.currentLevels = initialLevels
         this.root = new QuadNode(initialLevels - 1, 0.5, 0.5, 0.5);
+        this.root.nodeSize = 2; // we need to allow the root node to group points that are further than 1.0 appart.
     }
 
     insert(point: Dendrogram) {
@@ -41,6 +42,11 @@ export class QuadTree {
         let result: QuadPair[] = [];
         this.root.getNeighbours({}, result);
         return result;
+    }
+
+    insertAndAddNeighbours(newCluster: Cluster, result: QuadPair[]) {
+        this.pointCount += 1;
+        this.root.insertAndAddNeighbours(newCluster, {}, result);
     }
 
     getDendrograms(): Dendrogram[] {
@@ -76,9 +82,60 @@ export class QuadNode {
         this.quarterSize = halfSize / 2;
     }
 
-    getNeighbours(siblings: Siblings,
+    insertAndAddNeighbours(cluster: Cluster,
+        ownSiblings: ISiblings,
         result: QuadPair[]) {
 
+        if (this.level == 0) {
+            this.addNewPairs(cluster, result);
+            this.addNewPairsWith(cluster, ownSiblings.right, result) // 🡺
+            this.addNewPairsWith(cluster, ownSiblings.bottomLeft, result) // 🡿
+            this.addNewPairsWith(cluster, ownSiblings.bottom, result)  // 🡻
+            this.addNewPairsWith(cluster, ownSiblings.bottomRight, result)  // 🡾 
+            // 🡸🡽🡹🡼 done the other way round                    
+            this.insert(cluster);
+        } else {
+            let quarter = this.getQuarter(cluster);
+            let node = this.getOrCreateNode(quarter);
+            node.insertAndAddNeighbours(cluster, this.getQuarterSiblings(ownSiblings, quarter), result);
+        }
+    }
+
+    getQuarterSiblings(ownSiblings: ISiblings, quarter: Quarter): ISiblings {
+        switch (quarter) {
+            case Quarter.TopLeft: return {
+                left: ownSiblings.left?.topRight,
+                right: this.topRight,
+                bottomLeft: ownSiblings.left?.bottomRight,
+                bottom: this.bottomLeft,
+                bottomRight: this.bottomRight
+            };
+            case Quarter.TopRight: return {
+                left: this.topLeft,
+                right: ownSiblings.right?.topLeft,
+                bottomLeft: this.bottomLeft,
+                bottom: this.bottomRight,
+                bottomRight: ownSiblings.right?.bottomLeft
+            };
+            case Quarter.BottomLeft: return {
+                left: ownSiblings.left?.bottomRight,
+                right: this.bottomRight,
+                bottomLeft: ownSiblings.bottomLeft?.topRight,
+                bottom: ownSiblings.bottom?.topLeft,
+                bottomRight: ownSiblings.bottom?.topRight
+            };
+            case Quarter.BottomRight: return {
+                left: this.bottomLeft,
+                right: ownSiblings.right?.bottomLeft,
+                bottomLeft: ownSiblings.bottom?.topLeft,
+                bottom: ownSiblings.bottom?.topRight,
+                bottomRight: ownSiblings.bottomRight?.topLeft
+            };
+        }
+    }
+
+    getNeighbours(siblings: ISiblings,
+        result: QuadPair[]) {
 
         if (this.level == 0) {
             this.addSelfPairs(result);
@@ -86,40 +143,12 @@ export class QuadNode {
             this.addPairsWith(siblings.bottomLeft, result) // 🡿
             this.addPairsWith(siblings.bottom, result)  // 🡻
             this.addPairsWith(siblings.bottomRight, result)  // 🡾 
-            // 🡸🡽🡹🡼 done the other way round                    
+            // 🡸🡽🡹🡼 done the other way round    
         } else {
-
-            this.topLeft?.getNeighbours({
-                left: siblings.left?.topRight,
-                right: this.topRight,
-                bottomLeft: siblings.left?.bottomRight,
-                bottom: this.bottomLeft,
-                bottomRight: this.bottomRight
-            }, result); // ⌜
-
-            this.topRight?.getNeighbours({
-                left: this.topLeft,
-                right: siblings.right?.topLeft,
-                bottomLeft: this.bottomLeft,
-                bottom: this.bottomRight,
-                bottomRight: siblings.right?.bottomLeft
-            }, result);// ⌝
-
-            this.bottomLeft?.getNeighbours({
-                left: siblings.left?.bottomRight,
-                right: this.bottomRight,
-                bottomLeft: siblings.bottomLeft?.topRight,
-                bottom: siblings.bottom?.topLeft,
-                bottomRight: siblings.bottom?.topRight
-            }, result);// ⌞
-
-            this.bottomRight?.getNeighbours({
-                left: this.bottomLeft,
-                right: siblings.right?.bottomLeft,
-                bottomLeft: siblings.bottom?.topLeft,
-                bottom: siblings.bottom?.topRight,
-                bottomRight: siblings.bottomRight?.topLeft
-            }, result);// ⌟
+            this.topLeft?.getNeighbours(this.getQuarterSiblings(siblings, Quarter.TopLeft), result); // ⌜
+            this.topRight?.getNeighbours(this.getQuarterSiblings(siblings, Quarter.TopRight), result);// ⌝
+            this.bottomLeft?.getNeighbours(this.getQuarterSiblings(siblings, Quarter.BottomLeft), result);// ⌞
+            this.bottomRight?.getNeighbours(this.getQuarterSiblings(siblings, Quarter.BottomRight), result);// ⌟
         }
     }
 
@@ -132,6 +161,15 @@ export class QuadNode {
                 let distance = getDistance(point1, point2);
                 if (distance < this.nodeSize) result.push(new QuadPair(point1, point2, distance))
             }
+        }
+    }
+
+    addNewPairs(cluster: Cluster, result: QuadPair[]) {
+        if (!this.points || !this.points.length) return;
+        for (let i = 0; i < this.points.length; i++) {
+            let point1 = this.points[i];
+            let distance = getDistance(point1, cluster);
+            if (distance < this.nodeSize) result.push(new QuadPair(point1, cluster, distance))
         }
     }
 
@@ -148,6 +186,18 @@ export class QuadNode {
             }
         }
     }
+
+    addNewPairsWith(cluster: Cluster, node2: QuadNode | undefined,
+        result: QuadPair[]) {
+        let points2 = node2?.points;
+        if (points2 && points2.length) {
+            for (let point2 of points2) {
+                let distance = getDistance(cluster, point2);
+                if (distance < this.nodeSize) result.push(new QuadPair(cluster, point2, distance))
+            }
+        }
+    }
+
 
     insert(point: Dendrogram) {
         if (this.level > 0) {
@@ -260,7 +310,7 @@ export class QuadNode {
     }
 }
 
-interface Siblings {
+interface ISiblings {
     left?: QuadNode,
     right?: QuadNode,
     bottomLeft?: QuadNode,
