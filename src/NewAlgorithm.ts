@@ -34,14 +34,10 @@ export class NewAlgorithm implements IAlgorithm {
                     this.quadTree.delete(point1);
                     this.quadTree.delete(point2);
                     let newCluster = new Cluster(point1, point2);
-                    let neighbours0 = this.neighbours.filter(it => it.point1 != point1 && it.point1 != point2 && it.point2 != point1 && it.point2 != point2);
-                    this.quadTree.insertAndAddNeighbours(newCluster, neighbours0);
-                    neighbours0.sort((a, b) => (b.distance - a.distance));
-                    // this.quadTree.insert(newCluster);  
-                    this.neighbours = this.quadTree.getNeighbours();
+                    this.neighbours = this.neighbours.filter(it => it.point1 != point1 && it.point1 != point2 && it.point2 != point1 && it.point2 != point2);
+                    this.quadTree.insertAndAddNeighbours(newCluster, this.neighbours);
                     this.neighbours.sort((a, b) => (b.distance - a.distance));
                 });
-
         }
     }
 

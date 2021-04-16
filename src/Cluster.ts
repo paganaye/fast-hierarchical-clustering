@@ -22,7 +22,7 @@ export class Cluster {
             this.dendrogram1 = dendrogram1;
             this.dendrogram2 = dendrogram2;
         }
-
+        if (this.dendrogram1.tag && this.dendrogram2.tag) this.tag = this.dendrogram1.tag + this.dendrogram2.tag
 
         this.sumX = dendrogram1.getSumX() + dendrogram2.getSumX();
         this.sumY = dendrogram1.getSumY() + dendrogram2.getSumY();
@@ -34,7 +34,12 @@ export class Cluster {
 
     toString() {
         let content: string = this.dendrogram1 + "," + this.dendrogram2;
-        return (this.tag ? `#${this.tag}` : `Cl(${this.x},${this.y})`) + ` [${content}]`;
+        if (this.tag){
+            return `${this.tag} (${this.x},${this.y})`;
+        } else {
+            return `Cl(${this.x},${this.y})` + ` [${content}]`;
+        }
+        
     }
 
     getSumX() { return this.sumX; }

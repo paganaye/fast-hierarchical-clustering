@@ -88,7 +88,14 @@ export class QuadNode {
 
         if (this.level == 0) {
             this.addNewPairs(cluster, result);
+
+            this.addNewPairsWith(cluster, ownSiblings.topLeft, result) // 🡼
+            this.addNewPairsWith(cluster, ownSiblings.top, result) // 🡹
+            this.addNewPairsWith(cluster, ownSiblings.topRight, result)  // 🡽
+
+            this.addNewPairsWith(cluster, ownSiblings.left, result)  // 🡸
             this.addNewPairsWith(cluster, ownSiblings.right, result) // 🡺
+
             this.addNewPairsWith(cluster, ownSiblings.bottomLeft, result) // 🡿
             this.addNewPairsWith(cluster, ownSiblings.bottom, result)  // 🡻
             this.addNewPairsWith(cluster, ownSiblings.bottomRight, result)  // 🡾 
@@ -104,6 +111,9 @@ export class QuadNode {
     getQuarterSiblings(ownSiblings: ISiblings, quarter: Quarter): ISiblings {
         switch (quarter) {
             case Quarter.TopLeft: return {
+                topLeft: ownSiblings.topLeft?.bottomRight,
+                top: ownSiblings.top?.bottomLeft,
+                topRight: ownSiblings.top?.bottomRight,
                 left: ownSiblings.left?.topRight,
                 right: this.topRight,
                 bottomLeft: ownSiblings.left?.bottomRight,
@@ -111,6 +121,9 @@ export class QuadNode {
                 bottomRight: this.bottomRight
             };
             case Quarter.TopRight: return {
+                topLeft: ownSiblings.top?.bottomLeft,
+                top: ownSiblings.top?.bottomRight,
+                topRight: ownSiblings.topRight?.bottomLeft,
                 left: this.topLeft,
                 right: ownSiblings.right?.topLeft,
                 bottomLeft: this.bottomLeft,
@@ -118,6 +131,9 @@ export class QuadNode {
                 bottomRight: ownSiblings.right?.bottomLeft
             };
             case Quarter.BottomLeft: return {
+                topLeft: ownSiblings.left?.topRight,
+                top: this.topLeft,
+                topRight: this.topRight,
                 left: ownSiblings.left?.bottomRight,
                 right: this.bottomRight,
                 bottomLeft: ownSiblings.bottomLeft?.topRight,
@@ -125,6 +141,9 @@ export class QuadNode {
                 bottomRight: ownSiblings.bottom?.topRight
             };
             case Quarter.BottomRight: return {
+                topLeft: this.topLeft,
+                top: this.topRight,
+                topRight: ownSiblings.right?.topLeft,
                 left: this.bottomLeft,
                 right: ownSiblings.right?.bottomLeft,
                 bottomLeft: ownSiblings.bottom?.topLeft,
@@ -311,6 +330,9 @@ export class QuadNode {
 }
 
 interface ISiblings {
+    topLeft?: QuadNode,
+    top?: QuadNode,
+    topRight?: QuadNode,
     left?: QuadNode,
     right?: QuadNode,
     bottomLeft?: QuadNode,

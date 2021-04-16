@@ -1,13 +1,14 @@
+import { PseudoRandom } from '../test/PseudoRandom';
 
 export class Point {
-    tag: String | undefined;
+    tag: string | undefined;
 
     constructor(readonly x: number, readonly y: number, tag: string | undefined = undefined) {
         if (tag) this.tag = tag;
     }
 
-    static randomPoint(): Point {
-        return new Point(Math.random(), Math.random())
+    static randomPoint(tag: string | undefined = undefined): Point {
+        return new Point(PseudoRandom.random(), PseudoRandom.random(), tag)
     }
     static randomPointAround(point: Point, maxDistance: number): Point {
         let angle = Math.random() * Math.PI * 2;
