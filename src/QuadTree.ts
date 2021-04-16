@@ -1,4 +1,5 @@
-import { Cluster, Dendrogram, getDistance } from './Cluster';
+import { Cluster, Dendrogram } from './Cluster';
+import { getDistance } from './IPoint';
 import { Point } from './Point';
 
 //import { Point } from './Point';

@@ -1,9 +1,10 @@
 import { Cluster, Dendrogram } from './Cluster';
-import { IAlgorithm, Pair } from './IAlgorithm';
+import { IAlgorithm } from './IAlgorithm';
+import { Pair } from './Pair';
 import { Point } from './Point';
 import { QuadPair, QuadNode, QuadTree } from './QuadTree';
 
-export class NewAlgorithm implements IAlgorithm {
+export class NewCentroidAlgorithm implements IAlgorithm {
     quadTree: QuadTree;
     neighbours: QuadPair[] = [];
 

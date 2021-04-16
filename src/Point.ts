@@ -1,6 +1,7 @@
 import { PseudoRandom } from '../test/PseudoRandom';
+import { IPoint } from './QuadTree';
 
-export class Point {
+export class Point implements IPoint {
     tag: string | undefined;
 
     constructor(readonly x: number, readonly y: number, tag: string | undefined = undefined) {

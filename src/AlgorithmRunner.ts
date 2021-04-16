@@ -1,9 +1,10 @@
-import { calculatedDistances, clearCalculatedDistances, Cluster, Dendrogram, getPoints } from './Cluster';
+import { Cluster, Dendrogram, getPoints } from './Cluster';
 import { getHull } from './GrahamScan';
-import { IAlgorithm, Pair } from './IAlgorithm';
+import { IAlgorithm } from './IAlgorithm';
+import { clearCalculatedDistances, calculatedDistances } from './IPoint';
 import { App } from './Main';
+import { Pair } from './Pair';
 import { Point } from './Point';
-import { QuadPair } from './QuadTree';
 
 export class AlgorithmRunner {
     canvas!: HTMLCanvasElement;

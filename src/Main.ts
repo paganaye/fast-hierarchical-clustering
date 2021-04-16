@@ -1,7 +1,5 @@
-import { ClassicAlgorithm } from './ClassicAlgorithm';
-import { NewAlgorithm } from './NewAlgorithm';
-import { Cluster, Dendrogram, getPoints } from './Cluster';
-import { getHull } from './GrahamScan';
+import { ClassicCentroidAlgorithm } from './ClassicCentroidCentroidAlgorithm';
+import { NewCentroidAlgorithm } from './NewCentroidAlgorithm';
 import { IAlgorithm } from './IAlgorithm';
 import { Point } from './Point';
 import { Points } from './Points';
@@ -36,8 +34,8 @@ export class App {
     }
 
     init() {
-        this.classicAlgorithm = new AlgorithmRunner(this, "canvas1", "output1", new ClassicAlgorithm());
-        this.newAlgorithm = new AlgorithmRunner(this, "canvas2", "output2", new NewAlgorithm());
+        this.classicAlgorithm = new AlgorithmRunner(this, "canvas1", "output1", new ClassicCentroidAlgorithm());
+        this.newAlgorithm = new AlgorithmRunner(this, "canvas2", "output2", new NewCentroidAlgorithm());
     }
 
     async run() {

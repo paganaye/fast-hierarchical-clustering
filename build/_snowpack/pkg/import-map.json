@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "chai": "./chai.js"
-  }
-}

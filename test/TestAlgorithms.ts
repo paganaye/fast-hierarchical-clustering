@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { ClassicAlgorithm } from '../src/ClassicAlgorithm';
+import { ClassicCentroidAlgorithm } from '../src/ClassicCentroidCentroidAlgorithm';
 import { Cluster, Dendrogram } from '../src/Cluster';
 import { App } from '../src/Main';
-import { NewAlgorithm } from '../src/NewAlgorithm';
+import { NewCentroidAlgorithm } from '../src/NewCentroidAlgorithm';
 import { Point } from '../src/Point';
 import { QuadTree } from '../src/QuadTree';
 import { PseudoRandom } from './PseudoRandom';
@@ -17,8 +17,8 @@ describe('Algorithms', function () {
       let pt3 = Point.randomPoint();
       let points = [pt1, pt2, pt3];
 
-      let classicAlgorithm = new ClassicAlgorithm();
-      let newAlgorithm = new NewAlgorithm();
+      let classicAlgorithm = new ClassicCentroidAlgorithm();
+      let newAlgorithm = new NewCentroidAlgorithm();
       classicAlgorithm.init(points);
       newAlgorithm.init(points);
       let classicAlgorithmFirstPair = classicAlgorithm.findNearestTwoPoints()?.toString();
@@ -40,8 +40,8 @@ describe('Algorithms', function () {
     let pt3 = new Point(0.4, 0.4, "C");
     let points = [pt1, pt2, pt3];
 
-    let classicAlgorithm = new ClassicAlgorithm();
-    let newAlgorithm = new NewAlgorithm(3);
+    let classicAlgorithm = new ClassicCentroidAlgorithm();
+    let newAlgorithm = new NewCentroidAlgorithm(3);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 
@@ -64,8 +64,8 @@ describe('Algorithms', function () {
     let pt3 = new Point(0.05789661034187388, 0.3230548331395249, "C");
     let points = [pt1, pt2, pt3];
 
-    let classicAlgorithm = new ClassicAlgorithm();
-    let newAlgorithm = new NewAlgorithm(3);
+    let classicAlgorithm = new ClassicCentroidAlgorithm();
+    let newAlgorithm = new NewCentroidAlgorithm(3);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 
@@ -94,8 +94,8 @@ describe('Algorithms', function () {
 
       let points = [pt1, pt2, pt3, pt4, pt5];
 
-      let classicAlgorithm = new ClassicAlgorithm();
-      let newAlgorithm = new NewAlgorithm();
+      let classicAlgorithm = new ClassicCentroidAlgorithm();
+      let newAlgorithm = new NewCentroidAlgorithm();
       classicAlgorithm.init(points);
       newAlgorithm.init(points);
 
@@ -138,8 +138,8 @@ describe('Algorithms', function () {
 
     let points = [pt1, pt2, pt3, pt4, pt5];
 
-    let classicAlgorithm = new ClassicAlgorithm();
-    let newAlgorithm = new NewAlgorithm(2);
+    let classicAlgorithm = new ClassicCentroidAlgorithm();
+    let newAlgorithm = new NewCentroidAlgorithm(2);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 
@@ -182,8 +182,8 @@ describe('Algorithms', function () {
 
     let points = [pt1, pt2, pt3, pt4, pt5];
 
-    let classicAlgorithm = new ClassicAlgorithm();
-    let newAlgorithm = new NewAlgorithm(2);
+    let classicAlgorithm = new ClassicCentroidAlgorithm();
+    let newAlgorithm = new NewCentroidAlgorithm(2);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 

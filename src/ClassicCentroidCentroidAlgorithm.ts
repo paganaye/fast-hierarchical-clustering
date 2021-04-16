@@ -1,8 +1,10 @@
-import { Cluster, Dendrogram, getDistance } from './Cluster';
-import { IAlgorithm, Pair } from './IAlgorithm';
+import { Cluster, Dendrogram } from './Cluster';
+import { IAlgorithm } from './IAlgorithm';
+import { getDistance } from './IPoint';
+import { Pair } from './Pair';
 import { Point } from './Point';
 
-export class ClassicAlgorithm implements IAlgorithm {
+export class ClassicCentroidAlgorithm implements IAlgorithm {
     dendrograms: Dendrogram[] = [];
 
 
