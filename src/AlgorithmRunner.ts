@@ -3,6 +3,7 @@ import { getHull } from './GrahamScan';
 import { IAlgorithm, Pair } from './IAlgorithm';
 import { App } from './Main';
 import { Point } from './Point';
+import { QuadPair } from './QuadTree';
 
 export class AlgorithmRunner {
     canvas!: HTMLCanvasElement;
@@ -24,33 +25,24 @@ export class AlgorithmRunner {
     }
 
     async run() {
-        return new Promise<void>((resolve, reject) => {
-            let startTime = new Date().getTime();
-            clearCalculatedDistances();
+        let startTime = new Date().getTime();
+        clearCalculatedDistances();
 
-            this.findNearestPoints(() => {
-                var timeDiff = new Date().getTime() - startTime; //in ms
-                // strip the ms
-                this.preElt.innerText = timeDiff / 1000 + "sec (" + Math.round(calculatedDistances / 1_000_00) / 10 + "M distances compared)"
+        let pair: Pair | undefined;
+        let dendogramsCount: number = 0;
+        do {
+            pair = this.algorithm.findNearestTwoPoints();
+            if (pair) {
+                pair.merge();
+            }
+            dendogramsCount = this.algorithm.getDendrogramsCount();
+        } while (pair && dendogramsCount > this.app.dendrogramCount);
 
-                resolve();
-            });
-        });
-    }
-
-    findNearestPoints(resolve: () => void) {
-        let pair = this.algorithm.findNearestTwoPoints();
-        if (pair) {
-            pair.merge();
-        }
-        let dendogramsCount = this.algorithm.getDendrogramsCount();
-        if (pair && dendogramsCount > this.app.dendrogramCount) {
-            setTimeout(() => this.findNearestPoints(resolve), 0);
-        } else {
-            let dendograms = this.algorithm.getCurrentDendrograms();
-            this.displayDendrograms(dendograms);
-            resolve()
-        }
+        let dendograms = this.algorithm.getCurrentDendrograms();
+        this.displayDendrograms(dendograms);
+        var timeDiff = new Date().getTime() - startTime; //in ms
+        // strip the ms
+        this.preElt.innerText = `${(timeDiff / 1000).toFixed(2)} sec (${Math.round(calculatedDistances / 1000000).toFixed(1)}M distances compared)`
     }
 
 

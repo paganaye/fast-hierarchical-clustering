@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="main.js"></script>
+    <style>
+      .algorithmBox {
+        float: left;
+        padding: 5px;
+        border: 1px solid #ccc;
+        margin: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hierarchical Clustering</h1>
+      <div class="algorithmBox">
+        <h2>Standard Algorithm</h2>
+        <pre id="output1">...</pre>
+        <canvas id="canvas1"></canvas>
+      </div>
+      <div class="algorithmBox">
+        <h2>New Algorithm</h2>
+        <pre id="output2">...</pre>
+        <canvas id="canvas2"></canvas>
+      </div>
+    </div>
+    <table id="table1" style="clear: both;">
+      <tr>
+        <td>Points</td>
+        <td>Standard Algorithm</td>
+        <td>New Algorithm</td>
+      </tr>
+      <tr>
+        <td>400</td><td>0.13</td><td>0.03</td>
+      </tr>
+      <tr>
+        <td>800</td><td>0.83</td><td>0.05</td>
+      </tr>
+      <tr>
+        <td>1200</td><td>2.64</td><td>0.06</td>
+      </tr>
+      <tr>
+        <td>1600</td><td>6.27</td><td>0.08</td>
+      </tr>
+      <tr>
+        <td>2000</td><td>14.80</td><td>0.09</td>
+      </tr>
+      <tr>
+        <td>2400</td><td>35.62</td><td>0.10</td>
+      </tr>      
+    </table>
+    <script type="module" src="src/Main.js"></script>
+  </body>
+</html>
