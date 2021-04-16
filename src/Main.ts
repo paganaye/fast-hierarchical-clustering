@@ -10,9 +10,9 @@ import { AlgorithmRunner } from './AlgorithmRunner';
 export class App {
     points: Point[] = [];
     palette: string[] = [];
-    clusterCount = 200;
+    clusterCount = 100;
     dotSize = 3;
-    nbPointPerCluster = 5;
+    nbPointPerCluster = 10;
     clusterSize = 0.05;
     algorithm!: IAlgorithm;
     canvasWidth: number = 300;
@@ -42,8 +42,8 @@ export class App {
 
     async run() {
         this.init();
-        await this.classicAlgorithm.run();
         await this.newAlgorithm.run();
+        await this.classicAlgorithm.run();
     }
 
 }
