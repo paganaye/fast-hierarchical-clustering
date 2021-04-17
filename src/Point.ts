@@ -1,5 +1,5 @@
 import { PseudoRandom } from '../test/PseudoRandom';
-import { IPoint } from './avg/QuadTree';
+import { IPoint } from './IPoint';
 
 export class Point implements IPoint {
     tag: string | undefined;
@@ -11,7 +11,7 @@ export class Point implements IPoint {
     static randomPoint(tag: string | undefined = undefined): Point {
         return new Point(PseudoRandom.random(), PseudoRandom.random(), tag)
     }
-    static randomPointAround(point: Point, maxDistance: number): Point {
+    static randomPointAround(point: IPoint, maxDistance: number): Point {
         let angle = Math.random() * Math.PI * 2;
         let distance = Math.random() * maxDistance;
         let x = (point.x + Math.cos(angle) * distance + 1.0) % 1;

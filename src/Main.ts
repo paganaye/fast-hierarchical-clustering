@@ -1,116 +1,101 @@
 import { ClassicAvgAlgorithm } from './avg/ClassicAvgAlgorithm';
 import { NewAvgAlgorithm } from './avg/NewAvgAlgorithm';
-import { IAlgorithm } from './IAlgorithm';
+import { IAlgorithm } from './workers/IAlgorithm';
 import { Point } from './Point';
-import { Points } from './Points';
 import { AlgorithmRunner } from './AlgorithmRunner';
-
+import { IPoint } from './IPoint';
 export class App {
     points: Point[] = [];
     palette: string[] = [];
     dotSize = 3;
     algorithm!: IAlgorithm;
-    numberOfPoints!: number;
-    wantedCluters!: number;
-    linkage!: string;
-    canvasSize!: number;
+    numberOfPoints: number = 0;
+    wantedClusters: number = 0;
+    linkage: string = "";
+    canvasSize: number = 0;
     classicAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, "canvas1", "output1", "run1");
     newAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, "canvas2", "output2", "run2")
+    pointsWorker: Worker = new Worker('./src/workers/PointsWorker.js', { type: "module" });
+    selectNumberOfPoints!: HTMLSelectElement;
 
-    getValue(name: string, init: boolean, isNumber: boolean): any {
+    addHandler(name: string, expectsInteger: boolean, onChange: (v: any) => void): HTMLSelectElement {
         let select = document.getElementById(name)! as HTMLSelectElement;
-        if (init) {
-            let queryParams = new URLSearchParams(window.location.search);
-            let value = queryParams.get(name);
-            for (let i = 0; i < select.options.length; i++) {
-                if (select.options[i].value == value) {
-                    select.options[i].selected = true;
-                }
+        let queryParams = new URLSearchParams(window.location.search);
+        let value = queryParams.get(name);
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value == value) {
+                select.options[i].selected = true;
             }
         }
-        if (!select.onchange) {
-            select.onchange = () => { this.refresh() };
+        let onChangeFn = () => {
+            onChange(expectsInteger ? parseInt(select.value) : select.value);
         }
-        let result = select.value;
-        return isNumber ? parseInt(result) : result;
+        select.onchange = onChangeFn;
+        setTimeout(onChangeFn, 0);
+        return select;
     }
 
 
-    addPoints() {
-        if (this.points.length > this.numberOfPoints) {
-            this.points.length = this.numberOfPoints;
-            this.refresh();
-        } else if (this.points.length < this.numberOfPoints) {
-            let groupBy = 25;
-            // we group points to make more interesting patterns than just plain random
-            for (let i = 0; i < 400; i++) {
-                let point0 = Point.randomPoint();
-                Points.addRandomPointsAround(this.points, groupBy, point0, 0.05);
-            }
-            if (this.points.length >= this.numberOfPoints) {
-                this.points.length = this.numberOfPoints;
-            }            
-            else {
-                console.log("points", this.points.length);
-                setTimeout(() => this.addPoints(), 0);
-            }
-        }
+
+    init() {
+        this.selectNumberOfPoints = this.addHandler("numberOfPoints", true, (v) => {
+            this.numberOfPoints = v;
+            this.updateQueryString();
+            this.onNumberOfPointChanged();
+        });
+        this.addHandler("wantedClusters", true, (v) => {
+            this.wantedClusters = v;
+            this.updateQueryString();
+            this.onAlgorithmArgsChanged();
+        });
+        this.addHandler("linkage", true, (v) => {
+            this.linkage = v;
+            this.updateQueryString();
+            this.onAlgorithmArgsChanged();
+        });
+        this.addHandler("canvasSize", true, (v) => {
+            this.canvasSize = v;
+            this.updateQueryString();
+            this.classicAlgorithmRunner.onCanvasSizeChanged();
+            this.newAlgorithmRunner.onCanvasSizeChanged();
+        });
+
+        this.pointsWorker.onmessage = (v) => {
+            this.selectNumberOfPoints.disabled = false;
+            let points = v.data.points as IPoint[];
+            this.classicAlgorithmRunner.onPointsChanged(points);
+            this.newAlgorithmRunner.onPointsChanged(points);
+        };
+
     }
 
-    refresh(init: boolean = false) {
-        this.numberOfPoints = this.getValue("numberOfPoints", init, true)
-        this.wantedCluters = this.getValue("wantedClusters", init, true);
-        this.linkage = "avg"; // this.getValue("linkage", init, false);        
-        this.canvasSize = this.getValue("canvasSize", init, true);
-
-        let classicAlgorithmConstructor!: () => IAlgorithm;
-        let newAlgorithmConstructor!: () => IAlgorithm;
-
-        if (this.points.length != this.numberOfPoints) {
-            this.addPoints();
-        }
+    onNumberOfPointChanged() {
+        this.selectNumberOfPoints.disabled = true;
+        this.pointsWorker.postMessage({ numberOfPoints: this.numberOfPoints });
+        this.updateQueryString();
+    }
 
 
-        switch (this.linkage) {
-            case "avg":
-                classicAlgorithmConstructor = () => new ClassicAvgAlgorithm();
-                newAlgorithmConstructor = () => new NewAvgAlgorithm();
-                break;
-        }
+    onAlgorithmArgsChanged() {
+        this.updateQueryString();
+        this.classicAlgorithmRunner.onAlgorithmArgsChanged();
+        this.newAlgorithmRunner.onAlgorithmArgsChanged();
+    }
 
-        this.classicAlgorithmRunner.init(classicAlgorithmConstructor);
-        this.newAlgorithmRunner.init(newAlgorithmConstructor);
-
+    updateQueryString() {
         var queryParams = new URLSearchParams(window.location.search);
-
-        this.palette = [];
-        for (let i = 0; i < this.wantedCluters; i++) {
-            this.palette.push(getColorPalette(i * 16807 % this.wantedCluters, this.wantedCluters));
-        }
-        this.dotSize = Math.max(1, 3 - this.numberOfPoints / 1000);
-
-
-        // Set new or modify existing parameter value. 
         queryParams.set("numberOfPoints", this.numberOfPoints.toString());
-        queryParams.set("wantedClusters", this.wantedCluters.toString());
+        queryParams.set("wantedClusters", this.wantedClusters.toString());
         queryParams.set("linkage", this.linkage);
         queryParams.set("canvasSize", this.canvasSize.toString());
-
         // Replace current querystring with the new one.
         history.replaceState(null, "", "?" + queryParams.toString());
     }
 
-}
+    //     this.classicAlgorithmRunner.init(classicAlgorithmConstructor);
+    //     this.newAlgorithmRunner.init(newAlgorithmConstructor);
 
-function getColorPalette(colorNo: number, colorCount: number) {
-    return hsv2rgb(colorNo * 360 / colorCount, 1, 1);
-}
-
-// input: h in [0,360] and s,v in [0,1] - output: r,g,b in [0,1]
-function hsv2rgb(h: number, s: number, v: number) {
-    let f = (n: number, k = (n + h / 60) % 6) => 255 * (v - v * s * Math.max(Math.min(k, 4 - k, 1), 0));
-    return `rgb(${f(5)},${f(3)},${f(1)})`;
 }
 
 var app = new App();
-setTimeout(() => app.refresh(true), 0);
+setTimeout(() => app.init(), 0);

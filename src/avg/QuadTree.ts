@@ -3,10 +3,7 @@ import { getDistance } from '../IPoint';
 import { Point } from '../Point';
 
 //import { Point } from './Point';
-export interface IPoint {
-    x: number;
-    y: number;
-}
+
 
 export class QuadTree {
     private currentLevels: number;

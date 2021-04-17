@@ -1,5 +1,5 @@
 import { Cluster, Dendrogram } from '../Cluster';
-import { IAlgorithm } from '../IAlgorithm';
+import { IAlgorithm } from '../workers/IAlgorithm';
 import { Pair } from './Pair';
 import { Point } from '../Point';
 import { QuadPair, QuadNode, QuadTree } from './QuadTree';

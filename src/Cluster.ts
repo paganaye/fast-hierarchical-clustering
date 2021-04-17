@@ -1,5 +1,5 @@
+import { IPoint } from './IPoint';
 import type { Point } from './Point';
-import { IPoint } from './avg/QuadTree';
 
 export class Cluster implements IPoint {
     readonly sumX: number;

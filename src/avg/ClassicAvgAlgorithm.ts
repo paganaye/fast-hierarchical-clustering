@@ -1,5 +1,5 @@
 import { Cluster, Dendrogram } from '../Cluster';
-import { IAlgorithm } from '../IAlgorithm';
+import { IAlgorithm } from '../workers/IAlgorithm';
 import { getDistance, getDistanceSquared } from '../IPoint';
 import { Pair } from './Pair';
 import { Point } from '../Point';
