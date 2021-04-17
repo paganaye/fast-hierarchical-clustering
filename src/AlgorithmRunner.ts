@@ -33,6 +33,7 @@ export class AlgorithmRunner {
     }
 
     init(algorithmConstructor: () => IAlgorithm) {
+        this.runCounter += 1;
         this.canvas.setAttribute("width", this.app.canvasSize + "px")
         this.canvas.setAttribute("height", this.app.canvasSize + "px")
         this.algorithmConstructor = algorithmConstructor;
@@ -88,25 +89,37 @@ export class AlgorithmRunner {
             let dendograms = this.algorithm.getCurrentDendrograms();
             this.displayDendrograms(dendograms);
             // strip the ms
-            this.outputElt.innerText = `${(timeDiff / 1000).toFixed(2)} sec (${Math.round(calculatedDistances / 1000000).toFixed(1)}M distances compared)`
-            console.log("done...")
+            this.outputElt.innerText = `${(timeDiff / 1000).toFixed(2)} sec`
+            console.log("done in ${timeDiff}ms (${Math.round(calculatedDistances / 1000000).toFixed(1)}M distances compared)")
         }
 
     }
 
     displayDendrograms(dendrograms: Dendrogram[]) {
+
         this.ctx.clearRect(0, 0, this.app.canvasSize, this.app.canvasSize);
         let sortedDendrograms = dendrograms.slice();
         sortedDendrograms.sort((a, b) => (a.y - b.y) || (a.x - b.x))
-        for (let i = 0; i < sortedDendrograms.length; i++) {
-            let color = this.app.palette[sortedDendrograms.length <= this.app.palette.length ? i : this.app.palette.length - 1];
+        this.displayDendrogramsAsync(sortedDendrograms, 0)
+    }
 
-            let points = getPoints(sortedDendrograms[i])
+    displayDendrogramsAsync(dendrograms: Dendrogram[], i: number) {
+        let batchEndTime = new Date().getTime() + 100;
+
+        while (i < dendrograms.length) {
+            let color = this.app.palette[dendrograms.length <= this.app.palette.length ? i : this.app.palette.length - 1];
+            let points = getPoints(dendrograms[i])
             let hull = getHull(points);
             this.displayHull(hull, color);
-            this.displayDendrogram(undefined, sortedDendrograms[i], color);
+            this.displayDendrogram(undefined, dendrograms[i], color);
+            i += 1;
+            if (new Date().getTime() > batchEndTime) {
+                setTimeout(() => this.displayDendrogramsAsync(dendrograms, i), 0)
+            }
         }
     }
+
+
 
     displayDendrogram(parent: Cluster | undefined, dendrogram: Dendrogram, color: string) {
         let x = dendrogram.x * this.app.canvasSize;

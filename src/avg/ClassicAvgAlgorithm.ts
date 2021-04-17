@@ -1,10 +1,11 @@
 import { Cluster, Dendrogram } from '../Cluster';
 import { IAlgorithm } from '../IAlgorithm';
-import { getDistance } from '../IPoint';
+import { getDistance, getDistanceSquared } from '../IPoint';
 import { Pair } from './Pair';
 import { Point } from '../Point';
 
 export class ClassicAvgAlgorithm implements IAlgorithm {
+    name: string = "Average Agglomerative Hierarchical Clustering";
     dendrograms: Dendrogram[] = [];
 
 
@@ -14,19 +15,20 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
 
 
     findNearestTwoPoints(): Pair | undefined {
-        let distanceMin = Number.MAX_VALUE;
+        let distanceSquaredMin = Number.MAX_VALUE;
         let result = undefined;
         let best: number[] | undefined;
         let pt2!: Point;
-        for (let i1 = 0; i1 < this.dendrograms.length; i1++) {
+        let len = this.dendrograms.length;
+        for (let i1 = 0; i1 < len; i1++) {
             let point1 = this.dendrograms[i1];
-            for (let i2 = i1 + 1; i2 < this.dendrograms.length; i2++) {
+            for (let i2 = i1 + 1; i2 < len; i2++) {
                 let point2 = this.dendrograms[i2];
-                let distance = getDistance(point1, point2);
-                if (distance < distanceMin) {
-                    distanceMin = distance;
+                let distanceSquared = getDistanceSquared(point1, point2);
+                if (distanceSquared < distanceSquaredMin) {
+                    distanceSquaredMin = distanceSquared;
                     best = [i1, i2];
-                } else if (distance == distanceMin) {
+                } else if (distanceSquared == distanceSquaredMin) {
                     console.warn("We got equal distances");
                 }
             }

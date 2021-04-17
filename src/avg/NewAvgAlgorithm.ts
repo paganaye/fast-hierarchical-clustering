@@ -5,6 +5,7 @@ import { Point } from '../Point';
 import { QuadPair, QuadNode, QuadTree } from './QuadTree';
 
 export class NewAvgAlgorithm implements IAlgorithm {
+    name: string = "New Average Agglomerative Hierarchical Clustering";
     quadTree: QuadTree;
     neighbours: QuadPair[] = [];
 

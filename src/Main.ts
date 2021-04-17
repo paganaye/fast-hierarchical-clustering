@@ -35,6 +35,28 @@ export class App {
         return isNumber ? parseInt(result) : result;
     }
 
+
+    addPoints() {
+        if (this.points.length > this.numberOfPoints) {
+            this.points.length = this.numberOfPoints;
+            this.refresh();
+        } else if (this.points.length < this.numberOfPoints) {
+            let groupBy = 25;
+            // we group points to make more interesting patterns than just plain random
+            for (let i = 0; i < 400; i++) {
+                let point0 = Point.randomPoint();
+                Points.addRandomPointsAround(this.points, groupBy, point0, 0.05);
+            }
+            if (this.points.length >= this.numberOfPoints) {
+                this.points.length = this.numberOfPoints;
+            }            
+            else {
+                console.log("points", this.points.length);
+                setTimeout(() => this.addPoints(), 0);
+            }
+        }
+    }
+
     refresh(init: boolean = false) {
         this.numberOfPoints = this.getValue("numberOfPoints", init, true)
         this.wantedCluters = this.getValue("wantedClusters", init, true);
@@ -45,13 +67,7 @@ export class App {
         let newAlgorithmConstructor!: () => IAlgorithm;
 
         if (this.points.length != this.numberOfPoints) {
-            this.points = [];
-            let groupBy = Math.round(1 + Math.sqrt(this.numberOfPoints));
-            // we group points to make more interesting patterns than just plain random
-            for (let i = 0; i < this.numberOfPoints / groupBy; i++) {
-                let point0 = Point.randomPoint();
-                Points.addRandomPointsAround(this.points, groupBy, point0, 0.05);
-            }
+            this.addPoints();
         }
 
 
