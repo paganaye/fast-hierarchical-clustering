@@ -1,5 +1,5 @@
-import { Dendrogram } from './Cluster';
-import { getDistance } from './IPoint';
+import { Dendrogram } from '../Cluster';
+import { getDistance } from '../IPoint';
 
 export class Pair {
     readonly point1: Dendrogram;

@@ -1,14 +1,14 @@
-import { Cluster, Dendrogram } from './Cluster';
-import { IAlgorithm } from './IAlgorithm';
+import { Cluster, Dendrogram } from '../Cluster';
+import { IAlgorithm } from '../IAlgorithm';
 import { Pair } from './Pair';
-import { Point } from './Point';
+import { Point } from '../Point';
 import { QuadPair, QuadNode, QuadTree } from './QuadTree';
 
-export class NewCentroidAlgorithm implements IAlgorithm {
+export class NewAvgAlgorithm implements IAlgorithm {
     quadTree: QuadTree;
     neighbours: QuadPair[] = [];
 
-    constructor(private initialLevels: number = 10) {
+    constructor(private initialLevels: number = 20) {
         this.quadTree = new QuadTree(initialLevels);
     }
   

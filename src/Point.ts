@@ -1,5 +1,5 @@
 import { PseudoRandom } from '../test/PseudoRandom';
-import { IPoint } from './QuadTree';
+import { IPoint } from './avg/QuadTree';
 
 export class Point implements IPoint {
     tag: string | undefined;
@@ -25,5 +25,7 @@ export class Point implements IPoint {
     getSumX() { return this.x; }
     getSumY() { return this.y; }
     getCount() { return 1; }
+ 
 }
+
 

@@ -1,12 +1,12 @@
 import type { Point } from './Point';
-import { IPoint } from './QuadTree';
+import { IPoint } from './avg/QuadTree';
 
 export class Cluster implements IPoint {
     readonly sumX: number;
     readonly sumY: number;
     readonly count: number;
-    readonly x: number; // mean point
-    readonly y: number; // mean point
+    readonly x: number; // Avg point
+    readonly y: number; // Avg point
     readonly dendrogram1: Dendrogram;
     readonly dendrogram2: Dendrogram
     tag: string | undefined;

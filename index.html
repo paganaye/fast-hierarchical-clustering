@@ -17,80 +17,108 @@
       .extra {
         clear: both;
       }
+      .select-box {
+        padding: .5em;
+      }
     </style>
   </head>
   <body>
     <h1>Agglomerative Hierarchical Clustering</h1>
     <p>using euclidian distance</p>
-    <p>using centroid linkage</p>
+    <p>
+      <div class="select-box">
+        <label>Number of points:</label>
+        <select id="numberOfPoints">
+          <option>10</option>
+          <option selected>100</option>
+          <option>500</option>
+          <option>1000</option>
+          <option>2000</option>
+          <option>3000</option>
+          <option>4000</option>
+          <option>5000</option>
+          <option>10000</option>
+          <option>20000</option>
+          <option>30000</option>
+          <option>40000</option>
+          <option>50000</option>
+          <option>60000</option>
+          <option>70000</option>
+          <option>80000</option>
+          <option>90000</option>
+          <option>100000</option>
+          <option>200000</option>
+          <option>500000</option>
+        </select>
+      </div>
+      <div class="select-box">
+        <label>Number of wanted clusters:</label>
+        <select id="wantedClusters">
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+          <option selected>6</option>
+          <option >7</option>
+          <option >8</option>
+          <option >9</option>
+          <option >10</option>
+          <option >11</option>
+          <option >12</option>
+          <option >13</option>
+          <option >14</option>
+          <option >15</option>
+          <option >16</option>
+          <option >25</option>
+          <option >36</option>
+          <option >49</option>
+          <option >64</option>
+          <option >81</option>
+          <option >100</option>
+          <option >121</option>
+          <option >144</option>
+          <option >169</option>
+          <option >196</option>
+          <option >225</option>
+          <option >256</option>
+        </select>      
+      </div>
+      <div class="select-box">
+        <label>Linkage:</label>
+        <select id="linkage" disabled>
+          <option value="avg" selected>Average (mean)</option>
+          <option value="min">Single (min)</option>
+          <option value="max">Complete (max)</option>
+        </select>      
+      </div>
+      <div class="select-box">
+        <label>Canvas size:</label>
+        <select id="canvasSize">
+          <option value="300">small</option>
+          <option value="500" selected>medium</option>
+          <option value="800">large</option>
+        </select>      
+      </div>      
+    </p>
+    <p>using Avg linkage</p>
     <div>
       <div class="algorithmBox">
         <h2>Standard Algorithm</h2>
-        <pre id="output1">...</pre>
+        <div class="buttonBar">
+          <button id="run1">Run</button>
+          <span id="output1">...</span>
+        </div>
         <canvas id="canvas1"></canvas>
       </div>
       <div class="algorithmBox">
         <h2>New Algorithm</h2>
-        <pre id="output2">...</pre>
+        <div class="buttonBar">
+          <button id="run2">Run</button>
+          <span id="output2">...</span>
+        </div>
         <canvas id="canvas2"></canvas>
       </div>
-    </div>
-    <div class="extra">
-      <h2>Performance measurement</h2>
-      <p>Duration in seconds.</p>
-      <table id="table1">
-        <tr>
-          <td>Points</td>
-          <td>Standard Algorithm</td>
-          <td>New Algorithm</td>
-        </tr>
-        <tr>
-          <td>500</td>
-          <td>0.22</td>
-          <td>0.03</td>
-        </tr>
-        <tr>
-          <td>1000</td>
-          <td>1.56</td>
-          <td>0.05</td>
-        </tr>
-        <tr>
-          <td>1500</td>
-          <td>5.29</td>
-          <td>0.08</td>
-        </tr>
-        <tr>
-          <td>2000</td>
-          <td>14.10</td>
-          <td>0.11</td>
-        </tr>
-        <tr>
-          <td>2500</td>
-          <td>33.99</td>
-          <td>0.12</td>
-        </tr>
-        <tr>
-          <td>3000</td>
-          <td>69.38</td>
-          <td>0.15</td>
-        </tr>
-        <tr>
-          <td>4000</td>
-          <td>?</td>
-          <td>0.18</td>
-        </tr>
-        <tr>
-          <td>5000</td>
-          <td>?</td>
-          <td>0.24</td>
-        </tr>
-        <tr>
-          <td>10 000</td>
-          <td>?</td>
-          <td>0.59</td>
-        </tr>
-      </table>
-    </div>
+    </div>   
     <script type="module" src="src/Main.js"></script>
   </body>
 </html>

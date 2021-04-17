@@ -1,6 +1,6 @@
-import { Cluster, Dendrogram } from './Cluster';
-import { getDistance } from './IPoint';
-import { Point } from './Point';
+import { Cluster, Dendrogram } from '../Cluster';
+import { getDistance } from '../IPoint';
+import { Point } from '../Point';
 
 //import { Point } from './Point';
 export interface IPoint {
@@ -13,7 +13,7 @@ export class QuadTree {
     root: QuadNode;
     pointCount = 0;
 
-    constructor(private initialLevels: number = 10) {
+    constructor(private initialLevels: number) {
         this.currentLevels = initialLevels
         this.root = new QuadNode(initialLevels - 1, 0.5, 0.5, 0.5);
         this.root.nodeSize = 2; // we need to allow the root node to group points that are further than 1.0 appart.
