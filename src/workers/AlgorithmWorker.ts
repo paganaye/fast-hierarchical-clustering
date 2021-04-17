@@ -1,30 +1,65 @@
-export class PointsWorker {
+import { ClassicAvgAlgorithm } from '../avg/ClassicAvgAlgorithm';
+import { NewAvgAlgorithm } from '../avg/NewAvgAlgorithm';
+import { Pair } from '../avg/Pair';
+import { Dendrogram } from '../Cluster';
+import { IPoint } from '../IPoint';
+import { IAlgorithm } from './IAlgorithm';
+
+export interface IAlgorithmWorkerInput {
+    points: IPoint[]
+    linkage: string;
+    wantedClusters: number;
+    newAlgorithm: boolean;
 }
 
-/*
+export interface IAlgorithmWorkerOutput {
+    complete: boolean;
+    progress: number;
+    dendrograms: Dendrogram[]
+}
 
-        this.algorithmConstructor = algorithmConstructor;
-        this.algorithm = algorithmConstructor();
-        this.algorithm.init(this.app.points);
-        switch (this.linkage) {
-            case "avg":
-                this.classicAlgorithmRunner.init(this.linkage);
-                this.newAlgorithmRunner.init();
-                break;
+let globalRunCounter = 0;
+
+function group(input: IAlgorithmWorkerInput): IAlgorithmWorkerOutput {
+    let algorithm!: IAlgorithm;
+    switch (input.linkage) {
+        case "avg":
+            algorithm = input.newAlgorithm ? new NewAvgAlgorithm() : new ClassicAvgAlgorithm();
+            break;
+    }
+
+    algorithm.init(input.points);
+    globalRunCounter += 1;
+    runBatch(globalRunCounter);
+    return { complete: false, progress: 0.1, dendrograms: algorithm.getCurrentDendrograms() }
+
+    function runBatch(runCounter: number) {
+        let pair: Pair | undefined;
+        let dendogramsCount!: number;
+        let batchEndTime = new Date().getTime() + 500;
+
+        while (new Date().getTime() < batchEndTime) {
+            pair = algorithm.findNearestTwoPoints();
+            if (pair) {
+                pair.merge();
+            }
+            dendogramsCount = algorithm.getDendrogramsCount();
+            if (!pair || dendogramsCount <= input.wantedClusters) break;
         }
-
-*/
-
-onmessage = function (e) {
-    console.log('PointsWorker: Message received from main script');
-    const result = e.data[0] * e.data[1];
-    if (isNaN(result)) {
-        postMessage('Please write two numbers', 'worker.ts');
-    } else {
-        const workerResult = 'Result: ' + result;
-        console.log('Worker: Posting message back to main script');
-        postMessage(workerResult, undefined as any);
+        if (runCounter == globalRunCounter) {
+            if (pair && dendogramsCount > input.wantedClusters) {
+                let progress = (input.points.length + input.wantedClusters - dendogramsCount) / input.points.length;
+                postMessage({ complete: false, progress, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);
+                setTimeout(() => runBatch(runCounter), 0);
+            } else {
+                postMessage({ complete: true, progress: 1, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);
+            }
+        }
     }
 }
 
+onmessage = function (e) {
+    console.log("algorithm worker here")
+    postMessage(group(e.data as IAlgorithmWorkerInput), undefined as any);
+}
 

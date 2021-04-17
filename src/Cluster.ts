@@ -25,28 +25,38 @@ export class Cluster implements IPoint {
         }
         if (this.dendrogram1.tag && this.dendrogram2.tag) this.tag = this.dendrogram1.tag + this.dendrogram2.tag
 
-        this.sumX = dendrogram1.getSumX() + dendrogram2.getSumX();
-        this.sumY = dendrogram1.getSumY() + dendrogram2.getSumY();
-        this.count = dendrogram1.getCount() + dendrogram2.getCount();
 
+        if ('count' in dendrogram1) {
+            this.sumX = dendrogram1.sumX;
+            this.sumY = dendrogram1.sumY;
+            this.count = dendrogram1.count;
+        } else {
+            this.sumX = dendrogram1.x;
+            this.sumY = dendrogram1.y;
+            this.count = 1;
+        }
+        if ('count' in dendrogram2) {
+            this.sumX += dendrogram2.sumX;
+            this.sumY += dendrogram2.sumY;
+            this.count += dendrogram2.count;
+        } else {
+            this.sumX += dendrogram2.x;
+            this.sumY += dendrogram2.y;
+            this.count += 1;
+        }
         this.x = this.sumX / this.count;
         this.y = this.sumY / this.count;
     }
 
     toString() {
         let content: string = this.dendrogram1 + "," + this.dendrogram2;
-        if (this.tag){
+        if (this.tag) {
             return `${this.tag} (${this.x},${this.y})`;
         } else {
             return `Cl(${this.x},${this.y})` + ` [${content}]`;
         }
-        
+
     }
-
-    getSumX() { return this.sumX; }
-    getSumY() { return this.sumY; }
-    getCount() { return this.count; }
-
 }
 
 export type Dendrogram = Cluster | Point;

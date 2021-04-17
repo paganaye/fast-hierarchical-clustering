@@ -21,10 +21,6 @@ export class Point implements IPoint {
     toString() {
         return this.tag ? `#${this.tag}` : `(${this.x},${this.y})`;
     }
-
-    getSumX() { return this.x; }
-    getSumY() { return this.y; }
-    getCount() { return 1; }
  
 }
 
