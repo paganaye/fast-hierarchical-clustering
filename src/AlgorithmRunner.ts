@@ -67,7 +67,6 @@ export class AlgorithmRunner {
         }
         console.log("starting algorithmWorker");
         this.algorithmWorker.postMessage(algorithmWorkerArgs)
-
     }
 
     onPointsChanged() {

@@ -9,7 +9,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
     quadTree: QuadTree;
     neighbours: QuadPair[] = [];
 
-    constructor(private initialLevels: number = 20) {
+    constructor(private initialLevels: number = 10) {
         this.quadTree = new QuadTree(initialLevels);
     }
   
