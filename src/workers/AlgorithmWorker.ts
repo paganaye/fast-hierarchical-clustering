@@ -20,18 +20,23 @@ export interface IAlgorithmWorkerOutput {
 
 let globalRunCounter = 0;
 
-function group(input: IAlgorithmWorkerInput): IAlgorithmWorkerOutput {
+function group(input: IAlgorithmWorkerInput) {
+    console.log("Start grouping")
     let algorithm!: IAlgorithm;
+    globalRunCounter += 1;
+    console.log({ globalRunCounter });
+
     switch (input.linkage) {
         case "avg":
             algorithm = input.newAlgorithm ? new NewAvgAlgorithm() : new ClassicAvgAlgorithm();
             break;
+        case "none":
+            postMessage({ complete: true, progress: 1, dendrograms: input.points }, undefined as any);
+            return;
     }
-
     algorithm.init(input.points);
-    globalRunCounter += 1;
     runBatch(globalRunCounter);
-    return { complete: false, progress: 0.1, dendrograms: algorithm.getCurrentDendrograms() }
+
 
     function runBatch(runCounter: number) {
         let pair: Pair | undefined;
@@ -54,12 +59,14 @@ function group(input: IAlgorithmWorkerInput): IAlgorithmWorkerOutput {
             } else {
                 postMessage({ complete: true, progress: 1, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);
             }
+        } else {
+            console.log("stopping batch " + runCounter);
         }
     }
 }
 
 onmessage = function (e) {
-    console.log("algorithm worker here")
-    postMessage(group(e.data as IAlgorithmWorkerInput), undefined as any);
+    console.log("algorithmWorker", e.data);
+    group(e.data as IAlgorithmWorkerInput);
 }
 

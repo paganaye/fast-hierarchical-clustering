@@ -13,10 +13,6 @@ export interface IPaintWorkerArgs {
 function paint(args: IPaintWorkerArgs) {
 
     let dotSize = Math.max(1, 3 - args.dendrograms.length / 1000);
-    let palette: string[] = [];
-    for (let i = 0; i < args.wantedClusters; i++) {
-        palette.push(getColorPalette(i * 16807 % args.wantedClusters, args.wantedClusters));
-    }
     let canvas = new OffscreenCanvas(args.width, args.height);
     let ctx = canvas.getContext("2d")!;
     ctx.fillRect(10, 10, 20, 20);
@@ -25,7 +21,7 @@ function paint(args: IPaintWorkerArgs) {
     return { imageData };
 
 
-    function getColorPalette(colorNo: number, colorCount: number) {
+    function getColor(colorNo: number, colorCount: number) {
         return hsv2rgb(colorNo * 360 / colorCount, 1, 1);
     }
 
@@ -45,8 +41,8 @@ function paint(args: IPaintWorkerArgs) {
         let batchEndTime = new Date().getTime() + 100;
 
         for (let i = 0; i < dendrograms.length; i++) {
-            let color = palette[i % palette.length];
-            //let color = palette[dendrograms.length <= palette.length ? i : palette.length - 1];
+            /* * 16807 % args.wantedClusters */
+            let color = getColor(i, args.wantedClusters);
             let points = getPoints(dendrograms[i])
             let hull = getHull(points);
             displayHull(hull, color);

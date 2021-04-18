@@ -31,14 +31,7 @@ export class AlgorithmRunner {
         this.runButton = document.getElementById(runButtonId) as HTMLButtonElement;
         this.ctx = this.canvas.getContext("2d")!!;
 
-        this.paintWorker.onmessage = (e) => {
-            let imageData: ImageData = e.data.imageData;
-            if (this.app.canvasSize != this.canvas.width || this.app.canvasSize != this.canvas.height) {
-                this.canvas.width = this.app.canvasSize;
-                this.canvas.height = this.app.canvasSize;
-            }
-            this.ctx.putImageData(imageData, 0, 0);
-        }
+        this.displayPoints();
         // setTimeout(() => this.onCanvasSizeChanged());
         this.algorithmWorker.onmessage = (e) => {
             this.currentDendrograms = (e.data as IAlgorithmWorkerOutput).dendrograms;
@@ -47,6 +40,17 @@ export class AlgorithmRunner {
 
         this.runButton.onclick = () => {
             this.run();
+        }
+    }
+
+    displayPoints() {
+        this.paintWorker.onmessage = (e) => {
+            let imageData: ImageData = e.data.imageData;
+            if (this.app.canvasSize != this.canvas.width || this.app.canvasSize != this.canvas.height) {
+                this.canvas.width = this.app.canvasSize;
+                this.canvas.height = this.app.canvasSize;
+            }
+            this.ctx.putImageData(imageData, 0, 0);
         }
     }
 
@@ -65,13 +69,14 @@ export class AlgorithmRunner {
             wantedClusters: this.app.wantedClusters,
             newAlgorithm: this.newAlgorithm
         }
-        console.log("starting algorithmWorker");
-        this.algorithmWorker.postMessage(algorithmWorkerArgs)
+        console.log("starting algorithmWorker", algorithmWorkerArgs);
+        this.algorithmWorker.postMessage(algorithmWorkerArgs);
     }
 
     onPointsChanged() {
         this.currentDendrograms = this.app.points as Point[];
         //this.algorithmWorker.terminate()
+        this.cancel();
         this.repaint();
     }
 
@@ -101,15 +106,9 @@ export class AlgorithmRunner {
 
 
     cancel() {
-        let algorithmWorkerArgs: IAlgorithmWorkerInput = {
-            points: [],
-            linkage: "avg",
-            wantedClusters: 1,
-            newAlgorithm: this.newAlgorithm
-        }
-        this.algorithmWorker.postMessage(algorithmWorkerArgs)
+        this.algorithmWorker.postMessage({
+            points: this.app.points,
+            linkage: "none",
+        });
     }
-
-
-
 }

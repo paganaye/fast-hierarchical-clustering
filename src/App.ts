@@ -8,7 +8,6 @@ import { IPointsWorkerInput } from './workers/PointsWorker';
 
 export class App {
     points: Point[] = [];
-    palette: string[] = [];
     dotSize = 3;
     algorithm!: IAlgorithm;
     numberOfPoints: number = 0;
