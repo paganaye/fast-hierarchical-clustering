@@ -42,8 +42,13 @@ export class App {
         this.selectNumberOfPoints = this.addHandler("numberOfPoints", true, (v) => {
             this.numberOfPoints = v;
             this.updateQueryString();
-            this.onNumberOfPointChanged();
-        });
+            this.selectNumberOfPoints.disabled = true;
+            let args: IPointsWorkerInput = {
+                numberOfPoints: this.numberOfPoints
+            };
+            this.pointsWorker.postMessage(args);
+            this.updateQueryString();
+            });
         this.addHandler("wantedClusters", true, (v) => {
             this.wantedClusters = v;
             this.updateQueryString();
@@ -68,15 +73,6 @@ export class App {
             this.newAlgorithmRunner.onPointsChanged();
         };
 
-    }
-
-    onNumberOfPointChanged() {
-        this.selectNumberOfPoints.disabled = true;
-        let args: IPointsWorkerInput = {
-            numberOfPoints: this.numberOfPoints
-        };
-        this.pointsWorker.postMessage(args);
-        this.updateQueryString();
     }
 
 

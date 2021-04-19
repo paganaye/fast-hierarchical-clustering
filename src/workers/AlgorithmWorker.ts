@@ -31,7 +31,7 @@ function group(input: IAlgorithmWorkerInput) {
             algorithm = input.newAlgorithm ? new NewAvgAlgorithm() : new ClassicAvgAlgorithm();
             break;
         case "none":
-            postMessage({ complete: true, progress: 1, dendrograms: input.points }, undefined as any);
+            postMessage({ canceled:true, progress: 0 }, undefined as any);
             return;
     }
     algorithm.init(input.points);
@@ -52,6 +52,7 @@ function group(input: IAlgorithmWorkerInput) {
             if (!pair || dendogramsCount <= input.wantedClusters) break;
         }
         if (runCounter == globalRunCounter) {
+            console.log("posting...");
             if (pair && dendogramsCount > input.wantedClusters) {
                 let progress = (input.points.length + input.wantedClusters - dendogramsCount) / input.points.length;
                 postMessage({ complete: false, progress, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);

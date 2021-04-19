@@ -19,6 +19,8 @@ export class AlgorithmRunner {
     algorithmWorker: Worker = new Worker('./src/workers/AlgorithmWorker.js', { type: "module" });
     paintWorker: Worker = new Worker('./src/workers/PaintWorker.js', { type: "module" });
     currentDendrograms: Dendrogram[] = [];
+    duration: number = 0;
+    runStartTime: number = 0;
 
     constructor(private app: App,
         canvasId: string,
@@ -34,6 +36,15 @@ export class AlgorithmRunner {
         this.displayPoints();
         // setTimeout(() => this.onCanvasSizeChanged());
         this.algorithmWorker.onmessage = (e) => {
+            console.log("algorithmWorker says", e.data);
+            if (e.data.complete) {
+                this.duration = (new Date().getTime() - this.runStartTime) / 1000.0;
+                this.outputElt.innerText = "Done in " + this.duration.toFixed(2) + " sec";
+            } else if (e.data.canceled) {
+                this.outputElt.innerText = "";
+            } else {
+                this.outputElt.innerText = (e.data.progress * 100).toFixed(2) + "%"
+            }
             this.currentDendrograms = (e.data as IAlgorithmWorkerOutput).dendrograms;
             this.repaint()
         }
@@ -71,11 +82,19 @@ export class AlgorithmRunner {
         }
         console.log("starting algorithmWorker", algorithmWorkerArgs);
         this.algorithmWorker.postMessage(algorithmWorkerArgs);
+        this.runStartTime = new Date().getTime();
     }
+
 
     onPointsChanged() {
         this.currentDendrograms = this.app.points as Point[];
         //this.algorithmWorker.terminate()
+        this.cancel();
+        this.repaint();
+    }
+
+
+    onAlgorithmArgsChanged() {
         this.cancel();
         this.repaint();
     }
@@ -93,17 +112,11 @@ export class AlgorithmRunner {
         }
     }
 
-    onAlgorithmArgsChanged() {
-        //        throw new Error('Method not implemented.');
-        //this.algorithmWorker.terminate()
-        this.cancel();
-    }
 
     onCanvasSizeChanged() {
         // throw new Error('Method not implemented.');
         this.repaint();
     }
-
 
     cancel() {
         this.algorithmWorker.postMessage({
