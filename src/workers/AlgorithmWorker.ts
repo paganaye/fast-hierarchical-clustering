@@ -1,7 +1,6 @@
 import { ClassicAvgAlgorithm } from '../classic/ClassicAvgAlgorithm';
 import { NewAvgAlgorithm } from '../new/NewAvgAlgorithm';
 import { FasterAvgAlgorithm } from '../faster/FasterAvgAlgorithm';
-import { Pair } from '../Pair';
 import { Dendrogram } from '../Cluster';
 import { IPoint } from '../IPoint';
 import { IAlgorithm } from './IAlgorithm';
@@ -49,27 +48,25 @@ function group(input: IAlgorithmWorkerInput) {
             return;
     }
     algorithm.init(input.points);
-    runBatch(globalRunCounter);
+    setTimeout(() => runBatch(globalRunCounter), 0);
 
 
     function runBatch(runCounter: number) {
-        let pair: Pair | undefined;
-        let dendogramsCount!: number;
+        let dendrogramsCount!: number;
         let batchEndTime = new Date().getTime() + 500;
 
-        let generator = algorithm.getNearestPairs();
+        let generator = algorithm.buildClusters();
 
         do {
             let result = generator.next();
-            dendogramsCount = algorithm.getDendrogramsCount();
-            if (result.done || dendogramsCount <= input.wantedClusters) break;
-            let pair = result.value;
-            pair.merge();
+            dendrogramsCount = algorithm.getDendrogramsCount();
+            if (result.done || dendrogramsCount <= input.wantedClusters) break;
+            let cluster = result.value;
         } while (new Date().getTime() < batchEndTime);
 
         if (runCounter == globalRunCounter) {
-            if (dendogramsCount > input.wantedClusters) {
-                let progress = (input.points.length + input.wantedClusters - dendogramsCount) / input.points.length;
+            if (dendrogramsCount > input.wantedClusters) {
+                let progress = (input.points.length + input.wantedClusters - dendrogramsCount) / input.points.length;
                 postMessage({ complete: false, progress, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);
                 setTimeout(() => runBatch(runCounter), 0);
             } else {

@@ -1,6 +1,5 @@
 import { Cluster, Dendrogram } from '../Cluster';
 import { IAlgorithm } from '../workers/IAlgorithm';
-import { Pair } from '../Pair';
 import { Point } from '../Point';
 import { FasterQuadTree, PointEx, ClusterEx } from './FasterQuadTree';
 
@@ -9,8 +8,9 @@ export class FasterAvgAlgorithm implements IAlgorithm {
     name: string = "New Average Agglomerative Hierarchical Clustering";
     quadTree: FasterQuadTree;
 
-    constructor(private initialLevels: number = 10) {
+    constructor(private initialLevels: number = 10, points: Point[] | undefined = undefined) {
         this.quadTree = new FasterQuadTree(initialLevels);
+        if (points) this.init(points);
     }
 
     init(points: Point[]): void {
@@ -19,15 +19,9 @@ export class FasterAvgAlgorithm implements IAlgorithm {
         }
     }
 
-    *getNearestPairs(): Generator<Pair> {
+    *buildClusters(): Generator<ClusterEx> {
         do {
-            for (let { point1, point2 } of this.quadTree.getNeighbours()) {
-                let pair = new Pair(
-                    point1,
-                    point2,
-                    () => { });
-                yield pair
-            }
+            yield* this.quadTree.buildClusters();
         } while (this.quadTree.trim());
     }
 

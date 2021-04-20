@@ -18,10 +18,15 @@ export class Point implements IPoint {
         let y = (point.y + Math.sin(angle) * distance + 1.0) % 1;
         return new Point(x, y)
     }
+
     toString() {
-        return this.tag ? `#${this.tag}` : `(${this.x},${this.y})`;
+        return this.tag || `(${this.x.toFixed(3)},${this.y.toFixed(3)})`;
     }
- 
+
+    getNormalizedDendrogram(): string {
+        return this.toString()
+    }
+
 }
 
 

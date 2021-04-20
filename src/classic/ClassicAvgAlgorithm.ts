@@ -1,30 +1,32 @@
 import { Cluster, Dendrogram } from '../Cluster';
 import { IAlgorithm } from '../workers/IAlgorithm';
 import { getDistance, getDistanceSquared } from '../IPoint';
-import { Pair } from '../Pair';
 import { Point } from '../Point';
 
 export class ClassicAvgAlgorithm implements IAlgorithm {
     name: string = "Average Agglomerative Hierarchical Clustering";
     dendrograms: Dendrogram[] = [];
 
+    constructor(points: Point[] | undefined = undefined) {
+        if (points) this.init(points);
+    }
 
     init(points: Point[]): void {
         this.dendrograms = points.slice();
     }
 
-    *getNearestPairs(): Generator<Pair> {
-        let pair: Pair | undefined;
+    *buildClusters(): Generator<Cluster> {
+        let cluster: Cluster | undefined;
         do {
-            pair = this.findNearestTwoPoints();
-            if (pair) yield pair;
-        } while (pair)
+            cluster = this.findNearestTwoPoints();
+            if (cluster) yield cluster;
+        } while (cluster)
     }
 
-    findNearestTwoPoints(): Pair | undefined {
+    findNearestTwoPoints(): Cluster | undefined {
         let distanceSquaredMin = Number.MAX_VALUE;
         let result = undefined;
-        let best: number[] | undefined;
+        let best: { point1: Dendrogram, point2: Dendrogram, i1: number, i2: number } | undefined;
         let pt2!: Point;
         let len = this.dendrograms.length;
         for (let i1 = 0; i1 < len; i1++) {
@@ -34,21 +36,17 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
                 let distanceSquared = getDistanceSquared(point1, point2);
                 if (distanceSquared < distanceSquaredMin) {
                     distanceSquaredMin = distanceSquared;
-                    best = [i1, i2];
+                    best = { point1, point2, i1, i2 };
                 } else if (distanceSquared == distanceSquaredMin) {
                     console.warn("We got equal distances");
                 }
             }
         }
         if (best) {
-            return new Pair(
-                this.dendrograms[best[0]],
-                this.dendrograms[best[1]],
-                () => {
-                    let newCluster = new Cluster(this.dendrograms[best![0]], this.dendrograms[best![1]]);
-                    this.dendrograms[best![0]] = newCluster; // replace one
-                    this.dendrograms.splice(best![1], 1); // delete the other        
-                });
+            let newCluster = new Cluster(best.point1, best.point2);
+            this.dendrograms[best.i1] = newCluster; // replace one
+            this.dendrograms.splice(best.i2, 1); // delete the other        
+            return newCluster;
         }
     }
 

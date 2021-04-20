@@ -18,14 +18,14 @@ describe('Avg algorithm', function () {
       let newAlgorithm = new NewAvgAlgorithm();
       classicAlgorithm.init(points);
       newAlgorithm.init(points);
-      let classicAlgorithmFirstPair = classicAlgorithm.findNearestTwoPoints()?.toString();
-      let newAlgorithmFirstPair = newAlgorithm.findNearestTwoPoints()?.toString();
-      if (classicAlgorithmFirstPair == newAlgorithmFirstPair) {
-        console.log("OK", classicAlgorithmFirstPair);
+      let classicAlgorithmFirstCluster = classicAlgorithm.findNearestTwoPoints()?.toString();
+      let newAlgorithmFirstCluster = newAlgorithm.findNearestTwoPoints()?.toString();
+      if (classicAlgorithmFirstCluster == newAlgorithmFirstCluster) {
+        console.log("OK", classicAlgorithmFirstCluster);
       } else {
         console.log({ pt1, pt2, pt3 });
-        console.warn("KO", { classicAlgorithmFirstPair, newAlgorithmFirstPair });
-        expect(newAlgorithmFirstPair).to.eq(classicAlgorithmFirstPair);
+        console.warn("KO", { classicAlgorithmFirstCluster, newAlgorithmFirstCluster });
+        expect(newAlgorithmFirstCluster).to.eq(classicAlgorithmFirstCluster);
         break;
       }
     }
@@ -44,14 +44,14 @@ describe('Avg algorithm', function () {
 
     newAlgorithm.quadTree.print();
 
-    let classicAlgorithmFirstPair = classicAlgorithm.findNearestTwoPoints()?.toString();
-    let newAlgorithmFirstPair = newAlgorithm.findNearestTwoPoints()?.toString();
-    if (classicAlgorithmFirstPair == newAlgorithmFirstPair) {
-      console.log("OK", classicAlgorithmFirstPair);
+    let classicAlgorithmFirstCluster = classicAlgorithm.findNearestTwoPoints()?.toString();
+    let newAlgorithmFirstCluster = newAlgorithm.findNearestTwoPoints()?.toString();
+    if (classicAlgorithmFirstCluster == newAlgorithmFirstCluster) {
+      console.log("OK", classicAlgorithmFirstCluster);
     } else {
       console.log({ pt1, pt2, pt3 });
-      console.warn("KO", { classicAlgorithmFirstPair, newAlgorithmFirstPair });
-      expect(newAlgorithmFirstPair).to.eq(classicAlgorithmFirstPair);
+      console.warn("KO", { classicAlgorithmFirstCluster, newAlgorithmFirstCluster });
+      expect(newAlgorithmFirstCluster).to.eq(classicAlgorithmFirstCluster);
     }
   });
 
@@ -68,14 +68,14 @@ describe('Avg algorithm', function () {
 
     newAlgorithm.quadTree.print();
 
-    let classicAlgorithmFirstPair = classicAlgorithm.findNearestTwoPoints()?.toString();
-    let newAlgorithmFirstPair = newAlgorithm.findNearestTwoPoints()?.toString();
-    if (classicAlgorithmFirstPair == newAlgorithmFirstPair) {
-      console.log("OK", classicAlgorithmFirstPair);
+    let classicAlgorithmFirstCluster = classicAlgorithm.findNearestTwoPoints()?.toString();
+    let newAlgorithmFirstCluster = newAlgorithm.findNearestTwoPoints()?.toString();
+    if (classicAlgorithmFirstCluster == newAlgorithmFirstCluster) {
+      console.log("OK", classicAlgorithmFirstCluster);
     } else {
       console.log({ pt1, pt2, pt3 });
-      console.warn("KO", { classicAlgorithmFirstPair, newAlgorithmFirstPair });
-      expect(newAlgorithmFirstPair).to.eq(classicAlgorithmFirstPair);
+      console.warn("KO", { classicAlgorithmFirstCluster, newAlgorithmFirstCluster });
+      expect(newAlgorithmFirstCluster).to.eq(classicAlgorithmFirstCluster);
     }
   });
 
@@ -96,24 +96,21 @@ describe('Avg algorithm', function () {
       classicAlgorithm.init(points);
       newAlgorithm.init(points);
 
-      for (let pairNo = 0; pairNo < 4; pairNo++) {
-        let classicAlgorithmPair = classicAlgorithm.findNearestTwoPoints();
-        let newAlgorithmPair = newAlgorithm.findNearestTwoPoints();
-        if (classicAlgorithmPair?.toString() == newAlgorithmPair?.toString()) {
-          classicAlgorithmPair?.merge();
-          newAlgorithmPair?.merge();
+      for (let clusterNo = 0; clusterNo < 4; clusterNo++) {
+        let classicAlgorithmCluster = classicAlgorithm.findNearestTwoPoints();
+        let newAlgorithmCluster = newAlgorithm.findNearestTwoPoints();
+        if (classicAlgorithmCluster?.toString() == newAlgorithmCluster?.toString()) {
+          // OK
         } else {
-          console.warn("KO", { i, pairNo });
-          console.warn("classicAlgorithmPair", classicAlgorithmPair?.toString(), classicAlgorithmPair?.distance());
-          console.warn("newAlgorithmPair    ", newAlgorithmPair?.toString(), newAlgorithmPair?.distance());
-          let newAlgorithmPair2 = newAlgorithm.findNearestTwoPoints();
-          console.warn("newAlgorithmPair2    ", newAlgorithmPair2?.toString(), newAlgorithmPair2?.distance());
+          console.warn("KO", { i, clusterNo });
+          console.warn("classicAlgorithmCluster", classicAlgorithmCluster?.toString(), classicAlgorithmCluster?.distance());
+          console.warn("newAlgorithmCluster    ", newAlgorithmCluster?.toString(), newAlgorithmCluster?.distance());
           console.log(`let pt1 = new Point(${pt1.x}, ${pt1.y}, "A");`);
           console.log(`let pt2 = new Point(${pt2.x}, ${pt2.y}, "B");`);
           console.log(`let pt3 = new Point(${pt3.x}, ${pt3.y}, "C");`);
           console.log(`let pt4 = new Point(${pt4.x}, ${pt4.y}, "D");`);
           console.log(`let pt5 = new Point(${pt5.x}, ${pt5.y}, "E");`);
-          expect(newAlgorithmPair?.toString()).to.eq(classicAlgorithmPair?.toString());
+          expect(newAlgorithmCluster?.toString()).to.eq(classicAlgorithmCluster?.toString());
         }
       }
       console.log("OK", i);
@@ -127,12 +124,6 @@ describe('Avg algorithm', function () {
     let pt4 = new Point(0.6169815912069582, 0.6096064128071129, "D");
     let pt5 = new Point(0.654983104350961, 0.3010375265041716, "E");
     
-    console.log(`let pt1 = new Point(${pt1.x}, ${pt1.y}, "A");`);
-    console.log(`let pt2 = new Point(${pt2.x}, ${pt2.y}, "B");`);
-    console.log(`let pt3 = new Point(${pt3.x}, ${pt3.y}, "C");`);
-    console.log(`let pt4 = new Point(${pt4.x}, ${pt4.y}, "D");`);
-    console.log(`let pt5 = new Point(${pt5.x}, ${pt5.y}, "E");`);
-
     let points = [pt1, pt2, pt3, pt4, pt5];
 
     let classicAlgorithm = new ClassicAvgAlgorithm();
@@ -140,25 +131,22 @@ describe('Avg algorithm', function () {
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 
-    for (let pairNo = 0; pairNo < 4; pairNo++) {
-      let classicAlgorithmPair = classicAlgorithm.findNearestTwoPoints();
-      let newAlgorithmPair = newAlgorithm.findNearestTwoPoints();
-      if (classicAlgorithmPair?.toString() == newAlgorithmPair?.toString()) {
-        console.warn("OK", classicAlgorithmPair?.toString());
-        classicAlgorithmPair?.merge();
-        newAlgorithmPair?.merge();
+    for (let clusterNo = 0; clusterNo < 4; clusterNo++) {
+      let classicAlgorithmCluster = classicAlgorithm.findNearestTwoPoints();
+      let newAlgorithmCluster = newAlgorithm.findNearestTwoPoints();
+      if (classicAlgorithmCluster?.toString() == newAlgorithmCluster?.toString()) {
+        console.warn("OK", classicAlgorithmCluster?.toString());
+        // OK
       } else {
-        console.warn("KO", { pairNo });
-        console.warn("classicAlgorithmPair", classicAlgorithmPair?.toString(), classicAlgorithmPair?.distance());
-        console.warn("newAlgorithmPair    ", newAlgorithmPair?.toString(), newAlgorithmPair?.distance());
-        let newAlgorithmPair2 = newAlgorithm.findNearestTwoPoints();
-        console.warn("newAlgorithmPair2    ", newAlgorithmPair2?.toString(), newAlgorithmPair2?.distance());
+        console.warn("KO", { clusterNo });
+        console.warn("classicAlgorithmCluster", classicAlgorithmCluster?.toString(), classicAlgorithmCluster?.distance());
+        console.warn("newAlgorithmCluster    ", newAlgorithmCluster?.toString(), newAlgorithmCluster?.distance());
         console.log(`let pt1 = new Point(${pt1.x}, ${pt1.y}, "A");`);
         console.log(`let pt2 = new Point(${pt2.x}, ${pt2.y}, "B");`);
         console.log(`let pt3 = new Point(${pt3.x}, ${pt3.y}, "C");`);
         console.log(`let pt4 = new Point(${pt4.x}, ${pt4.y}, "D");`);
         console.log(`let pt5 = new Point(${pt5.x}, ${pt5.y}, "E");`);
-        expect(newAlgorithmPair?.toString()).to.eq(classicAlgorithmPair?.toString());
+        expect(newAlgorithmCluster?.toString()).to.eq(classicAlgorithmCluster?.toString());
       }
     }
     console.log("OK");
@@ -184,25 +172,22 @@ describe('Avg algorithm', function () {
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 
-    for (let pairNo = 0; pairNo < 4; pairNo++) {
-      let classicAlgorithmPair = classicAlgorithm.findNearestTwoPoints();
-      let newAlgorithmPair = newAlgorithm.findNearestTwoPoints();
-      if (classicAlgorithmPair?.toString() == newAlgorithmPair?.toString()) {
-        console.warn("OK", classicAlgorithmPair?.toString());
-        classicAlgorithmPair?.merge();
-        newAlgorithmPair?.merge();
+    for (let clusterNo = 0; clusterNo < 4; clusterNo++) {
+      let classicAlgorithmCluster = classicAlgorithm.findNearestTwoPoints();
+      let newAlgorithmCluster = newAlgorithm.findNearestTwoPoints();
+      if (classicAlgorithmCluster?.toString() == newAlgorithmCluster?.toString()) {
+        console.warn("OK", classicAlgorithmCluster?.toString());
+        // OK
       } else {
-        console.warn("KO", { pairNo });
-        console.warn("classicAlgorithmPair", classicAlgorithmPair?.toString(), classicAlgorithmPair?.distance());
-        console.warn("newAlgorithmPair    ", newAlgorithmPair?.toString(), newAlgorithmPair?.distance());
-        let newAlgorithmPair2 = newAlgorithm.findNearestTwoPoints();
-        console.warn("newAlgorithmPair2    ", newAlgorithmPair2?.toString(), newAlgorithmPair2?.distance());
+        console.warn("KO", { clusterNo });
+        console.warn("classicAlgorithmCluster", classicAlgorithmCluster?.toString(), classicAlgorithmCluster?.distance());
+        console.warn("newAlgorithmCluster    ", newAlgorithmCluster?.toString(), newAlgorithmCluster?.distance());
         console.log(`let pt1 = new Point(${pt1.x}, ${pt1.y}, "A");`);
         console.log(`let pt2 = new Point(${pt2.x}, ${pt2.y}, "B");`);
         console.log(`let pt3 = new Point(${pt3.x}, ${pt3.y}, "C");`);
         console.log(`let pt4 = new Point(${pt4.x}, ${pt4.y}, "D");`);
         console.log(`let pt5 = new Point(${pt5.x}, ${pt5.y}, "E");`);
-        expect(newAlgorithmPair?.toString()).to.eq(classicAlgorithmPair?.toString());
+        expect(newAlgorithmCluster?.toString()).to.eq(classicAlgorithmCluster?.toString());
       }
     }
     console.log("OK");

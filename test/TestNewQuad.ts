@@ -50,7 +50,7 @@ describe('A Quad', function () {
   });
 
 
-  it('can get neighbours', function () {
+  it('can get pairs', function () {
     let quad = new QuadTree(2);
 
     quad.insert(new Point(0.25, 0.25, "A"));
@@ -59,22 +59,22 @@ describe('A Quad', function () {
     quad.insert(new Point(0.75, 0.75, "D"));
     // A B
     // C D
-    let pairs = quad.getNeighbours(0.5);
-    expect(pairs.length).to.eq(0);
+    let clusters = quad.getPairs(0.5);
+    expect(clusters.length).to.eq(0);
 
     quad.trim();
-    pairs = quad.getNeighbours(1);
-    expect(pairs.length).to.eq(6);
-    expect(pairs[0].toString()).to.eq("#A #B 0.5");
-    expect(pairs[1].toString()).to.eq("#A #C 0.5");
-    expect(pairs[2].toString()).to.eq("#A #D 0.7071067811865476");
-    expect(pairs[3].toString()).to.eq("#B #C 0.7071067811865476");
-    expect(pairs[4].toString()).to.eq("#B #D 0.5");
-    expect(pairs[5].toString()).to.eq("#C #D 0.5");
+    clusters = quad.getPairs(1);
+    expect(clusters.length).to.eq(6);
+    expect(clusters[0].toString()).to.eq("A-B 0.500");
+    expect(clusters[1].toString()).to.eq("A-C 0.500");
+    expect(clusters[2].toString()).to.eq("A-D 0.707");
+    expect(clusters[3].toString()).to.eq("B-C 0.707");
+    expect(clusters[4].toString()).to.eq("B-D 0.500");
+    expect(clusters[5].toString()).to.eq("C-D 0.500");
   });
 
 
-  it('can get a more neighbours', function () {
+  it('can get a more pairs', function () {
     let quad = new QuadTree(3);
 
     //  A B
@@ -89,19 +89,19 @@ describe('A Quad', function () {
     quad.insert(new Point(0.625, 0.875, "O"));
     quad.insert(new Point(0.875, 0.875, "P"));
 
-    let pairs = quad.getNeighbours(0.25);
-    expect(pairs.length).to.eq(0);
+    let clusters = quad.getPairs(0.25);
+    expect(clusters.length).to.eq(0);
 
     quad.trim();
-    pairs = quad.getNeighbours(0.5);
-    expect(pairs.length).to.eq(7);
-    expect(pairs[0].toString()).to.eq("#A #B 0.25");
-    expect(pairs[1].toString()).to.eq("#A #F 0.3535533905932738");
-    expect(pairs[2].toString()).to.eq("#B #F 0.25");
-    expect(pairs[3].toString()).to.eq("#N #O 0.25");
-    expect(pairs[4].toString()).to.eq("#L #O 0.3535533905932738");
-    expect(pairs[5].toString()).to.eq("#L #P 0.25");
-    expect(pairs[6].toString()).to.eq("#O #P 0.25");
+    clusters = quad.getPairs(0.5);
+    expect(clusters.length).to.eq(7);
+    expect(clusters[0].toString()).to.eq("A-B 0.250");
+    expect(clusters[1].toString()).to.eq("A-F 0.354");
+    expect(clusters[2].toString()).to.eq("B-F 0.250");
+    expect(clusters[3].toString()).to.eq("N-O 0.250");
+    expect(clusters[4].toString()).to.eq("L-O 0.354");
+    expect(clusters[5].toString()).to.eq("L-P 0.250");
+    expect(clusters[6].toString()).to.eq("O-P 0.250");
   });
 
 });

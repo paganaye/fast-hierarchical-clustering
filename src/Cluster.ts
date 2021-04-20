@@ -1,4 +1,4 @@
-import { IPoint } from './IPoint';
+import { getDistance, IPoint } from './IPoint';
 import type { Point } from './Point';
 
 export class Cluster implements IPoint {
@@ -56,6 +56,18 @@ export class Cluster implements IPoint {
             return `Cl(${this.x},${this.y})` + ` [${content}]`;
         }
 
+    }
+
+    distance(): number {
+        return getDistance(this.dendrogram1, this.dendrogram2);
+    }
+
+    getNormalizedDendrogram(): string {
+        let s1 = this.dendrogram1.getNormalizedDendrogram();
+        let s2 = this.dendrogram2.getNormalizedDendrogram();
+        let result = (s2.length < s1.length || s2 < s1) ? `(${s2}-${s1})` : `(${s1}-${s2})`;
+        console.log({ cluster: result, distance: this.distance().toFixed(3) });
+        return result;
     }
 }
 

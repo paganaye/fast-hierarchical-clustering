@@ -1,6 +1,5 @@
 import { Cluster, Dendrogram, getPoints } from './Cluster';
 import { clearCalculatedDistances, calculatedDistances, IPoint } from './IPoint';
-import { Pair } from './Pair';
 import { Point } from './Point';
 import { QuadPair } from './new/QuadTree';
 import { IAlgorithm } from './workers/IAlgorithm';

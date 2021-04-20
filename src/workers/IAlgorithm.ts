@@ -1,11 +1,10 @@
-import { Dendrogram } from '../Cluster';
-import { Pair } from '../Pair';
+import { Cluster, Dendrogram } from '../Cluster';
 import { IPoint } from '../IPoint';
 
 export interface IAlgorithm {
     name: string;
     init(points: IPoint[]): void;
-    getNearestPairs(): Generator<Pair>;
+    buildClusters(): Generator<Cluster>;
     getCurrentDendrograms(): Dendrogram[];
     getDendrogramsCount(): number;
 }
