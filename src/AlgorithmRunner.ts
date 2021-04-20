@@ -37,22 +37,26 @@ export class AlgorithmRunner {
         // setTimeout(() => this.onCanvasSizeChanged());
         this.algorithmWorker.onmessage = (e) => {
             // console.log("algorithmWorker says", e.data);
-            if (e.data.complete) {
-                this.duration = (new Date().getTime() - this.runStartTime) / 1000.0;
-                this.outputElt.innerText = "Done in " + this.duration.toFixed(2) + " sec";
-            } else if (e.data.canceled) {
-                this.outputElt.innerText = "";
-            } else {
-                this.outputElt.innerText = (e.data.progress * 100).toFixed(2) + "%"
-            }
-            this.currentDendrograms = (e.data as IAlgorithmWorkerOutput).dendrograms;
-            this.repaint()
+            setTimeout(()=> {
+                let output = e.data as IAlgorithmWorkerOutput;
+                if (output.complete) {
+                    this.duration = (new Date().getTime() - this.runStartTime) / 1000.0;
+                    this.outputElt.innerText = "Done in " + this.duration.toFixed(2) + " sec";
+                } else if (output.canceled) {
+                    this.outputElt.innerText = "";
+                } else {
+                    this.outputElt.innerText = (output.progress * 100).toFixed(2) + "%"
+                }
+                this.currentDendrograms = output.dendrograms;
+                this.repaint()
+            })
         }
 
         this.runButton.onclick = () => {
             this.run();
         }
     }
+
 
     displayPoints() {
         this.paintWorker.onmessage = (e) => {
