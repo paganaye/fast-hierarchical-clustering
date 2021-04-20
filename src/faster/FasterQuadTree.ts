@@ -49,13 +49,14 @@ export class FasterQuadTree {
 
     getNeighbours(maxDistance: number): QuadPair[] {
         let result: QuadPair[] = [];
-        this.root.getNeighbours({}, maxDistance * maxDistance, result);
+        this.root.getNeighbours({ parent: undefined, quarter: undefined, node: this.root }, maxDistance * maxDistance, result);
         return result;
     }
 
     insertAndAddNeighbours(newCluster: Cluster, maxDistance: number, result: QuadPair[]) {
         this.pointCount += 1;
-        this.root.insertAndAddNeighbours(newCluster, maxDistance * maxDistance, {}, result);
+        this.root.insertAndAddNeighbours(newCluster, maxDistance * maxDistance,
+            { parent: undefined, quarter: undefined, node: this.root }, result);
     }
 
     getDendrograms(): Dendrogram[] {
@@ -121,6 +122,9 @@ export class QuadNode {
     getQuarterSiblings(siblings: ISiblings, quarter: Quarter): ISiblings {
         switch (quarter) {
             case Quarter.TopLeft: return {
+                parent: siblings,
+                node: this.topLeft!,
+                quarter: Quarter.TopLeft,
                 topLeft: siblings.topLeft?.bottomRight,
                 top: siblings.top?.bottomLeft,
                 topRight: siblings.top?.bottomRight,
@@ -131,6 +135,9 @@ export class QuadNode {
                 bottomRight: this.bottomRight
             };
             case Quarter.TopRight: return {
+                parent: siblings,
+                node: this.topRight!,
+                quarter: Quarter.TopRight,
                 topLeft: siblings.top?.bottomLeft,
                 top: siblings.top?.bottomRight,
                 topRight: siblings.topRight?.bottomLeft,
@@ -141,6 +148,9 @@ export class QuadNode {
                 bottomRight: siblings.right?.bottomLeft
             };
             case Quarter.BottomLeft: return {
+                parent: siblings,
+                node: this.bottomLeft!,
+                quarter: Quarter.BottomLeft,
                 topLeft: siblings.left?.topRight,
                 top: this.topLeft,
                 topRight: this.topRight,
@@ -151,6 +161,9 @@ export class QuadNode {
                 bottomRight: siblings.bottom?.topRight
             };
             case Quarter.BottomRight: return {
+                parent: siblings,
+                node: this.bottomRight!,
+                quarter: Quarter.BottomRight,
                 topLeft: this.topLeft,
                 top: this.topRight,
                 topRight: siblings.right?.topLeft,
@@ -341,6 +354,9 @@ export class QuadNode {
 }
 
 interface ISiblings {
+    parent: ISiblings | undefined;
+    node: QuadNode | undefined,
+    quarter: Quarter | undefined,
     topLeft?: QuadNode,
     top?: QuadNode,
     topRight?: QuadNode,
@@ -356,5 +372,4 @@ export class QuadPair {
     toString() {
         return this.point1.toString() + " " + this.point2.toString() + " " + Math.sqrt(this.distanceSquared);
     }
-
 }
