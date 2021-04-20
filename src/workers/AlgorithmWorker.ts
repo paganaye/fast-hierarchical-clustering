@@ -22,6 +22,7 @@ export interface IAlgorithmWorkerInput {
 
 export interface IAlgorithmWorkerOutput {
     complete: boolean;
+    canceled?: boolean;
     progress: number;
     dendrograms: Dendrogram[]
 }

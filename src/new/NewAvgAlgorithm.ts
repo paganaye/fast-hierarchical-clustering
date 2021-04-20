@@ -2,12 +2,15 @@ import { Cluster, Dendrogram } from '../Cluster';
 import { IAlgorithm } from '../workers/IAlgorithm';
 import { Pair } from '../Pair';
 import { Point } from '../Point';
-import { QuadPair, QuadNode, QuadTree } from './QuadTree';
+import { QuadPair, QuadTree } from './QuadTree';
 
 export class NewAvgAlgorithm implements IAlgorithm {
     name: string = "New Average Agglomerative Hierarchical Clustering";
     quadTree: QuadTree;
     neighbours: QuadPair[] = [];
+    maxDistance: number = 0;
+    targetNeighboursCount!: number;
+    increment!: number;
 
     constructor(private initialLevels: number = 10) {
         this.quadTree = new QuadTree(initialLevels);
@@ -17,18 +20,41 @@ export class NewAvgAlgorithm implements IAlgorithm {
         for (let point of points) {
             this.quadTree.insert(point);
         }
-        this.neighbours = this.quadTree.getNeighbours();
-        this.neighbours.sort((a, b) => (b.distance - a.distance));
+        // originally we take a very small distance and a large increment
+        this.maxDistance = 1 / points.length;
+        this.increment = 0.05;
+        this.targetNeighboursCount = Math.round(Math.log(points.length) * 120);
+        if (this.targetNeighboursCount < 100) this.targetNeighboursCount = 100;
+
+        this.neighbours = this.quadTree.getNeighbours(this.maxDistance);
+        this.neighbours.sort((a, b) => (b.distanceSquared - a.distanceSquared));
+
     }
+
+
 
     findNearestTwoPoints(): Pair | undefined {
         while (true) {
             while (this.neighbours.length == 0) {
-                if (!this.quadTree.trim()) return undefined;
-                this.neighbours = this.quadTree.getNeighbours();
-                this.neighbours.sort((a, b) => (b.distance - a.distance));
-                console.log("quadtree", { level: this.quadTree.root.level, neighbours: this.neighbours.length })
+                this.maxDistance = this.maxDistance * (1 + this.increment);
+                let nodeSize = this.quadTree.firstLeaf()?.nodeSize!;
+                while (this.maxDistance >= nodeSize) {
+                    if (!this.quadTree.trim()) return undefined;
+                    nodeSize = this.quadTree.firstLeaf()?.nodeSize!;
+                }
+                this.neighbours = this.quadTree.getNeighbours(this.maxDistance);
+                this.neighbours.sort((a, b) => (b.distanceSquared - a.distanceSquared));
+
+                // we adjust the increment for the next batch
+                if (this.neighbours.length > this.targetNeighboursCount) this.increment *= 0.5; // we brake fast
+                else if (this.neighbours.length < this.targetNeighboursCount / 2) {
+                    this.increment *= 1.2; // we accelerate more gently
+                    if (this.increment > 1) this.increment = 1;
+                }
+
+                // console.log({ maxDistance: this.maxDistance, neighbours: this.neighbours.length, nextIncrement: this.increment, });
             }
+
             let { point1, point2 } = this.neighbours.pop()!;
             return new Pair(
                 point1,
@@ -38,8 +64,8 @@ export class NewAvgAlgorithm implements IAlgorithm {
                     this.quadTree.delete(point2);
                     let newCluster = new Cluster(point1, point2);
                     let newNeighbours: QuadPair[] = [];
-                    this.quadTree.insertAndAddNeighbours(newCluster, newNeighbours);
-                    newNeighbours.sort((a, b) => (b.distance - a.distance));
+                    this.quadTree.insertAndAddNeighbours(newCluster, this.maxDistance, newNeighbours);
+                    newNeighbours.sort((a, b) => (b.distanceSquared - a.distanceSquared));
                     this.neighbours = this.filterAndMerge(it => it.point1 != point1 && it.point1 != point2 && it.point2 != point1 && it.point2 != point2, newNeighbours);
                 });
         }
@@ -55,7 +81,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
             let entryA = idxA < arrA.length ? arrA[idxA] : undefined;
             let entryB = idxB < arrB.length ? arrB[idxB] : undefined;
 
-            if (!entryB || (entryA && entryA.distance > entryB.distance)) {
+            if (!entryB || (entryA && entryA.distanceSquared > entryB.distanceSquared)) {
                 if (predicate(entryA as QuadPair))
                     arrSorted.push(entryA!);
                 idxA++;
