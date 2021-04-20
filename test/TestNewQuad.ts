@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { Cluster } from '../src/Cluster';
 import { Point } from '../src/Point';
-import { QuadTree } from '../src/avg/QuadTree';
+import { QuadTree } from '../src/new/QuadTree';
 
 
 describe('A Quad', function () {

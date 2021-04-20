@@ -2,10 +2,10 @@ import { Cluster, Dendrogram, getPoints } from './Cluster';
 import { clearCalculatedDistances, calculatedDistances, IPoint } from './IPoint';
 import { Pair } from './Pair';
 import { Point } from './Point';
-import { QuadPair } from './avg/QuadTree';
+import { QuadPair } from './new/QuadTree';
 import { IAlgorithm } from './workers/IAlgorithm';
 import { IPaintWorkerArgs } from './workers/PaintWorker';
-import { IAlgorithmWorkerInput, IAlgorithmWorkerOutput } from './workers/AlgorithmWorker'
+import { AlgorithmType, IAlgorithmWorkerInput, IAlgorithmWorkerOutput } from './workers/AlgorithmWorker'
 import { App } from './App';
 
 export class AlgorithmRunner {
@@ -76,9 +76,9 @@ export class AlgorithmRunner {
         this.outputElt.innerText = "...";
         let algorithmWorkerArgs: IAlgorithmWorkerInput = {
             points: this.app.points,
-            linkage: "avg",
-            wantedClusters: this.app.wantedClusters,
-            newAlgorithm: this.newAlgorithm
+            algorithmType: this.newAlgorithm ? ((this.app.algorithmType == "faster") ? AlgorithmType.FasterAvg : AlgorithmType.NewAvg)
+                : AlgorithmType.ClassicAvg,
+            wantedClusters: this.app.wantedClusters
         }
         console.log("starting algorithmWorker", algorithmWorkerArgs);
         this.algorithmWorker.postMessage(algorithmWorkerArgs);
@@ -93,7 +93,6 @@ export class AlgorithmRunner {
         this.repaint();
     }
 
-
     onAlgorithmArgsChanged() {
         this.cancel();
         this.repaint();
@@ -105,7 +104,7 @@ export class AlgorithmRunner {
         if (width && height) {
             let args: IPaintWorkerArgs = {
                 width: width, height: height,
-                dendrograms: this.currentDendrograms || [],
+                dendrograms: this.currentDendrograms || this.app.points,
                 wantedClusters: this.app.wantedClusters
             }
             this.paintWorker.postMessage(args);
@@ -123,5 +122,6 @@ export class AlgorithmRunner {
             points: this.app.points,
             linkage: "none",
         });
+        this.repaint();
     }
 }

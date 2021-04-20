@@ -18,7 +18,7 @@ function paint(args: IPaintWorkerArgs) {
     ctx.fillRect(10, 10, 20, 20);
     displayDendrograms(args.dendrograms)
     let imageData = ctx.getImageData(0, 0, args.width, args.height);
-    postMessage({imageData}, undefined as any);
+    postMessage({ imageData }, undefined as any);
 
     function getColor(colorNo: number, colorCount: number) {
         return hsv2rgb(colorNo * 360 / colorCount, 1, 1);
@@ -99,6 +99,8 @@ onmessage = (e) => {
     let args = e.data as IPaintWorkerArgs;
     lastArgs = args;
     setTimeout(() => {
-        if (args == lastArgs) paint(args)
+        if (args == lastArgs) {
+            paint(args)
+        } // otherwise we ignore.
     })
 }

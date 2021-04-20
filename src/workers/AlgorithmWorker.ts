@@ -1,15 +1,23 @@
-import { ClassicAvgAlgorithm } from '../avg/ClassicAvgAlgorithm';
-import { NewAvgAlgorithm } from '../avg/NewAvgAlgorithm';
+import { ClassicAvgAlgorithm } from '../classic/ClassicAvgAlgorithm';
+import { NewAvgAlgorithm } from '../new/NewAvgAlgorithm';
+import { FasterAvgAlgorithm } from '../faster/FasterAvgAlgorithm';
 import { Pair } from '../Pair';
 import { Dendrogram } from '../Cluster';
 import { IPoint } from '../IPoint';
 import { IAlgorithm } from './IAlgorithm';
 
+
+export enum AlgorithmType {
+    ClassicAvg,
+    NewAvg,
+    FasterAvg,
+    None
+}
+
 export interface IAlgorithmWorkerInput {
-    points: IPoint[]
-    linkage: string;
+    points: IPoint[],
     wantedClusters: number;
-    newAlgorithm: boolean;
+    algorithmType: AlgorithmType
 }
 
 export interface IAlgorithmWorkerOutput {
@@ -21,17 +29,22 @@ export interface IAlgorithmWorkerOutput {
 let globalRunCounter = 0;
 
 function group(input: IAlgorithmWorkerInput) {
-    console.log("Start grouping")
     let algorithm!: IAlgorithm;
     globalRunCounter += 1;
-    console.log({ globalRunCounter });
+    console.log({ globalRunCounter, type: input.algorithmType });
 
-    switch (input.linkage) {
-        case "avg":
-            algorithm = input.newAlgorithm ? new NewAvgAlgorithm() : new ClassicAvgAlgorithm();
+    switch (input.algorithmType) {
+        case AlgorithmType.ClassicAvg:
+            algorithm = new ClassicAvgAlgorithm();
             break;
-        case "none":
-            postMessage({ canceled:true, progress: 0 }, undefined as any);
+        case AlgorithmType.NewAvg:
+            algorithm = new NewAvgAlgorithm();
+            break;
+        case AlgorithmType.FasterAvg:
+            algorithm = new FasterAvgAlgorithm();
+            break;
+        default:
+            postMessage({ canceled: true, progress: 0 }, undefined as any);
             return;
     }
     algorithm.init(input.points);

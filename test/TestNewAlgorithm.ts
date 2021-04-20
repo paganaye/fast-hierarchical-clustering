@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { ClassicAvgAlgorithm } from '../src/avg/ClassicAvgAlgorithm';
-import { NewAvgAlgorithm } from '../src/avg/NewAvgAlgorithm';
+import { ClassicAvgAlgorithm } from '../src/classic/ClassicAvgAlgorithm';
+import { NewAvgAlgorithm } from '../src/new/NewAvgAlgorithm';
 import { Point } from '../src/Point';
 import { PseudoRandom } from './PseudoRandom';
 

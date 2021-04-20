@@ -12,7 +12,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
     constructor(private initialLevels: number = 10) {
         this.quadTree = new QuadTree(initialLevels);
     }
-  
+
     init(points: Point[]): void {
         for (let point of points) {
             this.quadTree.insert(point);
@@ -27,6 +27,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
                 if (!this.quadTree.trim()) return undefined;
                 this.neighbours = this.quadTree.getNeighbours();
                 this.neighbours.sort((a, b) => (b.distance - a.distance));
+                console.log("quadtree", { level: this.quadTree.root.level, neighbours: this.neighbours.length })
             }
             let { point1, point2 } = this.neighbours.pop()!;
             return new Pair(
@@ -44,7 +45,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
         }
     }
 
-    filterAndMerge(predicate: (pair: QuadPair) => boolean, newNeighbours: QuadPair[]): QuadPair[] {        
+    filterAndMerge(predicate: (pair: QuadPair) => boolean, newNeighbours: QuadPair[]): QuadPair[] {
         let arrSorted: QuadPair[] = [];
         let idxA = 0, idxB = 0, idxS = 0;
         let arrA = this.neighbours;
@@ -73,5 +74,5 @@ export class NewAvgAlgorithm implements IAlgorithm {
 
     getDendrogramsCount(): number {
         return this.quadTree.pointCount;
-    }    
+    }
 }

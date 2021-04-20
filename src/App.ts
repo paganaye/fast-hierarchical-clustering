@@ -1,5 +1,5 @@
-import { ClassicAvgAlgorithm } from './avg/ClassicAvgAlgorithm';
-import { NewAvgAlgorithm } from './avg/NewAvgAlgorithm';
+import { ClassicAvgAlgorithm } from './classic/ClassicAvgAlgorithm';
+import { NewAvgAlgorithm } from './new/NewAvgAlgorithm';
 import { IAlgorithm } from './workers/IAlgorithm';
 import { Point } from './Point';
 import { AlgorithmRunner } from './AlgorithmRunner';
@@ -9,6 +9,7 @@ import { IPointsWorkerInput } from './workers/PointsWorker';
 export class App {
     points: Point[] = [];
     dotSize = 3;
+    algorithmType!: string;
     algorithm!: IAlgorithm;
     numberOfPoints: number = 0;
     wantedClusters: number = 0;
@@ -52,18 +53,25 @@ export class App {
         this.addHandler("wantedClusters", true, (v) => {
             this.wantedClusters = v;
             this.updateQueryString();
-            this.onAlgorithmArgsChanged();
+            this.classicAlgorithmRunner.cancel();
+            this.newAlgorithmRunner.cancel();
         });
-        this.addHandler("linkage", true, (v) => {
+        this.addHandler("linkage", false, (v) => {
             this.linkage = v;
             this.updateQueryString();
-            this.onAlgorithmArgsChanged();
+            this.classicAlgorithmRunner.cancel();
+            this.newAlgorithmRunner.cancel();
         });
         this.addHandler("canvasSize", true, (v) => {
             this.canvasSize = v;
             this.updateQueryString();
             this.classicAlgorithmRunner.onCanvasSizeChanged();
             this.newAlgorithmRunner.onCanvasSizeChanged();
+        });
+        this.addHandler("algorithm", false, (v) => {
+            this.algorithmType = v;
+            this.updateQueryString();
+            this.newAlgorithmRunner.cancel();
         });
 
         this.pointsWorker.onmessage = (v) => {
@@ -75,19 +83,14 @@ export class App {
 
     }
 
-
-    onAlgorithmArgsChanged() {
-        this.updateQueryString();
-        this.classicAlgorithmRunner.onAlgorithmArgsChanged();
-        this.newAlgorithmRunner.onAlgorithmArgsChanged();
-    }
-
     updateQueryString() {
         var queryParams = new URLSearchParams(window.location.search);
         queryParams.set("numberOfPoints", this.numberOfPoints.toString());
         queryParams.set("wantedClusters", this.wantedClusters.toString());
         queryParams.set("linkage", this.linkage);
         queryParams.set("canvasSize", this.canvasSize.toString());
+        queryParams.set("algorithm", this.algorithmType);
+        
         // Replace current querystring with the new one.
         history.replaceState(null, "", "?" + queryParams.toString());
     }
