@@ -1,14 +1,11 @@
 import { expect } from 'chai';
 import { ClassicAvgAlgorithm } from '../src/avg/ClassicAvgAlgorithm';
-import { Cluster, Dendrogram } from '../src/Cluster';
-import { App } from '../src/Main';
-import { NewAvgAlgorithm } from '../src/avg/NewAvgAlgorithm';
+import { FasterAvgAlgorithm } from '../src/faster-avg/FasterAvgAlgorithm';
 import { Point } from '../src/Point';
-import { QuadTree } from '../src/avg/QuadTree';
 import { PseudoRandom } from './PseudoRandom';
 
 
-describe('Avg algorithm', function () {
+describe('Faster Avg algorithm', function () {
   PseudoRandom.randomize(1234);
   it('many trios', function () {
     for (let i = 1; i < 1000; i++) {
@@ -18,7 +15,7 @@ describe('Avg algorithm', function () {
       let points = [pt1, pt2, pt3];
 
       let classicAlgorithm = new ClassicAvgAlgorithm();
-      let newAlgorithm = new NewAvgAlgorithm();
+      let newAlgorithm = new FasterAvgAlgorithm();
       classicAlgorithm.init(points);
       newAlgorithm.init(points);
       let classicAlgorithmFirstPair = classicAlgorithm.findNearestTwoPoints()?.toString();
@@ -41,7 +38,7 @@ describe('Avg algorithm', function () {
     let points = [pt1, pt2, pt3];
 
     let classicAlgorithm = new ClassicAvgAlgorithm();
-    let newAlgorithm = new NewAvgAlgorithm(3);
+    let newAlgorithm = new FasterAvgAlgorithm(3);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 
@@ -65,7 +62,7 @@ describe('Avg algorithm', function () {
     let points = [pt1, pt2, pt3];
 
     let classicAlgorithm = new ClassicAvgAlgorithm();
-    let newAlgorithm = new NewAvgAlgorithm(3);
+    let newAlgorithm = new FasterAvgAlgorithm(3);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 
@@ -95,7 +92,7 @@ describe('Avg algorithm', function () {
       let points = [pt1, pt2, pt3, pt4, pt5];
 
       let classicAlgorithm = new ClassicAvgAlgorithm();
-      let newAlgorithm = new NewAvgAlgorithm();
+      let newAlgorithm = new FasterAvgAlgorithm();
       classicAlgorithm.init(points);
       newAlgorithm.init(points);
 
@@ -139,7 +136,7 @@ describe('Avg algorithm', function () {
     let points = [pt1, pt2, pt3, pt4, pt5];
 
     let classicAlgorithm = new ClassicAvgAlgorithm();
-    let newAlgorithm = new NewAvgAlgorithm(2);
+    let newAlgorithm = new FasterAvgAlgorithm(2);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 
@@ -183,7 +180,7 @@ describe('Avg algorithm', function () {
     let points = [pt1, pt2, pt3, pt4, pt5];
 
     let classicAlgorithm = new ClassicAvgAlgorithm();
-    let newAlgorithm = new NewAvgAlgorithm(2);
+    let newAlgorithm = new FasterAvgAlgorithm(2);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
 

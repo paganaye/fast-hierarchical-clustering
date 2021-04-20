@@ -1,6 +1,6 @@
 import { Cluster, Dendrogram, getPoints } from './Cluster';
 import { clearCalculatedDistances, calculatedDistances, IPoint } from './IPoint';
-import { Pair } from './avg/Pair';
+import { Pair } from './Pair';
 import { Point } from './Point';
 import { QuadPair } from './avg/QuadTree';
 import { IAlgorithm } from './workers/IAlgorithm';
@@ -36,7 +36,7 @@ export class AlgorithmRunner {
         this.displayPoints();
         // setTimeout(() => this.onCanvasSizeChanged());
         this.algorithmWorker.onmessage = (e) => {
-            console.log("algorithmWorker says", e.data);
+            // console.log("algorithmWorker says", e.data);
             if (e.data.complete) {
                 this.duration = (new Date().getTime() - this.runStartTime) / 1000.0;
                 this.outputElt.innerText = "Done in " + this.duration.toFixed(2) + " sec";

@@ -2,15 +2,15 @@ import { Cluster, Dendrogram } from '../Cluster';
 import { IAlgorithm } from '../workers/IAlgorithm';
 import { Pair } from '../Pair';
 import { Point } from '../Point';
-import { QuadPair, QuadNode, QuadTree } from './QuadTree';
+import { QuadPair, FasterQuadTree } from './FasterQuadTree';
 
-export class NewAvgAlgorithm implements IAlgorithm {
+export class FasterAvgAlgorithm implements IAlgorithm {
     name: string = "New Average Agglomerative Hierarchical Clustering";
-    quadTree: QuadTree;
+    quadTree: FasterQuadTree;
     neighbours: QuadPair[] = [];
 
     constructor(private initialLevels: number = 10) {
-        this.quadTree = new QuadTree(initialLevels);
+        this.quadTree = new FasterQuadTree(initialLevels);
     }
   
     init(points: Point[]): void {

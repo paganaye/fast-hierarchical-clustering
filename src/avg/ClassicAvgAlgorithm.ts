@@ -1,7 +1,7 @@
 import { Cluster, Dendrogram } from '../Cluster';
 import { IAlgorithm } from '../workers/IAlgorithm';
 import { getDistance, getDistanceSquared } from '../IPoint';
-import { Pair } from './Pair';
+import { Pair } from '../Pair';
 import { Point } from '../Point';
 
 export class ClassicAvgAlgorithm implements IAlgorithm {

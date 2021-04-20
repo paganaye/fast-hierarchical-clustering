@@ -2,15 +2,17 @@ import { Cluster, Dendrogram } from '../Cluster';
 import { getDistance } from '../IPoint';
 import { Point } from '../Point';
 
+//import { Point } from './Point';
 
-export class QuadTree {
+
+export class FasterQuadTree {
     private currentLevels: number;
     root: QuadNode;
     pointCount = 0;
 
     constructor(private initialLevels: number) {
         this.currentLevels = initialLevels
-        this.root = new QuadNode(initialLevels - 1, 0.5, 0.5, 0.5);
+        this.root = new QuadNode(undefined, Quarter.TopLeft, initialLevels - 1, 0.5, 0.5, 0.5);
         this.root.nodeSize = 2; // we need to allow the root node to group points that are further than 1.0 appart.
     }
 
@@ -73,84 +75,85 @@ export class QuadNode {
     bottomRight: QuadNode | undefined;
     points: Dendrogram[] | undefined;
 
-    constructor(public level: number, readonly x: number, readonly y: number, halfSize: number) {
+    constructor(readonly parent: QuadNode | undefined, public level: number, public readonly quarter: Quarter, readonly x: number, readonly y: number, halfSize: number) {
         this.nodeSize = halfSize * 2;
         this.quarterSize = halfSize / 2;
     }
 
     insertAndAddNeighbours(cluster: Cluster,
-        ownSiblings: ISiblings,
+        siblings: ISiblings,
         result: QuadPair[]) {
 
         if (this.level == 0) {
             this.addNewPairs(cluster, result);
 
-            this.addNewPairsWith(cluster, ownSiblings.topLeft, result) // 🡼
-            this.addNewPairsWith(cluster, ownSiblings.top, result) // 🡹
-            this.addNewPairsWith(cluster, ownSiblings.topRight, result)  // 🡽
+            this.addNewPairsWith(cluster, siblings.topLeft, result) // 🡼
+            this.addNewPairsWith(cluster, siblings.top, result) // 🡹
+            this.addNewPairsWith(cluster, siblings.topRight, result)  // 🡽
 
-            this.addNewPairsWith(cluster, ownSiblings.left, result)  // 🡸
-            this.addNewPairsWith(cluster, ownSiblings.right, result) // 🡺
+            this.addNewPairsWith(cluster, siblings.left, result)  // 🡸
+            this.addNewPairsWith(cluster, siblings.right, result) // 🡺
 
-            this.addNewPairsWith(cluster, ownSiblings.bottomLeft, result) // 🡿
-            this.addNewPairsWith(cluster, ownSiblings.bottom, result)  // 🡻
-            this.addNewPairsWith(cluster, ownSiblings.bottomRight, result)  // 🡾 
+            this.addNewPairsWith(cluster, siblings.bottomLeft, result) // 🡿
+            this.addNewPairsWith(cluster, siblings.bottom, result)  // 🡻
+            this.addNewPairsWith(cluster, siblings.bottomRight, result)  // 🡾 
             // 🡸🡽🡹🡼 done the other way round                    
             this.insert(cluster);
         } else {
             let quarter = this.getQuarter(cluster);
             let node = this.getOrCreateNode(quarter);
-            node.insertAndAddNeighbours(cluster, this.getQuarterSiblings(ownSiblings, quarter), result);
+            node.insertAndAddNeighbours(cluster, this.getQuarterSiblings(siblings, quarter), result);
         }
     }
 
-    getQuarterSiblings(ownSiblings: ISiblings, quarter: Quarter): ISiblings {
+    getQuarterSiblings(siblings: ISiblings, quarter: Quarter): ISiblings {
         switch (quarter) {
             case Quarter.TopLeft: return {
-                topLeft: ownSiblings.topLeft?.bottomRight,
-                top: ownSiblings.top?.bottomLeft,
-                topRight: ownSiblings.top?.bottomRight,
-                left: ownSiblings.left?.topRight,
+                topLeft: siblings.topLeft?.bottomRight,
+                top: siblings.top?.bottomLeft,
+                topRight: siblings.top?.bottomRight,
+                left: siblings.left?.topRight,
                 right: this.topRight,
-                bottomLeft: ownSiblings.left?.bottomRight,
+                bottomLeft: siblings.left?.bottomRight,
                 bottom: this.bottomLeft,
                 bottomRight: this.bottomRight
             };
             case Quarter.TopRight: return {
-                topLeft: ownSiblings.top?.bottomLeft,
-                top: ownSiblings.top?.bottomRight,
-                topRight: ownSiblings.topRight?.bottomLeft,
+                topLeft: siblings.top?.bottomLeft,
+                top: siblings.top?.bottomRight,
+                topRight: siblings.topRight?.bottomLeft,
                 left: this.topLeft,
-                right: ownSiblings.right?.topLeft,
+                right: siblings.right?.topLeft,
                 bottomLeft: this.bottomLeft,
                 bottom: this.bottomRight,
-                bottomRight: ownSiblings.right?.bottomLeft
+                bottomRight: siblings.right?.bottomLeft
             };
             case Quarter.BottomLeft: return {
-                topLeft: ownSiblings.left?.topRight,
+                topLeft: siblings.left?.topRight,
                 top: this.topLeft,
                 topRight: this.topRight,
-                left: ownSiblings.left?.bottomRight,
+                left: siblings.left?.bottomRight,
                 right: this.bottomRight,
-                bottomLeft: ownSiblings.bottomLeft?.topRight,
-                bottom: ownSiblings.bottom?.topLeft,
-                bottomRight: ownSiblings.bottom?.topRight
+                bottomLeft: siblings.bottomLeft?.topRight,
+                bottom: siblings.bottom?.topLeft,
+                bottomRight: siblings.bottom?.topRight
             };
             case Quarter.BottomRight: return {
                 topLeft: this.topLeft,
                 top: this.topRight,
-                topRight: ownSiblings.right?.topLeft,
+                topRight: siblings.right?.topLeft,
                 left: this.bottomLeft,
-                right: ownSiblings.right?.bottomLeft,
-                bottomLeft: ownSiblings.bottom?.topLeft,
-                bottom: ownSiblings.bottom?.topRight,
-                bottomRight: ownSiblings.bottomRight?.topLeft
+                right: siblings.right?.bottomLeft,
+                bottomLeft: siblings.bottom?.topLeft,
+                bottom: siblings.bottom?.topRight,
+                bottomRight: siblings.bottomRight?.topLeft
             };
         }
     }
 
-    getNeighbours(siblings: ISiblings,
+    getNeighbours(_siblings: ISiblings,
         result: QuadPair[]) {
+        let siblings = _siblings;
 
         if (this.level == 0) {
             this.addSelfPairs(result);
@@ -166,6 +169,9 @@ export class QuadNode {
             this.bottomRight?.getNeighbours(this.getQuarterSiblings(siblings, Quarter.BottomRight), result);// ⌟
         }
     }
+
+
+
 
     addSelfPairs(result: QuadPair[]) {
         if (!this.points || this.points.length < 2) return;
@@ -283,10 +289,10 @@ export class QuadNode {
 
     getOrCreateNode(quarter: Quarter): QuadNode {
         switch (quarter) {
-            case Quarter.TopLeft: return this.topLeft || (this.topLeft = new QuadNode(this.level - 1, this.x - this.quarterSize, this.y - this.quarterSize, this.quarterSize));
-            case Quarter.TopRight: return this.topRight || (this.topRight = new QuadNode(this.level - 1, this.x + this.quarterSize, this.y - this.quarterSize, this.quarterSize));
-            case Quarter.BottomLeft: return this.bottomLeft || (this.bottomLeft = new QuadNode(this.level - 1, this.x - this.quarterSize, this.y + this.quarterSize, this.quarterSize));
-            case Quarter.BottomRight: return this.bottomRight || (this.bottomRight = new QuadNode(this.level - 1, this.x + this.quarterSize, this.y + this.quarterSize, this.quarterSize));
+            case Quarter.TopLeft: return this.topLeft || (this.topLeft = new QuadNode(this, this.level - 1, Quarter.TopLeft, this.x - this.quarterSize, this.y - this.quarterSize, this.quarterSize));
+            case Quarter.TopRight: return this.topRight || (this.topRight = new QuadNode(this, this.level - 1, Quarter.TopRight, this.x + this.quarterSize, this.y - this.quarterSize, this.quarterSize));
+            case Quarter.BottomLeft: return this.bottomLeft || (this.bottomLeft = new QuadNode(this, this.level - 1, Quarter.BottomLeft, this.x - this.quarterSize, this.y + this.quarterSize, this.quarterSize));
+            case Quarter.BottomRight: return this.bottomRight || (this.bottomRight = new QuadNode(this, this.level - 1, Quarter.BottomRight, this.x + this.quarterSize, this.y + this.quarterSize, this.quarterSize));
         }
     }
 

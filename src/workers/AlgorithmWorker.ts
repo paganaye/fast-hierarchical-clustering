@@ -1,6 +1,6 @@
 import { ClassicAvgAlgorithm } from '../avg/ClassicAvgAlgorithm';
 import { NewAvgAlgorithm } from '../avg/NewAvgAlgorithm';
-import { Pair } from '../avg/Pair';
+import { Pair } from '../Pair';
 import { Dendrogram } from '../Cluster';
 import { IPoint } from '../IPoint';
 import { IAlgorithm } from './IAlgorithm';
@@ -52,7 +52,6 @@ function group(input: IAlgorithmWorkerInput) {
             if (!pair || dendogramsCount <= input.wantedClusters) break;
         }
         if (runCounter == globalRunCounter) {
-            console.log("posting...");
             if (pair && dendogramsCount > input.wantedClusters) {
                 let progress = (input.points.length + input.wantedClusters - dendogramsCount) / input.points.length;
                 postMessage({ complete: false, progress, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);

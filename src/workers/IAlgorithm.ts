@@ -1,6 +1,6 @@
 import { Dendrogram } from '../Cluster';
-import { Pair } from '../avg/Pair';
-import { IPoint } from '../avg/QuadTree';
+import { Pair } from '../Pair';
+import { IPoint } from '../IPoint';
 
 export interface IAlgorithm {
     name: string;
