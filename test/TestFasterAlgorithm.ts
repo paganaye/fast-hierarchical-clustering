@@ -19,7 +19,8 @@ describe('Faster Avg algorithm', function () {
       classicAlgorithm.init(points);
       newAlgorithm.init(points);
       let classicAlgorithmFirstPair = classicAlgorithm.findNearestTwoPoints()?.toString();
-      let newAlgorithmFirstPair = newAlgorithm.findNearestTwoPoints()?.toString();
+      let newPairs = newAlgorithm.getNearestPairs();
+      let newAlgorithmFirstPair = newPairs.next().value.toString();
       if (classicAlgorithmFirstPair == newAlgorithmFirstPair) {
         console.log("OK", classicAlgorithmFirstPair);
       } else {
@@ -45,7 +46,8 @@ describe('Faster Avg algorithm', function () {
     newAlgorithm.quadTree.print();
 
     let classicAlgorithmFirstPair = classicAlgorithm.findNearestTwoPoints()?.toString();
-    let newAlgorithmFirstPair = newAlgorithm.findNearestTwoPoints()?.toString();
+    let newPairs = newAlgorithm.getNearestPairs();
+    let newAlgorithmFirstPair = newPairs.next().value.toString();
     if (classicAlgorithmFirstPair == newAlgorithmFirstPair) {
       console.log("OK", classicAlgorithmFirstPair);
     } else {
@@ -69,7 +71,8 @@ describe('Faster Avg algorithm', function () {
     newAlgorithm.quadTree.print();
 
     let classicAlgorithmFirstPair = classicAlgorithm.findNearestTwoPoints()?.toString();
-    let newAlgorithmFirstPair = newAlgorithm.findNearestTwoPoints()?.toString();
+    let newPairs = newAlgorithm.getNearestPairs();
+    let newAlgorithmFirstPair = newPairs.next().value.toString();
     if (classicAlgorithmFirstPair == newAlgorithmFirstPair) {
       console.log("OK", classicAlgorithmFirstPair);
     } else {
@@ -95,10 +98,11 @@ describe('Faster Avg algorithm', function () {
       let newAlgorithm = new FasterAvgAlgorithm();
       classicAlgorithm.init(points);
       newAlgorithm.init(points);
+      let newPairs = newAlgorithm.getNearestPairs();
 
       for (let pairNo = 0; pairNo < 4; pairNo++) {
         let classicAlgorithmPair = classicAlgorithm.findNearestTwoPoints();
-        let newAlgorithmPair = newAlgorithm.findNearestTwoPoints();
+        let newAlgorithmPair = newPairs.next().value.toString();
         if (classicAlgorithmPair?.toString() == newAlgorithmPair?.toString()) {
           classicAlgorithmPair?.merge();
           newAlgorithmPair?.merge();
@@ -106,8 +110,6 @@ describe('Faster Avg algorithm', function () {
           console.warn("KO", { i, pairNo });
           console.warn("classicAlgorithmPair", classicAlgorithmPair?.toString(), classicAlgorithmPair?.distance());
           console.warn("newAlgorithmPair    ", newAlgorithmPair?.toString(), newAlgorithmPair?.distance());
-          let newAlgorithmPair2 = newAlgorithm.findNearestTwoPoints();
-          console.warn("newAlgorithmPair2    ", newAlgorithmPair2?.toString(), newAlgorithmPair2?.distance());
           console.log(`let pt1 = new Point(${pt1.x}, ${pt1.y}, "A");`);
           console.log(`let pt2 = new Point(${pt2.x}, ${pt2.y}, "B");`);
           console.log(`let pt3 = new Point(${pt3.x}, ${pt3.y}, "C");`);
@@ -133,10 +135,11 @@ describe('Faster Avg algorithm', function () {
     let newAlgorithm = new FasterAvgAlgorithm(2);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
+    let newPairs = newAlgorithm.getNearestPairs();
 
     for (let pairNo = 0; pairNo < 4; pairNo++) {
       let classicAlgorithmPair = classicAlgorithm.findNearestTwoPoints();
-      let newAlgorithmPair = newAlgorithm.findNearestTwoPoints();
+      let newAlgorithmPair = newPairs.next().value;
       if (classicAlgorithmPair?.toString() == newAlgorithmPair?.toString()) {
         console.warn("OK", classicAlgorithmPair?.toString());
         classicAlgorithmPair?.merge();
@@ -145,8 +148,6 @@ describe('Faster Avg algorithm', function () {
         console.warn("KO", { pairNo });
         console.warn("classicAlgorithmPair", classicAlgorithmPair?.toString(), classicAlgorithmPair?.distance());
         console.warn("newAlgorithmPair    ", newAlgorithmPair?.toString(), newAlgorithmPair?.distance());
-        let newAlgorithmPair2 = newAlgorithm.findNearestTwoPoints();
-        console.warn("newAlgorithmPair2    ", newAlgorithmPair2?.toString(), newAlgorithmPair2?.distance());
         console.log(`let pt1 = new Point(${pt1.x}, ${pt1.y}, "A");`);
         console.log(`let pt2 = new Point(${pt2.x}, ${pt2.y}, "B");`);
         console.log(`let pt3 = new Point(${pt3.x}, ${pt3.y}, "C");`);
@@ -171,10 +172,11 @@ describe('Faster Avg algorithm', function () {
     let newAlgorithm = new FasterAvgAlgorithm(2);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
+    let newPairs = newAlgorithm.getNearestPairs();
 
     for (let pairNo = 0; pairNo < 4; pairNo++) {
       let classicAlgorithmPair = classicAlgorithm.findNearestTwoPoints();
-      let newAlgorithmPair = newAlgorithm.findNearestTwoPoints();
+      let newAlgorithmPair = newPairs.next().value;
       if (classicAlgorithmPair?.toString() == newAlgorithmPair?.toString()) {
         console.warn("OK", classicAlgorithmPair?.toString());
         classicAlgorithmPair?.merge();
@@ -183,8 +185,6 @@ describe('Faster Avg algorithm', function () {
         console.warn("KO", { pairNo });
         console.warn("classicAlgorithmPair", classicAlgorithmPair?.toString(), classicAlgorithmPair?.distance());
         console.warn("newAlgorithmPair    ", newAlgorithmPair?.toString(), newAlgorithmPair?.distance());
-        let newAlgorithmPair2 = newAlgorithm.findNearestTwoPoints();
-        console.warn("newAlgorithmPair2    ", newAlgorithmPair2?.toString(), newAlgorithmPair2?.distance());
         console.log(`let pt1 = new Point(${pt1.x}, ${pt1.y}, "A");`);
         console.log(`let pt2 = new Point(${pt2.x}, ${pt2.y}, "B");`);
         console.log(`let pt3 = new Point(${pt3.x}, ${pt3.y}, "C");`);
@@ -211,10 +211,11 @@ describe('Faster Avg algorithm', function () {
     let newAlgorithm = new FasterAvgAlgorithm(2);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
+    let newPairs = newAlgorithm.getNearestPairs();
 
     for (let pairNo = 0; pairNo < 4; pairNo++) {
       let classicAlgorithmPair = classicAlgorithm.findNearestTwoPoints();
-      let newAlgorithmPair = newAlgorithm.findNearestTwoPoints();
+      let newAlgorithmPair = newPairs.next().value;
       if (classicAlgorithmPair?.toString() == newAlgorithmPair?.toString()) {
         console.warn("OK", classicAlgorithmPair?.toString());
         classicAlgorithmPair?.merge();
@@ -223,8 +224,6 @@ describe('Faster Avg algorithm', function () {
         console.warn("KO", { pairNo });
         console.warn("classicAlgorithmPair", classicAlgorithmPair?.toString(), classicAlgorithmPair?.distance());
         console.warn("newAlgorithmPair    ", newAlgorithmPair?.toString(), newAlgorithmPair?.distance());
-        let newAlgorithmPair2 = newAlgorithm.findNearestTwoPoints();
-        console.warn("newAlgorithmPair2    ", newAlgorithmPair2?.toString(), newAlgorithmPair2?.distance());
         console.log(`let pt1 = new Point(${pt1.x}, ${pt1.y}, "A");`);
         console.log(`let pt2 = new Point(${pt2.x}, ${pt2.y}, "B");`);
         console.log(`let pt3 = new Point(${pt3.x}, ${pt3.y}, "C");`);
@@ -250,10 +249,11 @@ describe('Faster Avg algorithm', function () {
     let newAlgorithm = new FasterAvgAlgorithm(2);
     classicAlgorithm.init(points);
     newAlgorithm.init(points);
+    let newPairs = newAlgorithm.getNearestPairs();
 
     for (let pairNo = 0; pairNo < 4; pairNo++) {
       let classicAlgorithmPair = classicAlgorithm.findNearestTwoPoints();
-      let newAlgorithmPair = newAlgorithm.findNearestTwoPoints();
+      let newAlgorithmPair = newPairs.next().value;
       if (classicAlgorithmPair?.toString() == newAlgorithmPair?.toString()) {
         console.warn("OK", classicAlgorithmPair?.toString());
         classicAlgorithmPair?.merge();
@@ -262,8 +262,6 @@ describe('Faster Avg algorithm', function () {
         console.warn("KO", { pairNo });
         console.warn("classicAlgorithmPair", classicAlgorithmPair?.toString(), classicAlgorithmPair?.distance());
         console.warn("newAlgorithmPair    ", newAlgorithmPair?.toString(), newAlgorithmPair?.distance());
-        let newAlgorithmPair2 = newAlgorithm.findNearestTwoPoints();
-        console.warn("newAlgorithmPair2    ", newAlgorithmPair2?.toString(), newAlgorithmPair2?.distance());
         console.log(`let pt1 = new Point(${pt1.x}, ${pt1.y}, "A");`);
         console.log(`let pt2 = new Point(${pt2.x}, ${pt2.y}, "B");`);
         console.log(`let pt3 = new Point(${pt3.x}, ${pt3.y}, "C");`);
@@ -273,5 +271,5 @@ describe('Faster Avg algorithm', function () {
       }
     }
     console.log("OK");
-  });  
+  });
 });

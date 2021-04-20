@@ -31,7 +31,13 @@ export class NewAvgAlgorithm implements IAlgorithm {
 
     }
 
-
+    *getNearestPairs(): Generator<Pair> {
+        let pair: Pair | undefined;
+        do {
+            pair = this.findNearestTwoPoints();
+            if (pair) yield pair;
+        } while (pair)
+    }
 
     findNearestTwoPoints(): Pair | undefined {
         while (true) {

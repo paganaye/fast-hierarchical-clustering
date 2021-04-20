@@ -57,16 +57,18 @@ function group(input: IAlgorithmWorkerInput) {
         let dendogramsCount!: number;
         let batchEndTime = new Date().getTime() + 500;
 
-        while (new Date().getTime() < batchEndTime) {
-            pair = algorithm.findNearestTwoPoints();
-            if (pair) {
-                pair.merge();
-            }
+        let generator = algorithm.getNearestPairs();
+
+        do {
+            let result = generator.next();
             dendogramsCount = algorithm.getDendrogramsCount();
-            if (!pair || dendogramsCount <= input.wantedClusters) break;
-        }
+            if (result.done || dendogramsCount <= input.wantedClusters) break;
+            let pair = result.value;
+            pair.merge();
+        } while (new Date().getTime() < batchEndTime);
+
         if (runCounter == globalRunCounter) {
-            if (pair && dendogramsCount > input.wantedClusters) {
+            if (dendogramsCount > input.wantedClusters) {
                 let progress = (input.points.length + input.wantedClusters - dendogramsCount) / input.points.length;
                 postMessage({ complete: false, progress, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);
                 setTimeout(() => runBatch(runCounter), 0);

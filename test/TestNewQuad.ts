@@ -59,11 +59,11 @@ describe('A Quad', function () {
     quad.insert(new Point(0.75, 0.75, "D"));
     // A B
     // C D
-    let pairs = quad.getNeighbours();
+    let pairs = quad.getNeighbours(0.5);
     expect(pairs.length).to.eq(0);
 
     quad.trim();
-    pairs = quad.getNeighbours();
+    pairs = quad.getNeighbours(1);
     expect(pairs.length).to.eq(6);
     expect(pairs[0].toString()).to.eq("#A #B 0.5");
     expect(pairs[1].toString()).to.eq("#A #C 0.5");
@@ -89,11 +89,11 @@ describe('A Quad', function () {
     quad.insert(new Point(0.625, 0.875, "O"));
     quad.insert(new Point(0.875, 0.875, "P"));
 
-    let pairs = quad.getNeighbours();
+    let pairs = quad.getNeighbours(0.25);
     expect(pairs.length).to.eq(0);
 
     quad.trim();
-    pairs = quad.getNeighbours();
+    pairs = quad.getNeighbours(0.5);
     expect(pairs.length).to.eq(7);
     expect(pairs[0].toString()).to.eq("#A #B 0.25");
     expect(pairs[1].toString()).to.eq("#A #F 0.3535533905932738");

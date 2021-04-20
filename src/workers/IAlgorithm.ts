@@ -5,7 +5,7 @@ import { IPoint } from '../IPoint';
 export interface IAlgorithm {
     name: string;
     init(points: IPoint[]): void;
-    findNearestTwoPoints(): Pair | undefined;
+    getNearestPairs(): Generator<Pair>;
     getCurrentDendrograms(): Dendrogram[];
     getDendrogramsCount(): number;
 }

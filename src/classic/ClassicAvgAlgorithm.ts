@@ -13,6 +13,13 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
         this.dendrograms = points.slice();
     }
 
+    *getNearestPairs(): Generator<Pair> {
+        let pair: Pair | undefined;
+        do {
+            pair = this.findNearestTwoPoints();
+            if (pair) yield pair;
+        } while (pair)
+    }
 
     findNearestTwoPoints(): Pair | undefined {
         let distanceSquaredMin = Number.MAX_VALUE;
@@ -51,5 +58,5 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
 
     getDendrogramsCount(): number {
         return this.dendrograms.length;
-    }    
+    }
 }
