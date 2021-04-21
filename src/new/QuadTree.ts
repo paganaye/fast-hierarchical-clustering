@@ -32,6 +32,7 @@ export class QuadTree {
     trim(): boolean {
         if (this.root.level == 0) return false;
         else {
+            this.currentLevels -= 1;
             this.root.trim();
             return true;
         }

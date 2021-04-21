@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { FasterQuadTree, PointEx } from '../src/faster/FasterQuadTree';
+import { PointEx } from '../src/faster/FasterQuadNode';
+import { FasterQuadTree } from '../src/faster/FasterQuadTree';
 
 
 describe('A Faster Quad', function () {

@@ -1,19 +1,18 @@
 import { expect } from 'chai';
-import { FasterQuadTree, PointEx, QuadNode, Quarter } from '../src/faster/FasterQuadTree';
-import { Sibling, Siblings } from '../src/faster/Siblings';
+import { PointEx, QuadNode } from '../src/faster/FasterQuadNode';
+import { FasterQuadTree } from '../src/faster/FasterQuadTree';
+import { Sibling } from '../src/faster/Siblings';
 import { Point } from '../src/Point';
 
 
-describe('Siblings', function () {
+describe('QuadNode', function () {
   it('gives sensible values', function () {
 
     let quad = new FasterQuadTree(3);
     let letter = 65;
-    let points: Point[] = [];
     for (let y = 0; y < 4; y++) {
       for (let x = 0; x < 4; x++) {
         let newPoint = new PointEx((2 * x + 1) / 8, (2 * y + 1) / 8, String.fromCharCode(letter++));
-        points.push(newPoint);
         quad.insert(newPoint)
       }
     }
@@ -29,7 +28,7 @@ describe('Siblings', function () {
 
 
     for (let s of quad.forEachSiblings()) {
-      let n = s.node!;
+      let n = s;
       if (!n || !n.points) continue;
       let tag = n.points[0]!.tag;
       switch (tag) {
@@ -88,11 +87,11 @@ describe('Siblings', function () {
 });
 
 
-function siblingsString(s?: Siblings): string {
-  return (s && s.node && s.node.points && s.node.points.length == 1) ? (s.node.points[0].tag || '?') : '-';
+function siblingsString(s?: QuadNode): string {
+  return (s && s.points && s.points.length == 1) ? (s.points[0].tag || '?') : '-';
 }
 
-function expectSiblingsToEq(siblings: Siblings, expected: string) {
+function expectSiblingsToEq(siblings: QuadNode, expected: string) {
   expect(siblingsString(siblings.getSibling(Sibling.TopLeft))).to.eq(expected[0], "topleft of " + expected);
   expect(siblingsString(siblings.getSibling(Sibling.Top))).to.eq(expected[1], "top of " + expected);
   expect(siblingsString(siblings.getSibling(Sibling.TopRight))).to.eq(expected[2], "topright of " + expected);

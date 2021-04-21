@@ -1,7 +1,8 @@
 import { Cluster, Dendrogram } from '../Cluster';
 import { IAlgorithm } from '../workers/IAlgorithm';
 import { Point } from '../Point';
-import { FasterQuadTree, PointEx, ClusterEx } from './FasterQuadTree';
+import { FasterQuadTree } from './FasterQuadTree';
+import { ClusterEx, PointEx } from './FasterQuadNode';
 
 
 export class FasterAvgAlgorithm implements IAlgorithm {
