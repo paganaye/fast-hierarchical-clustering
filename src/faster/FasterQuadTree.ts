@@ -3,6 +3,7 @@ import { Cluster, Dendrogram } from '../Cluster';
 import { getDistance, getDistanceSquared, IPoint } from '../IPoint';
 import { QuadPair } from '../new/QuadTree';
 import { Point } from '../Point';
+import { Sibling, Siblings } from './Siblings';
 
 //import { Point } from './Point';
 
@@ -69,9 +70,13 @@ export class FasterQuadTree {
         return result;
     }
 
+
+    forEachSiblings(): Generator<Siblings> {
+        return this.root.forEachSiblings(this.rootSiblings);
+    }
 }
 
-enum Quarter {
+export enum Quarter {
     TopLeft,
     TopRight,
     BottomLeft,
@@ -79,7 +84,6 @@ enum Quarter {
 }
 
 export class QuadNode {
-
     nodeSize: number;
     nodeSizeSquared: number;
     quarterSize: number;
@@ -100,19 +104,19 @@ export class QuadNode {
         if (this.level == 0) {
             let result: QuadPairEx[] = [];
             this.addSelfClusters(result, siblings);
-            this.addClustersWith(siblings, siblings.right, result);
-            this.addClustersWith(siblings, siblings.bottomLeft, result);
-            this.addClustersWith(siblings, siblings.bottom, result);
-            this.addClustersWith(siblings, siblings.bottomRight, result);
+            this.addClustersWith(siblings, Sibling.Right, result);
+            this.addClustersWith(siblings, Sibling.BottomLeft, result);
+            this.addClustersWith(siblings, Sibling.Bottom, result);
+            this.addClustersWith(siblings, Sibling.BottomRight, result);
             result.sort((a, b) => b.distanceSquared - a.distanceSquared);
             while (result.length) {
                 let quadPair = result.pop()!;
                 if (quadPair.point1.mergedIn || quadPair.point2.mergedIn) continue;
 
-                if (this.hasBetterPair(siblings.right, quadPair) // 🡺
-                    || this.hasBetterPair(siblings.bottomLeft, quadPair) // 🡿
-                    || this.hasBetterPair(siblings.bottom, quadPair)  // 🡻
-                    || this.hasBetterPair(siblings.bottomRight, quadPair))  // 🡾 
+                if (this.hasBetterPair(siblings, Sibling.Right, quadPair) // 🡺
+                    || this.hasBetterPair(siblings, Sibling.BottomLeft, quadPair) // 🡿
+                    || this.hasBetterPair(siblings, Sibling.Bottom, quadPair)  // 🡻
+                    || this.hasBetterPair(siblings, Sibling.BottomRight, quadPair))  // 🡾 
                     continue;
                 // 🡸🡽🡹🡼 done before
 
@@ -127,19 +131,20 @@ export class QuadNode {
             }
         } else if (siblings) {
             let x: Generator<ClusterEx> | undefined;
-            x = this.topLeft?.buildClusters(siblings.getQuarterSiblings(Quarter.TopLeft)); // ⌜
+            x = this.topLeft?.buildClusters(siblings.getQuarter(Quarter.TopLeft)); // ⌜
             if (x) yield* x;
-            x = this.topRight?.buildClusters(siblings.getQuarterSiblings(Quarter.TopRight));// ⌝
+            x = this.topRight?.buildClusters(siblings.getQuarter(Quarter.TopRight));// ⌝
             if (x) yield* x;
-            x = this.bottomLeft?.buildClusters(siblings.getQuarterSiblings(Quarter.BottomLeft));// ⌞
+            x = this.bottomLeft?.buildClusters(siblings.getQuarter(Quarter.BottomLeft));// ⌞
             if (x) yield* x;
-            x = this.bottomRight?.buildClusters(siblings.getQuarterSiblings(Quarter.BottomRight));// ⌟
+            x = this.bottomRight?.buildClusters(siblings.getQuarter(Quarter.BottomRight));// ⌟
             if (x) yield* x;
         }
     }
 
-    hasBetterPair(node: QuadNode | undefined, { point1, point2, distanceSquared }: QuadPairEx) {
-        if (!node || !node.points || node.points.length < 3) return false;
+    hasBetterPair(siblings: Siblings, sibling: Sibling, { point1, point2, distanceSquared }: QuadPairEx) {
+        let node: QuadNode | undefined = siblings.getNode(sibling);
+        if (!node || !node.points || !node.points.length) return false;
 
         for (let point3 of node.points) {
             if (point3.mergedIn || point3 == point1 || point3 == point2) continue;
@@ -163,18 +168,21 @@ export class QuadNode {
         }
     }
 
-    private addClustersWith(siblings: Siblings, node2: QuadNode | undefined,
+    private addClustersWith(siblings: Siblings, sibling: Sibling,
         result: QuadPairEx[]) {
         if (!this.points || this.points.length == 0) return;
+        let node2 = siblings.getNode(sibling);
         let points2 = node2?.points;
         if (points2 && points2.length) {
             let node2Siblings: Siblings | undefined;
             for (let point1 of this.points) {
+                if (point1.mergedIn) continue;
                 for (let point2 of points2) {
+                    if (point2.mergedIn) continue;
                     let distanceSquared = getDistanceSquared(point1, point2);
-                    // if (!node2Siblings){
-                    //     node2Siblings = 
-                    // }
+                    if (!node2Siblings) {
+                        node2Siblings = siblings.getSibling(sibling)
+                    }
                     if (distanceSquared < this.nodeSizeSquared) result.push(new QuadPairEx(point1, point2, node2Siblings, distanceSquared))
                 }
             }
@@ -322,90 +330,18 @@ export class QuadNode {
             }
         }
     }
+
+    *forEachSiblings(parentSiblings: Siblings): Generator<Siblings> {
+        yield parentSiblings;
+        if (this.topLeft) yield* this.topLeft.forEachSiblings(parentSiblings.getQuarter(Quarter.TopLeft)!)
+        if (this.topRight) yield* this.topRight.forEachSiblings(parentSiblings.getQuarter(Quarter.TopRight)!)
+        if (this.bottomLeft) yield* this.bottomLeft.forEachSiblings(parentSiblings.getQuarter(Quarter.BottomLeft)!)
+        if (this.bottomRight) yield* this.bottomRight.forEachSiblings(parentSiblings.getQuarter(Quarter.BottomRight)!)
+    }
+
+
 }
 
-export class Siblings {
-    readonly topLeft?: QuadNode;
-    readonly top?: QuadNode;
-    readonly topRight?: QuadNode;
-    readonly left?: QuadNode;
-    readonly right?: QuadNode;
-    readonly bottomLeft?: QuadNode;
-    readonly bottom?: QuadNode;
-    readonly bottomRight?: QuadNode;
-
-    private constructor(
-        readonly parent: Siblings | undefined,
-        readonly node: QuadNode) {
-
-        if (!parent || !parent.node || !node) {
-            return;
-        }
-        switch (node.quarter) {
-            case Quarter.TopLeft: {
-                this.topLeft = parent.topLeft?.bottomRight;
-                this.top = parent.top?.bottomLeft;
-                this.topRight = parent.top?.bottomRight;
-                this.left = parent.left?.topRight;
-                this.right = parent.node.topRight;
-                this.bottomLeft = parent.left?.bottomRight;
-                this.bottom = parent.node.bottomLeft;
-                this.bottomRight = parent.node.bottomRight;
-            };
-            case Quarter.TopRight: {
-                this.topLeft = parent.top?.bottomLeft;
-                this.top = parent.top?.bottomRight;
-                this.topRight = parent.topRight?.bottomLeft;
-                this.left = parent.node.topLeft;
-                this.right = parent.right?.topLeft;
-                this.bottomLeft = parent.node.bottomLeft;
-                this.bottom = parent.node.bottomRight;
-                this.bottomRight = parent.right?.bottomLeft;
-            };
-            case Quarter.BottomLeft: {
-                this.topLeft = parent.left?.topRight;
-                this.top = parent.node.topLeft;
-                this.topRight = parent.node.topRight;
-                this.left = parent.left?.bottomRight;
-                this.right = parent.node.bottomRight;
-                this.bottomLeft = parent.bottomLeft?.topRight;
-                this.bottom = parent.bottom?.topLeft;
-                this.bottomRight = parent.bottom?.topRight;
-            };
-            case Quarter.BottomRight: {
-                this.topLeft = parent.node.topLeft;
-                this.top = parent.node.topRight;
-                this.topRight = parent.right?.topLeft;
-                this.left = parent.node.bottomLeft;
-                this.right = parent.right?.bottomLeft;
-                this.bottomLeft = parent.bottom?.topLeft;
-                this.bottom = parent.bottom?.topRight;
-                this.bottomRight = parent.bottomRight?.topLeft;
-            };
-        }
-    }
-
-    static forRoot(node: QuadNode): Siblings {
-        return new Siblings(undefined, node);
-    }
-
-    getQuarterSiblings(quarter: Quarter): Siblings | undefined {
-        if (this.node) {
-            switch (quarter) {
-                case Quarter.TopLeft: return this.buildQuarterSiblings(quarter, this.node.topLeft);
-                case Quarter.TopRight: return this.buildQuarterSiblings(quarter, this.node.topRight);
-                case Quarter.BottomLeft: return this.buildQuarterSiblings(quarter, this.node.bottomLeft);
-                case Quarter.BottomRight: return this.buildQuarterSiblings(quarter, this.node.bottomRight);
-            }
-        }
-    }
-
-    buildQuarterSiblings(quarter: Quarter, node: QuadNode | undefined): Siblings | undefined {
-        if (node) {
-            return new Siblings(this, node);
-        }
-    }
-}
 export class PointEx extends Point {
     public mergedIn: Cluster | undefined;
 

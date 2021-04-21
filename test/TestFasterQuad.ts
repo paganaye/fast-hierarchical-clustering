@@ -58,14 +58,14 @@ describe('A Faster Quad', function () {
     // A B
     // C D
     let clusters = quad.getAllClusters();
-    expect(clusters.length).to.eq(0);
+    expect(clusters.length).to.eq(2);
+    expect(clusters[0].toString()).to.eq("AB (0.475,0.25)");
+    expect(clusters[1].toString()).to.eq("CD (0.495,0.75)");
 
     quad.trim();
     clusters = quad.getAllClusters();
-    expect(clusters.length).to.eq(3);
-    expect(clusters[0].toString()).to.eq("AB (0.475,0.25)");
-    expect(clusters[1].toString()).to.eq("CD (0.495,0.75)");
-    expect(clusters[2].toString()).to.eq("ABCD (0.485,0.5)");
+    expect(clusters.length).to.eq(1);
+    expect(clusters[0].toString()).to.eq("ABCD (0.485,0.5)");
   });
 
 

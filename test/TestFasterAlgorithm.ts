@@ -51,6 +51,22 @@ describe('Faster Avg algorithm', function () {
   });
 
 
+  it('trio 190a991e', function () {
+    let a = new Point(0.0531, 0.7191, "A"); 
+    let b = new Point(0.2518, 0.4110, "B");
+    let c = new Point(0.2416, 0.9598, "C");
+  
+    let points = [a, b, c];
+    let classicAlgorithm = getNormalizedDendrogram(new ClassicAvgAlgorithm(points));
+    let newAlgo = new FasterAvgAlgorithm(3, points);
+    newAlgo.quadTree.print();
+    let newAlgorithm = getNormalizedDendrogram(newAlgo);
+  
+    expect(classicAlgorithm).to.eq("(B-(A-C))");
+    expect(newAlgorithm).to.eq("(B-(A-C))");
+    // and not (C-(A-B))
+  });
+  
   it('many quintet', function () {
     PseudoRandom.randomize(1234);
 
