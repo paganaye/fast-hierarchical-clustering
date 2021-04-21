@@ -15,7 +15,7 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
         this.dendrograms = points.slice();
     }
 
-    *buildClusters(): Generator<Cluster> {
+    *forEachClusters(): Generator<Cluster> {
         let cluster: Cluster | undefined;
         do {
             cluster = this.findNearestTwoPoints();

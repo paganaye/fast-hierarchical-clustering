@@ -17,6 +17,15 @@ describe('Siblings', function () {
         quad.insert(newPoint)
       }
     }
+    //       +---+---+---+---+
+    //       | A | B | C | D |
+    //       +---+---+---+---+
+    //       | E | F | G | H |
+    //       +---+---+---+---+
+    //       | I | J | K | L |
+    //       +---+---+---+---+
+    //       | M | N | O | P |
+    //       +---+---+---+---+
 
 
     for (let s of quad.forEachSiblings()) {

@@ -15,10 +15,6 @@ export class Siblings {
     private constructor(
         readonly parent: Siblings | undefined,
         readonly node: QuadNode) {
-
-        if (!parent || !parent.node || !node) {
-            return;
-        }
     }
 
     getSibling(sibling: Sibling): Siblings | undefined {

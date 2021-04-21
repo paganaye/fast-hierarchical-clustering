@@ -45,8 +45,8 @@ export class FasterQuadTree {
         return result;
     }
 
-    *buildClusters(): Generator<ClusterEx> {
-        for (let cluster of this.root.buildClusters(this.rootSiblings)) {
+    *forEachClusters(): Generator<ClusterEx> {
+        for (let cluster of this.root.forEachClusters(this.rootSiblings)) {
             this.pointCount -= 1;
             yield cluster;
         }
@@ -64,7 +64,7 @@ export class FasterQuadTree {
 
     getAllClusters(): DendrogramEx[] {
         let result: DendrogramEx[] = [];
-        let generator = this.buildClusters();
+        let generator = this.forEachClusters();
         let cluster: DendrogramEx;
         while (cluster = generator.next().value) result.push(cluster);
         return result;
@@ -99,24 +99,29 @@ export class QuadNode {
         this.quarterSize = halfSize / 2;
     }
 
-    *buildClusters(siblings: Siblings | undefined): Generator<ClusterEx> {
+    *forEachClusters(siblings: Siblings | undefined): Generator<ClusterEx> {
         if (!siblings) return;
         if (this.level == 0) {
             let result: QuadPairEx[] = [];
-            this.addSelfClusters(result, siblings);
-            this.addClustersWith(siblings, Sibling.Right, result);
-            this.addClustersWith(siblings, Sibling.BottomLeft, result);
-            this.addClustersWith(siblings, Sibling.Bottom, result);
-            this.addClustersWith(siblings, Sibling.BottomRight, result);
+            this.addSelfPairs(result, siblings);
+            this.addPairsWith(siblings, Sibling.Right, result);
+            this.addPairsWith(siblings, Sibling.BottomLeft, result);
+            this.addPairsWith(siblings, Sibling.Bottom, result);
+            this.addPairsWith(siblings, Sibling.BottomRight, result);
+            if (result.length == 0) return;
             result.sort((a, b) => b.distanceSquared - a.distanceSquared);
             while (result.length) {
                 let quadPair = result.pop()!;
                 if (quadPair.point1.mergedIn || quadPair.point2.mergedIn) continue;
-
-                if (this.hasBetterPair(siblings, Sibling.Right, quadPair) // 🡺
-                    || this.hasBetterPair(siblings, Sibling.BottomLeft, quadPair) // 🡿
-                    || this.hasBetterPair(siblings, Sibling.Bottom, quadPair)  // 🡻
-                    || this.hasBetterPair(siblings, Sibling.BottomRight, quadPair))  // 🡾 
+                if (QuadNode.hasBetterSelfPair(quadPair)
+                    || QuadNode.hasBetterPair(quadPair, quadPair.node2Siblings?.getNode(Sibling.TopLeft))
+                    || QuadNode.hasBetterPair(quadPair, quadPair.node2Siblings?.getNode(Sibling.Top))
+                    || QuadNode.hasBetterPair(quadPair, quadPair.node2Siblings?.getNode(Sibling.TopRight))
+                    || QuadNode.hasBetterPair(quadPair, quadPair.node2Siblings?.getNode(Sibling.Left))
+                    || QuadNode.hasBetterPair(quadPair, quadPair.node2Siblings?.getNode(Sibling.Right))
+                    || QuadNode.hasBetterPair(quadPair, quadPair.node2Siblings?.getNode(Sibling.BottomLeft))
+                    || QuadNode.hasBetterPair(quadPair, quadPair.node2Siblings?.getNode(Sibling.Bottom))
+                    || QuadNode.hasBetterPair(quadPair, quadPair.node2Siblings?.getNode(Sibling.BottomRight)))
                     continue;
                 // 🡸🡽🡹🡼 done before
 
@@ -131,44 +136,53 @@ export class QuadNode {
             }
         } else if (siblings) {
             let x: Generator<ClusterEx> | undefined;
-            x = this.topLeft?.buildClusters(siblings.getQuarter(Quarter.TopLeft)); // ⌜
+            x = this.topLeft?.forEachClusters(siblings.getQuarter(Quarter.TopLeft)); // ⌜
             if (x) yield* x;
-            x = this.topRight?.buildClusters(siblings.getQuarter(Quarter.TopRight));// ⌝
+            x = this.topRight?.forEachClusters(siblings.getQuarter(Quarter.TopRight));// ⌝
             if (x) yield* x;
-            x = this.bottomLeft?.buildClusters(siblings.getQuarter(Quarter.BottomLeft));// ⌞
+            x = this.bottomLeft?.forEachClusters(siblings.getQuarter(Quarter.BottomLeft));// ⌞
             if (x) yield* x;
-            x = this.bottomRight?.buildClusters(siblings.getQuarter(Quarter.BottomRight));// ⌟
+            x = this.bottomRight?.forEachClusters(siblings.getQuarter(Quarter.BottomRight));// ⌟
             if (x) yield* x;
         }
     }
 
-    hasBetterPair(siblings: Siblings, sibling: Sibling, { point1, point2, distanceSquared }: QuadPairEx) {
-        let node: QuadNode | undefined = siblings.getNode(sibling);
-        if (!node || !node.points || !node.points.length) return false;
+    static hasBetterSelfPair({ point2, distanceSquared, node2Siblings }: QuadPairEx) {
+        let node = node2Siblings?.node;
+        if (!node || !node.points) return false;
 
         for (let point3 of node.points) {
-            if (point3.mergedIn || point3 == point1 || point3 == point2) continue;
-            let distanceSq13 = getDistanceSquared(point1, point3);
-            if (distanceSq13 < distanceSquared) return true;
-            let distanceSq23 = getDistanceSquared(point2, point3);
-            if (distanceSq23 < distanceSquared) return true;
+            if (point3.mergedIn || point3 == point2) continue;
+            let newDistanceSquared = getDistanceSquared(point2, point3);
+            if (newDistanceSquared < distanceSquared) return true;
         }
         return false;
     }
 
-    private addSelfClusters(result: QuadPairEx[], siblings: Siblings) {
+    static hasBetterPair({ point2, distanceSquared }: QuadPairEx, node: QuadNode | undefined) {
+        if (!node || !node.points) return false;
+
+        for (let point3 of node.points) {
+            if (point3.mergedIn || point3 == point2) continue;
+            let newDistanceSquared = getDistanceSquared(point2, point3);
+            if (newDistanceSquared < distanceSquared) return true;
+        }
+        return false;
+    }
+
+    private addSelfPairs(result: QuadPairEx[], siblings: Siblings) {
         if (!this.points || this.points.length < 2) return;
         for (let i = 0; i < this.points.length; i++) {
             let point1 = this.points[i];
             for (let j = i + 1; j < this.points.length; j++) {
                 let point2 = this.points[j];
                 let distanceSquared = getDistanceSquared(point1, point2);
-                if (distanceSquared < this.nodeSizeSquared) result.push(new QuadPairEx(point1, point2, siblings, distanceSquared))
+                if (distanceSquared < this.nodeSizeSquared) result.push(new QuadPairEx(point1, point2, undefined, siblings, distanceSquared))
             }
         }
     }
 
-    private addClustersWith(siblings: Siblings, sibling: Sibling,
+    private addPairsWith(siblings: Siblings, sibling: Sibling,
         result: QuadPairEx[]) {
         if (!this.points || this.points.length == 0) return;
         let node2 = siblings.getNode(sibling);
@@ -183,7 +197,7 @@ export class QuadNode {
                     if (!node2Siblings) {
                         node2Siblings = siblings.getSibling(sibling)
                     }
-                    if (distanceSquared < this.nodeSizeSquared) result.push(new QuadPairEx(point1, point2, node2Siblings, distanceSquared))
+                    if (distanceSquared < this.nodeSizeSquared) result.push(new QuadPairEx(point1, point2, sibling, node2Siblings, distanceSquared))
                 }
             }
         }
@@ -198,33 +212,13 @@ export class QuadNode {
             if (point1.mergedIn) continue;
             let distanceSquared = getDistanceSquared(point1, cluster);
             if (distanceSquared < this.nodeSizeSquared) {
-                result.push(new QuadPairEx(point1, cluster, undefined, distanceSquared))
+                result.push(new QuadPairEx(point1, cluster, undefined, undefined, distanceSquared))
                 addedSomething = true;
             }
         }
         return addedSomething;
     }
 
-
-    private addNewClusters(cluster: ClusterEx, result: QuadPairEx[]) {
-        if (!this.points || !this.points.length) return;
-        for (let i = 0; i < this.points.length; i++) {
-            let point1 = this.points[i];
-            let distanceSquared = getDistanceSquared(point1, cluster);
-            if (distanceSquared < this.nodeSizeSquared) result.push(new QuadPairEx(point1, cluster, undefined, distanceSquared))
-        }
-    }
-
-    private addNewClustersWith(cluster: ClusterEx, node2: QuadNode | undefined,
-        result: QuadPairEx[]) {
-        let points2 = node2?.points;
-        if (points2 && points2.length) {
-            for (let point2 of points2) {
-                let distance = getDistanceSquared(cluster, point2);
-                if (distance < this.nodeSizeSquared) result.push(new QuadPairEx(cluster, point2, undefined, distance))
-            }
-        }
-    }
 
     insert(point: DendrogramEx) {
         if (this.level > 0) {
@@ -236,7 +230,7 @@ export class QuadNode {
         }
     }
 
-    movePointsTo(target: Point[]) {
+    movePointsTo(target: DendrogramEx[]) {
         if (this.points) {
             for (let point of this.points) {
                 if (!point.mergedIn) target.push(point);
@@ -365,6 +359,7 @@ export class QuadPairEx {
     constructor(
         readonly point1: DendrogramEx,
         readonly point2: DendrogramEx,
+        readonly sibling: Sibling | undefined,
         readonly node2Siblings: Siblings | undefined,
         readonly distanceSquared: number) { }
     toString() {

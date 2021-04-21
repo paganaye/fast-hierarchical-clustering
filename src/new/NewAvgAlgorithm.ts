@@ -30,7 +30,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
 
     }
 
-    *buildClusters(): Generator<Cluster> {
+    *forEachClusters(): Generator<Cluster> {
         let cluster: Cluster | undefined;
         do {
             cluster = this.findNearestTwoPoints();

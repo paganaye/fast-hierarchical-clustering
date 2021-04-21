@@ -55,7 +55,7 @@ function group(input: IAlgorithmWorkerInput) {
         let dendrogramsCount!: number;
         let batchEndTime = new Date().getTime() + 500;
 
-        let generator = algorithm.buildClusters();
+        let generator = algorithm.forEachClusters();
 
         do {
             let result = generator.next();

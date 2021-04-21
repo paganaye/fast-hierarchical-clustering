@@ -19,9 +19,9 @@ export class FasterAvgAlgorithm implements IAlgorithm {
         }
     }
 
-    *buildClusters(): Generator<ClusterEx> {
+    *forEachClusters(): Generator<ClusterEx> {
         do {
-            yield* this.quadTree.buildClusters();
+            yield* this.quadTree.forEachClusters();
         } while (this.quadTree.trim());
     }
 
