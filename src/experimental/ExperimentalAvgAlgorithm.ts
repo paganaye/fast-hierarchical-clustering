@@ -4,7 +4,6 @@ import { Point } from '../Point';
 import { ExperimentalQuadTree } from './ExperimentalQuadTree';
 import { ClusterEx, PointEx, QuadPairEx } from './ExperimentalQuadNode';
 
-
 export class ExperimentalAvgAlgorithm implements IAlgorithm {
     className = "ExperimentalAvgAlgorithm";
     name: string = "New Average Agglomerative Hierarchical Clustering";
@@ -26,34 +25,18 @@ export class ExperimentalAvgAlgorithm implements IAlgorithm {
         let cluster: Cluster | undefined;
         let newPairs: QuadPairEx[] = [];
 
+        let mergedSomething: boolean;
         do {
-            while (this.pairs.length == 0) {
-                for (let c of this.quadTree.forEachPairs()) {
-                    if (!c) {
-                        console.error("c should not be null")
+            do {
+                mergedSomething = false;
+                for (let node of this.quadTree.forEachQuadLeaf()) {
+                    for (cluster of node.mergePoints(this.quadTree)) {
+                        yield cluster;
+                        mergedSomething = true;
                     }
-                    this.pairs.push(c);
                 }
-                if (this.pairs.length == 0) {
-                    if (!this.quadTree.trim()) return;
-                }
-                else {
-                    this.pairs.sort((a, b) => b.distanceSquared - a.distanceSquared);
-                }
-                // console.log({ maxDistance: this.maxDistance, pairs: this.pairs.length, nextIncrement: this.increment, });            
-            }
-            let pair = this.pairs.pop()!;
-            if (pair) {
-                let { cluster, hasNewPairs } = pair.merge(this.quadTree, newPairs);
-                if (hasNewPairs) {
-                    this.pairs.push(...newPairs);
-                    this.pairs.sort((a, b) => b.distanceSquared - a.distanceSquared);
-                }        
-                if (cluster) yield cluster;
-            } else {
-                console.error("why?")
-            }
-        } while (true)
+            } while (mergedSomething)
+        } while (this.quadTree.trim());
     }
     /*
     *forEachClusters(): Generator<ClusterEx> {

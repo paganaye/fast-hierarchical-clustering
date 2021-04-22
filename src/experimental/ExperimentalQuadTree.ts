@@ -36,10 +36,6 @@ export class ExperimentalQuadTree {
         return result;
     }
 
-    forEachPairs(): Generator<QuadPairEx> {
-        return this.root.forEachPairs()
-    }
-
     getDendrograms(): DendrogramEx[] {
         let result: DendrogramEx[] = [];
         this.root.getDendrograms(result);
@@ -50,9 +46,13 @@ export class ExperimentalQuadTree {
         this.root.print('');
     }
 
-    forEachSiblings(): Generator<QuadNode> {
-        return this.root.forEachSiblings();
+    forEachQuadNode(): Generator<QuadNode> {
+        return this.root.forEachQuadNode();
     }
+
+    forEachQuadLeaf(): Generator<QuadNode> {
+        return this.root.forEachQuadLeaf();
+    }    
 
 }
 

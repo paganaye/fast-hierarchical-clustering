@@ -27,7 +27,7 @@ describe('Faster Siblings', function () {
     //       +---+---+---+---+
 
 
-    for (let s of quad.forEachSiblings()) {
+    for (let s of quad.forEachQuadNode()) {
       let n = s;
       if (!n || !n.points) continue;
       let tag = n.points[0]!.tag;

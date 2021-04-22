@@ -63,8 +63,8 @@ export class FasterQuadTree {
     }
 
 
-    forEachSiblings(): Generator<QuadNode> {
-        return this.root.forEachSiblings();
+    forEachQuadNode(): Generator<QuadNode> {
+        return this.root.forEachQuadNode();
     }
 
 }

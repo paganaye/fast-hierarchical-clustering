@@ -124,44 +124,47 @@ export class QuadNode {
         return undefined;
     }
 
-    *forEachPairs(): Generator<QuadPairEx> {
-        if (this.level == 0) {
-            let result: QuadPairEx[] = [];
-            this.addSelfPairs(result);
-            this.addPairsWith(Sibling.Right, result);
-            this.addPairsWith(Sibling.BottomLeft, result);
-            this.addPairsWith(Sibling.Bottom, result);
-            this.addPairsWith(Sibling.BottomRight, result);
-            if (result.length == 0) return;
-            result.sort((a, b) => b.distanceSquared - a.distanceSquared);
-            while (result.length) {
-                let quadPair = result.pop()!;
-                if (quadPair.point1.mergedIn || quadPair.point2.mergedIn) continue;
-                if (QuadNode.hasBetterSelfPair(quadPair)
-                    || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.TopLeft))
-                    || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.Top))
-                    || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.TopRight))
-                    || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.Left))
-                    || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.Right))
-                    || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.BottomLeft))
-                    || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.Bottom))
-                    || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.BottomRight)))
-                    continue;
-                // 🡸🡽🡹🡼 done before
-                yield quadPair;
+
+    *mergePoints(quadTree: ExperimentalQuadTree): Generator<ClusterEx> {
+        let pairs: QuadPairEx[] = [];
+        this.addSelfPairs(pairs);
+        this.addPairsWith(Sibling.Right, pairs);
+        this.addPairsWith(Sibling.BottomLeft, pairs);
+        this.addPairsWith(Sibling.Bottom, pairs);
+        this.addPairsWith(Sibling.BottomRight, pairs);
+        if (pairs.length == 0) return;
+        pairs.sort((a, b) => b.distanceSquared - a.distanceSquared);
+        while (pairs.length) {
+            let quadPair = pairs.pop()!;
+            if (quadPair.point1.mergedIn || quadPair.point2.mergedIn) continue;
+            if (QuadNode.hasBetterSelfPair(quadPair)
+                || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.TopLeft))
+                || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.Top))
+                || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.TopRight))
+                || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.Left))
+                || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.Right))
+                || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.BottomLeft))
+                || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.Bottom))
+                || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.BottomRight)))
+                continue;
+            // 🡸🡽🡹🡼 done before
+            let newPairs: QuadPairEx[] = [];
+            //let { cluster, hasNewPairs } = quadPair.merge(quadTree, newPairs);
+            let newCluster = new ClusterEx(quadPair.point1, quadPair.point2);
+            quadPair.point1.mergedIn = newCluster;
+            quadPair.point2.mergedIn = newCluster;
+            let newNode = this.outsert(newCluster);
+            let hasNewPairs = this.addNewPairs(newCluster, newNode, newPairs);
+            quadTree.pointCount -= 1;
+            if (hasNewPairs) {
+                // for now.
+                pairs.push(...newPairs);
+                pairs.sort((a, b) => b.distanceSquared - a.distanceSquared);
             }
-        } else {
-            let x: Generator<QuadPairEx> | undefined;
-            x = this.topLeft?.forEachPairs(); // ⌜
-            if (x) yield* x;
-            x = this.topRight?.forEachPairs();// ⌝
-            if (x) yield* x;
-            x = this.bottomLeft?.forEachPairs();// ⌞
-            if (x) yield* x;
-            x = this.bottomRight?.forEachPairs();// ⌟
-            if (x) yield* x;
+            yield newCluster;
         }
     }
+
 
     static hasBetterSelfPair({ point1, node1, point2, node2, distanceSquared }: QuadPairEx) {
         let node = node2;
@@ -363,12 +366,23 @@ export class QuadNode {
         }
     }
 
-    *forEachSiblings(): Generator<QuadNode> {
+    *forEachQuadNode(): Generator<QuadNode> {
         yield this;
-        if (this.topLeft) yield* this.topLeft.forEachSiblings()
-        if (this.topRight) yield* this.topRight.forEachSiblings()
-        if (this.bottomLeft) yield* this.bottomLeft.forEachSiblings()
-        if (this.bottomRight) yield* this.bottomRight.forEachSiblings()
+        if (this.topLeft) yield* this.topLeft.forEachQuadNode()
+        if (this.topRight) yield* this.topRight.forEachQuadNode()
+        if (this.bottomLeft) yield* this.bottomLeft.forEachQuadNode()
+        if (this.bottomRight) yield* this.bottomRight.forEachQuadNode()
+    }
+
+    *forEachQuadLeaf(): Generator<QuadNode> {
+        if (this.level == 0) {
+            yield this;
+        } else {
+            if (this.topLeft) yield* this.topLeft.forEachQuadLeaf()
+            if (this.topRight) yield* this.topRight.forEachQuadLeaf()
+            if (this.bottomLeft) yield* this.bottomLeft.forEachQuadLeaf()
+            if (this.bottomRight) yield* this.bottomRight.forEachQuadLeaf()
+        }
     }
 
     withinBoundary({ x, y }: DendrogramEx) {
@@ -406,16 +420,5 @@ export class QuadPairEx {
         readonly distanceSquared: number) { }
     toString() {
         return this.point1.toString() + " " + this.point2.toString() + " " + Math.sqrt(this.distanceSquared);
-    }
-
-    merge(quadTree: ExperimentalQuadTree, result: QuadPairEx[]): { cluster: ClusterEx | undefined, hasNewPairs: boolean } {
-        if (this.point1.mergedIn || this.point2.mergedIn) return { cluster: undefined, hasNewPairs: false };
-        let newCluster = new ClusterEx(this.point1, this.point2);
-        this.point1.mergedIn = newCluster;
-        this.point2.mergedIn = newCluster;
-        let newNode = this.node1.outsert(newCluster);
-        let hasNewPairs = this.node1.addNewPairs(newCluster, newNode, result);
-        quadTree.pointCount -= 1;
-        return { cluster: newCluster, hasNewPairs };
     }
 }

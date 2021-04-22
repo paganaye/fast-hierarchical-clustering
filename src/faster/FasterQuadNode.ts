@@ -371,12 +371,12 @@ export class QuadNode {
         }
     }
 
-    *forEachSiblings(): Generator<QuadNode> {
+    *forEachQuadNode(): Generator<QuadNode> {
         yield this;
-        if (this.topLeft) yield* this.topLeft.forEachSiblings()
-        if (this.topRight) yield* this.topRight.forEachSiblings()
-        if (this.bottomLeft) yield* this.bottomLeft.forEachSiblings()
-        if (this.bottomRight) yield* this.bottomRight.forEachSiblings()
+        if (this.topLeft) yield* this.topLeft.forEachQuadNode()
+        if (this.topRight) yield* this.topRight.forEachQuadNode()
+        if (this.bottomLeft) yield* this.bottomLeft.forEachQuadNode()
+        if (this.bottomRight) yield* this.bottomRight.forEachQuadNode()
     }
 
     withinBoundary({ x, y }: DendrogramEx) {

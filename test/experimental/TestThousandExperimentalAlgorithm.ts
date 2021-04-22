@@ -34,7 +34,6 @@ describe('Experimental random tests', function () {
     let D = new Point(0.9642, 0.5685, "D"); // DA 0.507 DB 0.521 DC 0.853         
 
     let algorithmResult = getNormalizedDendrogram(new ExperimentalAvgAlgorithm([A, B, C, D]), true);
-
     expect(algorithmResult).to.eq("((A-C 0.504)-(B-D 0.521) 0.642)"); // and not (B-(D-(A-C 0.504) 0.655) 0.592)
   });
 
