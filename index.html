@@ -101,14 +101,7 @@
           <option value="500" selected>medium</option>
           <option value="800">large</option>
         </select>      
-      </div>      
-      <div class="select-box">
-        <label>New algorithm:</label>
-        <select id="algorithm">
-          <option>exact</option>
-          <option>faster</option>
-        </select>      
-      </div>      
+      </div>        
     </p>
     <div>
       <div class="algorithmBox">
@@ -120,13 +113,29 @@
         <canvas id="canvas1"></canvas>
       </div>
       <div class="algorithmBox">
-        <h2>New Algorithm</h2>
+        <h2>New Exact Algorithm</h2>
         <div class="buttonBar">
           <button id="run2">Run</button>
           <span id="output2">...</span>
         </div>
         <canvas id="canvas2"></canvas>
       </div>
+      <div class="algorithmBox">
+        <h2>New Faster Algorithm</h2>
+        <div class="buttonBar">
+          <button id="run3">Run</button>
+          <span id="output3">...</span>
+        </div>
+        <canvas id="canvas3"></canvas>
+      </div>
+      <div class="algorithmBox">
+        <h2>Experimental</h2>
+        <div class="buttonBar">
+          <button id="run4">Run</button>
+          <span id="output4">...</span>
+        </div>
+        <canvas id="canvas4"></canvas>
+      </div>            
     </div>   
     <script type="module" src="src/Main.js"></script>
   </body>

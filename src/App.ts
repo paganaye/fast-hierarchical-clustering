@@ -5,18 +5,22 @@ import { Point } from './Point';
 import { AlgorithmRunner } from './AlgorithmRunner';
 import { IPoint } from './IPoint';
 import { IPointsWorkerInput } from './workers/PointsWorker';
+import { AlgorithmType } from './workers/AlgorithmWorker';
 
 export class App {
     points: Point[] = [];
     dotSize = 3;
-    algorithmType!: string;
     algorithm!: IAlgorithm;
     numberOfPoints: number = 0;
     wantedClusters: number = 0;
     linkage: string = "";
     canvasSize: number = 0;
-    classicAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, "canvas1", "output1", "run1", false);
-    newAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, "canvas2", "output2", "run2", true)
+    classicAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, AlgorithmType.ClassicAvg, "canvas1", "output1", "run1", false);
+    newAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, AlgorithmType.NewAvg, "canvas2", "output2", "run2", true)
+    fasterAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, AlgorithmType.FasterAvg, "canvas3", "output3", "run3", false);
+    experimentalAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, AlgorithmType.ExperimentalAvg, "canvas4", "output4", "run4", true)
+    allAlgorithms: AlgorithmRunner[] = [this.classicAlgorithmRunner, this.newAlgorithmRunner, this.fasterAlgorithmRunner, this.experimentalAlgorithmRunner];
+
     pointsWorker: Worker = new Worker('./src/workers/PointsWorker.js', { type: "module" });
     selectNumberOfPoints!: HTMLSelectElement;
 
@@ -49,36 +53,30 @@ export class App {
             };
             this.pointsWorker.postMessage(args);
             this.updateQueryString();
-            });
+
+            let classicRunBtn = document.getElementById("run1") as HTMLButtonElement;
+            if (classicRunBtn) classicRunBtn.disabled = (v > 5000);
+
+        });
         this.addHandler("wantedClusters", true, (v) => {
             this.wantedClusters = v;
             this.updateQueryString();
-            this.classicAlgorithmRunner.cancel();
-            this.newAlgorithmRunner.cancel();
+            this.allAlgorithms.forEach(it => it.cancel());
         });
         this.addHandler("linkage", false, (v) => {
             this.linkage = v;
             this.updateQueryString();
-            this.classicAlgorithmRunner.cancel();
-            this.newAlgorithmRunner.cancel();
+            this.allAlgorithms.forEach(it => it.cancel());
         });
         this.addHandler("canvasSize", true, (v) => {
             this.canvasSize = v;
             this.updateQueryString();
-            this.classicAlgorithmRunner.onCanvasSizeChanged();
-            this.newAlgorithmRunner.onCanvasSizeChanged();
+            this.allAlgorithms.forEach(it => it.onCanvasSizeChanged());
         });
-        this.addHandler("algorithm", false, (v) => {
-            this.algorithmType = v;
-            this.updateQueryString();
-            this.newAlgorithmRunner.cancel();
-        });
-
         this.pointsWorker.onmessage = (v) => {
             this.selectNumberOfPoints.disabled = false;
             this.points = v.data.points as Point[];
-            this.classicAlgorithmRunner.onPointsChanged();
-            this.newAlgorithmRunner.onPointsChanged();
+            this.allAlgorithms.forEach(it => it.onPointsChanged());
         };
 
     }
@@ -89,8 +87,7 @@ export class App {
         queryParams.set("wantedClusters", this.wantedClusters.toString());
         queryParams.set("linkage", this.linkage);
         queryParams.set("canvasSize", this.canvasSize.toString());
-        queryParams.set("algorithm", this.algorithmType);
-        
+
         // Replace current querystring with the new one.
         history.replaceState(null, "", "?" + queryParams.toString());
     }

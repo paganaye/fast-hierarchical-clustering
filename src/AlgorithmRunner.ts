@@ -22,6 +22,7 @@ export class AlgorithmRunner {
     runStartTime: number = 0;
 
     constructor(private app: App,
+        private algorithmType: AlgorithmType,
         canvasId: string,
         outputId: string,
         runButtonId: string,
@@ -79,8 +80,7 @@ export class AlgorithmRunner {
         this.outputElt.innerText = "...";
         let algorithmWorkerArgs: IAlgorithmWorkerInput = {
             points: this.app.points,
-            algorithmType: this.newAlgorithm ? ((this.app.algorithmType == "faster") ? AlgorithmType.FasterAvg : AlgorithmType.NewAvg)
-                : AlgorithmType.ClassicAvg,
+            algorithmType: this.algorithmType,
             wantedClusters: this.app.wantedClusters
         }
         console.log("starting algorithmWorker", algorithmWorkerArgs);

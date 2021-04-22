@@ -1,6 +1,7 @@
 import { ClassicAvgAlgorithm } from '../classic/ClassicAvgAlgorithm';
 import { NewAvgAlgorithm } from '../new/NewAvgAlgorithm';
 import { FasterAvgAlgorithm } from '../faster/FasterAvgAlgorithm';
+import { ExperimentalAvgAlgorithm } from '../experimental/ExperimentalAvgAlgorithm';
 import { Dendrogram } from '../Cluster';
 import { IPoint } from '../IPoint';
 import { IAlgorithm } from './IAlgorithm';
@@ -10,6 +11,7 @@ export enum AlgorithmType {
     ClassicAvg,
     NewAvg,
     FasterAvg,
+    ExperimentalAvg,
     None
 }
 
@@ -42,6 +44,9 @@ function group(input: IAlgorithmWorkerInput) {
             break;
         case AlgorithmType.FasterAvg:
             algorithm = new FasterAvgAlgorithm();
+            break;
+        case AlgorithmType.ExperimentalAvg:
+            algorithm = new ExperimentalAvgAlgorithm();
             break;
         default:
             postMessage({ canceled: true, progress: 0 }, undefined as any);

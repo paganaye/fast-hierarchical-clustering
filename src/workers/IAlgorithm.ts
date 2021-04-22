@@ -8,4 +8,3 @@ export interface IAlgorithm {
     getCurrentDendrograms(): Dendrogram[];
     getDendrogramsCount(): number;
 }
-
