@@ -1,6 +1,7 @@
 import { Point } from '../Point';
 import { Cluster, Dendrogram, getPoints } from '../Cluster';
 import { getHull } from '../GrahamScan';
+import { start } from 'repl';
 
 
 export interface IPaintWorkerArgs {
@@ -10,15 +11,15 @@ export interface IPaintWorkerArgs {
     wantedClusters: number;
 }
 
+
 function paint(args: IPaintWorkerArgs) {
 
     let dotSize = Math.max(1, 3 - args.dendrograms.length / 1000);
     let canvas = new OffscreenCanvas(args.width, args.height);
     let ctx = canvas.getContext("2d")!;
     ctx.fillRect(10, 10, 20, 20);
-    displayDendrograms(args.dendrograms)
-    let imageData = ctx.getImageData(0, 0, args.width, args.height);
-    postMessage({ imageData }, undefined as any);
+    displayDendrograms();
+
 
     function getColor(colorNo: number, colorCount: number) {
         return hsv2rgb(colorNo * 360 / colorCount, 1, 1);
@@ -31,21 +32,35 @@ function paint(args: IPaintWorkerArgs) {
     }
 
 
+    function postImage() {
+        let imageData = ctx.getImageData(0, 0, args.width, args.height);
+        postMessage({ imageData }, undefined as any);
+    }
 
-    function displayDendrograms(dendrograms: Dendrogram[]) {
-
+    function displayDendrograms() {
+        let dendrograms = args.dendrograms;
         ctx.clearRect(0, 0, args.width, args.height);
         dendrograms.sort((a, b) => (a.y - b.y) || (a.x - b.x))
+        displayDendrogramsPart(0)
 
-        let batchEndTime = new Date().getTime() + 100;
+    }
 
-        for (let i = 0; i < dendrograms.length; i++) {
-            /* * 16807 % args.wantedClusters */
+    function displayDendrogramsPart(i: number) {
+        let startTime = new Date().getTime();
+        let dendrograms = args.dendrograms;
+        while (i < dendrograms.length && new Date().getTime() - startTime < 100) {
             let color = getColor(i, args.wantedClusters);
             let points = getPoints(dendrograms[i])
             let hull = getHull(points);
             displayHull(hull, color);
             displayDendrogram(undefined, dendrograms[i], color);
+            i += 1;
+        }
+        if (args != lastArgs) return;
+        else if (i < dendrograms.length) {
+            setTimeout(() => displayDendrogramsPart(i));
+        } else {
+            postImage();
         }
     }
 
