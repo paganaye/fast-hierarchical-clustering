@@ -1,15 +1,11 @@
 import { ClassicAvgAlgorithm } from '../classic/ClassicAvgAlgorithm';
 import { NewAvgAlgorithm } from '../new/NewAvgAlgorithm';
-import { FasterAvgAlgorithm } from '../faster/FasterAvgAlgorithm';
-import { ExperimentalAvgAlgorithm } from '../experimental/ExperimentalAvgAlgorithm';
 import { IAlgorithm } from './IAlgorithm';
 import { IPoint } from '../IPoint';
 
 export enum AlgorithmType {
     ClassicAvg,
     NewAvg,
-    FasterAvg,
-    ExperimentalAvg,
     None
 }
 
@@ -21,12 +17,6 @@ export function instantiateAlgorithm(algorithmType: AlgorithmType, points: IPoin
             break;
         case AlgorithmType.NewAvg:
             algorithm = new NewAvgAlgorithm();
-            break;
-        case AlgorithmType.FasterAvg:
-            algorithm = new FasterAvgAlgorithm();
-            break;
-        case AlgorithmType.ExperimentalAvg:
-            algorithm = new ExperimentalAvgAlgorithm();
             break;
     }
     if (points)

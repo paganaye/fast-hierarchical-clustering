@@ -33,26 +33,24 @@
         <select id="numberOfPoints">
           <option>10</option>
           <option selected>100</option>
-          <option>500</option>
-          <option>1000</option>
-          <option>2000</option>
-          <option>3000</option>
-          <option>4000</option>
-          <option>5000</option>
-          <option>10000</option>
-          <option>20000</option>
-          <option>30000</option>
-          <option>40000</option>
-          <option>50000</option>
-          <option>60000</option>
-          <option>70000</option>
-          <option>80000</option>
-          <option>90000</option>
-          <option>100000</option>
-          <option>200000</option>
-          <option>500000</option>
-          <option>1000000</option>
+          <option value="500">500</option>
+          <option value="1000">1K</option>
+          <option value="2000" selected>2K</option>
+          <option value="3000">3K</option>
+          <option value="4000">4K</option>
+          <option value="5000">5K</option>
+          <option value="10000">10K</option>
+          <option value="20000">20K</option>
+          <option value="30000">30K</option>
+          <option value="40000">40K</option>
+          <option value="50000">50K</option>
+          <option value="60000">60K</option>
+          <option value="70000">70K</option>
+          <option value="80000">80K</option>
+          <option value="90000">90K</option>
+          <option value="100000">100K</option>
         </select>
+        <button id="newpoints">Random</button>
       </div>
       <div class="select-box">
         <label>Number of wanted clusters:</label>
@@ -113,29 +111,13 @@
         <canvas id="canvas1"></canvas>
       </div>
       <div class="algorithmBox">
-        <h2>New Exact Algorithm</h2>
+        <h2>New Algorithm</h2>
         <div class="buttonBar">
           <button id="run2">Run</button>
           <span id="output2">...</span>
         </div>
         <canvas id="canvas2"></canvas>
-      </div>
-      <div class="algorithmBox">
-        <h2>New Faster Algorithm</h2>
-        <div class="buttonBar">
-          <button id="run3">Run</button>
-          <span id="output3">...</span>
-        </div>
-        <canvas id="canvas3"></canvas>
-      </div>
-      <div class="algorithmBox">
-        <h2>Experimental</h2>
-        <div class="buttonBar">
-          <button id="run4">Run</button>
-          <span id="output4">...</span>
-        </div>
-        <canvas id="canvas4"></canvas>
-      </div>            
+      </div>           
     </div>   
     <script type="module" src="src/Main.js"></script>
   </body>

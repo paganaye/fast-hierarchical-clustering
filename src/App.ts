@@ -17,9 +17,7 @@ export class App {
     canvasSize: number = 0;
     classicAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, AlgorithmType.ClassicAvg, "canvas1", "output1", "run1", false);
     newAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, AlgorithmType.NewAvg, "canvas2", "output2", "run2", true)
-    fasterAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, AlgorithmType.FasterAvg, "canvas3", "output3", "run3", false);
-    experimentalAlgorithmRunner: AlgorithmRunner = new AlgorithmRunner(this, AlgorithmType.ExperimentalAvg, "canvas4", "output4", "run4", true)
-    allAlgorithms: AlgorithmRunner[] = [this.classicAlgorithmRunner, this.newAlgorithmRunner, this.fasterAlgorithmRunner, this.experimentalAlgorithmRunner];
+    allAlgorithms: AlgorithmRunner[] = [this.classicAlgorithmRunner, this.newAlgorithmRunner];
 
     pointsWorker: Worker = new Worker('./src/workers/PointsWorker.js', { type: "module" });
     selectNumberOfPoints!: HTMLSelectElement;
@@ -41,22 +39,22 @@ export class App {
         return select;
     }
 
-
+    generateNewPoints() {
+        this.selectNumberOfPoints.disabled = true;
+        let args: IPointsWorkerInput = {
+            numberOfPoints: this.numberOfPoints
+        };
+        this.pointsWorker.postMessage(args);
+        this.updateQueryString();
+        let classicRunBtn = document.getElementById("run1") as HTMLButtonElement;
+        if (classicRunBtn) classicRunBtn.disabled = (this.numberOfPoints > 5000);
+    }
 
     init() {
         this.selectNumberOfPoints = this.addHandler("numberOfPoints", true, (v) => {
             this.numberOfPoints = v;
             this.updateQueryString();
-            this.selectNumberOfPoints.disabled = true;
-            let args: IPointsWorkerInput = {
-                numberOfPoints: this.numberOfPoints
-            };
-            this.pointsWorker.postMessage(args);
-            this.updateQueryString();
-
-            let classicRunBtn = document.getElementById("run1") as HTMLButtonElement;
-            if (classicRunBtn) classicRunBtn.disabled = (v > 5000);
-
+            this.generateNewPoints();
         });
         this.addHandler("wantedClusters", true, (v) => {
             this.wantedClusters = v;
@@ -79,6 +77,12 @@ export class App {
             this.allAlgorithms.forEach(it => it.onPointsChanged());
         };
 
+        let newPointsButton = document.getElementById("newpoints")
+        if (newPointsButton) {
+            newPointsButton.onclick = () => {
+                this.generateNewPoints();
+            };
+        }
     }
 
     updateQueryString() {
