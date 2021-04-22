@@ -17,7 +17,6 @@ function paint(args: IPaintWorkerArgs) {
     let dotSize = Math.max(1, 3 - args.dendrograms.length / 1000);
     let canvas = new OffscreenCanvas(args.width, args.height);
     let ctx = canvas.getContext("2d")!;
-    ctx.fillRect(10, 10, 20, 20);
     displayDendrograms();
 
 
@@ -56,7 +55,10 @@ function paint(args: IPaintWorkerArgs) {
             displayDendrogram(undefined, dendrograms[i], color);
             i += 1;
         }
-        if (args != lastArgs) return;
+        if (args != lastArgs) {
+            postImage();
+            return;
+        }
         else if (i < dendrograms.length) {
             setTimeout(() => displayDendrogramsPart(i));
         } else {

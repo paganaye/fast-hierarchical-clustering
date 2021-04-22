@@ -1,12 +1,7 @@
-static class MessageQueue {
+class MessageQueue {
 
-    static readonly queue = (() => void)[];
+    static readonly queue: (() => void)[] = [];
     static readonly queuedMessageName = "queued-message";
-
-    static push(func: () => void) {
-        MessageQueue.queue.push(func);
-        window.postMessage(MessageQueue.queuedMessageName, "*");
-    }
 
     static push(func: () => void) {
         MessageQueue.queue.push(func);
@@ -20,9 +15,6 @@ static class MessageQueue {
             if (func) func();
         }
     }
-
-    static constructor() {
-        window.addEventListener("message", MessageQueue.handleMessage, true);
-    }
-
 }
+
+window.addEventListener("message", MessageQueue.handleMessage, true);

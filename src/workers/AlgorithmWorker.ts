@@ -48,15 +48,17 @@ function group(input: IAlgorithmWorkerInput) {
             return;
     }
     algorithm.init(input.points);
+    postMessage({ complete: false, progress: 0, dendrograms: undefined }, undefined as any);
+    let batchNo = 0;
+
     setTimeout(() => runBatch(globalRunCounter), 0);
 
 
     function runBatch(runCounter: number) {
         let dendrogramsCount!: number;
-        let batchEndTime = new Date().getTime() + 500;
+        let batchEndTime = new Date().getTime() + 2500;
 
         let generator = algorithm.forEachClusters();
-
         do {
             let result = generator.next();
             dendrogramsCount = algorithm.getDendrogramsCount();
@@ -67,7 +69,7 @@ function group(input: IAlgorithmWorkerInput) {
         if (runCounter == globalRunCounter) {
             if (dendrogramsCount > input.wantedClusters) {
                 let progress = (input.points.length + input.wantedClusters - dendrogramsCount) / input.points.length;
-                postMessage({ complete: false, progress, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);
+                postMessage({ complete: false, progress, dendrograms: (batchNo++ % 4 == 0) ? algorithm.getCurrentDendrograms() : undefined }, undefined as any);
                 setTimeout(() => runBatch(runCounter), 0);
             } else {
                 postMessage({ complete: true, progress: 1, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);
