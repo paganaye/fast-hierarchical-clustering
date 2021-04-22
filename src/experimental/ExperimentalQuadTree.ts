@@ -1,5 +1,4 @@
 import { ClusterEx, DendrogramEx, QuadNode, QuadPairEx } from './ExperimentalQuadNode';
-//import { Point } from './Point';
 
 export class ExperimentalQuadTree {
     private currentLevels: number;
