@@ -6,10 +6,11 @@ import { ClusterEx, PointEx } from './FasterQuadNode';
 
 
 export class FasterAvgAlgorithm implements IAlgorithm {
+    className = "FasterAvgAlgorithm";
     name: string = "New Average Agglomerative Hierarchical Clustering";
     quadTree: FasterQuadTree;
 
-    constructor(private initialLevels: number = 10, points: Point[] | undefined = undefined) {
+    constructor(points: Point[] | undefined = undefined, private initialLevels: number = 10) {
         this.quadTree = new FasterQuadTree(initialLevels);
         if (points) this.init(points);
     }

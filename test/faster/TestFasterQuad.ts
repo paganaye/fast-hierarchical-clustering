@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { PointEx } from '../src/faster/FasterQuadNode';
-import { FasterQuadTree } from '../src/faster/FasterQuadTree';
+import { PointEx } from '../../src/faster/FasterQuadNode';
+import { FasterQuadTree } from '../../src/faster/FasterQuadTree';
 
 
-describe('A Faster Quad', function () {
+describe('Faster QuadTree', function () {
   it('stores points', function () {
     let quad = new FasterQuadTree(4);
     quad.insert(new PointEx(0, 0));

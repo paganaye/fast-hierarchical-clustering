@@ -1,19 +1,7 @@
-import { ClassicAvgAlgorithm } from '../classic/ClassicAvgAlgorithm';
-import { NewAvgAlgorithm } from '../new/NewAvgAlgorithm';
-import { FasterAvgAlgorithm } from '../faster/FasterAvgAlgorithm';
-import { ExperimentalAvgAlgorithm } from '../experimental/ExperimentalAvgAlgorithm';
 import { Dendrogram } from '../Cluster';
 import { IPoint } from '../IPoint';
 import { IAlgorithm } from './IAlgorithm';
-
-
-export enum AlgorithmType {
-    ClassicAvg,
-    NewAvg,
-    FasterAvg,
-    ExperimentalAvg,
-    None
-}
+import { AlgorithmType, instantiateAlgorithm } from './AlgorithmType';
 
 export interface IAlgorithmWorkerInput {
     points: IPoint[],
@@ -34,31 +22,16 @@ function group(input: IAlgorithmWorkerInput) {
     let algorithm!: IAlgorithm;
     globalRunCounter += 1;
     console.log({ globalRunCounter, type: input.algorithmType });
-
-    switch (input.algorithmType) {
-        case AlgorithmType.ClassicAvg:
-            algorithm = new ClassicAvgAlgorithm();
-            break;
-        case AlgorithmType.NewAvg:
-            algorithm = new NewAvgAlgorithm();
-            break;
-        case AlgorithmType.FasterAvg:
-            algorithm = new FasterAvgAlgorithm();
-            break;
-        case AlgorithmType.ExperimentalAvg:
-            algorithm = new ExperimentalAvgAlgorithm();
-            break;
-        default:
-            postMessage({ canceled: true, progress: 0 }, undefined as any);
-            return;
+    let newAlgo = instantiateAlgorithm(input.algorithmType, input.points);
+    if (newAlgo) algorithm = newAlgo;
+    else {
+        postMessage({ canceled: true, progress: 0 }, undefined as any);
+        return;
     }
-    algorithm.init(input.points);
     postMessage({ complete: false, progress: 0, dendrograms: undefined }, undefined as any);
     let batchNo = 0;
 
     setTimeout(() => runBatch(globalRunCounter), 0);
-
-
     function runBatch(runCounter: number) {
         let dendrogramsCount!: number;
         let batchEndTime = new Date().getTime() + 2500;

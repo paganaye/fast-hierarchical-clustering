@@ -1,10 +1,10 @@
 import { expect } from 'chai';
-import { Cluster } from '../src/Cluster';
-import { Point } from '../src/Point';
-import { QuadTree } from '../src/new/QuadTree';
+import { Cluster } from '../../src/Cluster';
+import { Point } from '../../src/Point';
+import { QuadTree } from '../../src/new/QuadTree';
 
 
-describe('A Quad', function () {
+describe('New QuadTree', function () {
   it('stores points', function () {
     let quad = new QuadTree(4);
     quad.insert(new Point(0, 0));

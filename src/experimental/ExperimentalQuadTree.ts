@@ -1,4 +1,4 @@
-import { ClusterEx, DendrogramEx, QuadNode } from './ExperimentalQuadNode';
+import { ClusterEx, DendrogramEx, QuadNode, QuadPairEx } from './ExperimentalQuadNode';
 //import { Point } from './Point';
 
 export class ExperimentalQuadTree {
@@ -37,11 +37,8 @@ export class ExperimentalQuadTree {
         return result;
     }
 
-    *forEachClusters(): Generator<ClusterEx> {
-        for (let cluster of this.root.forEachClusters()) {
-            this.pointCount -= 1;
-            yield cluster;
-        }
+    forEachPairs(): Generator<QuadPairEx> {
+        return this.root.forEachPairs()
     }
 
     getDendrograms(): DendrogramEx[] {
@@ -53,15 +50,6 @@ export class ExperimentalQuadTree {
     print() {
         this.root.print('');
     }
-
-    getAllClusters(): DendrogramEx[] {
-        let result: DendrogramEx[] = [];
-        let generator = this.forEachClusters();
-        let cluster: DendrogramEx;
-        while (cluster = generator.next().value) result.push(cluster);
-        return result;
-    }
-
 
     forEachSiblings(): Generator<QuadNode> {
         return this.root.forEachSiblings();

@@ -1,5 +1,5 @@
-import { PseudoRandom } from '../test/PseudoRandom';
 import { getDistance, IPoint } from './IPoint';
+import { PseudoRandom } from './PseudoRandom';
 
 export class Point implements IPoint {
     tag: string | undefined;

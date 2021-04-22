@@ -1,7 +1,7 @@
 import { Cluster } from '../Cluster';
 import { getDistanceSquared } from '../IPoint';
 import { Point } from '../Point';
-import { Quarter } from './ExperimentalQuadTree';
+import { ExperimentalQuadTree, Quarter } from './ExperimentalQuadTree';
 import { Sibling } from './ExperimentalSiblings';
 
 export class QuadNode {
@@ -124,7 +124,7 @@ export class QuadNode {
         return undefined;
     }
 
-    *forEachClusters(): Generator<ClusterEx> {
+    *forEachPairs(): Generator<QuadPairEx> {
         if (this.level == 0) {
             let result: QuadPairEx[] = [];
             this.addSelfPairs(result);
@@ -148,25 +148,17 @@ export class QuadNode {
                     || QuadNode.hasBetterPair(quadPair, quadPair.node2?.getSibling(Sibling.BottomRight)))
                     continue;
                 // 🡸🡽🡹🡼 done before
-
-                let newCluster = new ClusterEx(quadPair.point1, quadPair.point2);
-                quadPair.point1.mergedIn = newCluster;
-                quadPair.point2.mergedIn = newCluster;
-                let newNode = this.outsert(newCluster);
-                if (this.addNewPairs(newCluster, newNode, result)) {
-                    result.sort((a, b) => b.distanceSquared - a.distanceSquared);
-                }
-                yield newCluster;
+                yield quadPair;
             }
         } else {
-            let x: Generator<ClusterEx> | undefined;
-            x = this.topLeft?.forEachClusters(); // ⌜
+            let x: Generator<QuadPairEx> | undefined;
+            x = this.topLeft?.forEachPairs(); // ⌜
             if (x) yield* x;
-            x = this.topRight?.forEachClusters();// ⌝
+            x = this.topRight?.forEachPairs();// ⌝
             if (x) yield* x;
-            x = this.bottomLeft?.forEachClusters();// ⌞
+            x = this.bottomLeft?.forEachPairs();// ⌞
             if (x) yield* x;
-            x = this.bottomRight?.forEachClusters();// ⌟
+            x = this.bottomRight?.forEachPairs();// ⌟
             if (x) yield* x;
         }
     }
@@ -223,13 +215,13 @@ export class QuadNode {
                 for (let point2 of points2) {
                     if (point2.mergedIn) continue;
                     let distanceSquared = getDistanceSquared(point1, point2);
-                    if (distanceSquared < this.nodeSizeSquared) result.push(new QuadPairEx(point1, this, point2, node2, distanceSquared))
+                    if (distanceSquared < this.nodeSizeSquared) result.push(new QuadPairEx(point1, this, point2, node2!, distanceSquared))
                 }
             }
         }
     }
 
-    private addNewPairs(newCluster: ClusterEx, clusterNode: QuadNode, result: QuadPairEx[]) {
+    addNewPairs(newCluster: ClusterEx, clusterNode: QuadNode, result: QuadPairEx[]) {
         if (!this.points || !this.points.length) return false;
         let addedSomething = false;
         for (let i = 0; i < this.points.length; i++) {
@@ -408,12 +400,22 @@ export class QuadPairEx {
     notYet: boolean | undefined;
     constructor(
         readonly point1: DendrogramEx,
-        readonly node1: QuadNode | undefined,
+        readonly node1: QuadNode,
         readonly point2: DendrogramEx,
-        readonly node2: QuadNode | undefined,
+        readonly node2: QuadNode,
         readonly distanceSquared: number) { }
     toString() {
         return this.point1.toString() + " " + this.point2.toString() + " " + Math.sqrt(this.distanceSquared);
     }
 
+    merge(quadTree: ExperimentalQuadTree, result: QuadPairEx[]): { cluster: ClusterEx | undefined, hasNewPairs: boolean } {
+        if (this.point1.mergedIn || this.point2.mergedIn) return { cluster: undefined, hasNewPairs: false };
+        let newCluster = new ClusterEx(this.point1, this.point2);
+        this.point1.mergedIn = newCluster;
+        this.point2.mergedIn = newCluster;
+        let newNode = this.node1.outsert(newCluster);
+        let hasNewPairs = this.node1.addNewPairs(newCluster, newNode, result);
+        quadTree.pointCount -= 1;
+        return { cluster: newCluster, hasNewPairs };
+    }
 }

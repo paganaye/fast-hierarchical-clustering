@@ -4,7 +4,8 @@ import { Point } from './Point';
 import { QuadPair } from './new/QuadTree';
 import { IAlgorithm } from './workers/IAlgorithm';
 import { IPaintWorkerArgs } from './workers/PaintWorker';
-import { AlgorithmType, IAlgorithmWorkerInput, IAlgorithmWorkerOutput } from './workers/AlgorithmWorker'
+import { IAlgorithmWorkerInput, IAlgorithmWorkerOutput } from './workers/AlgorithmWorker'
+import { AlgorithmType } from "./workers/AlgorithmType";
 import { App } from './App';
 
 export class AlgorithmRunner {

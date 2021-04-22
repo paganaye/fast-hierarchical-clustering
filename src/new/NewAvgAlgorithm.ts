@@ -4,15 +4,20 @@ import { Point } from '../Point';
 import { QuadPair, QuadTree } from './QuadTree';
 
 export class NewAvgAlgorithm implements IAlgorithm {
+    className = "NewAvgAlgorithm";
     name: string = "New Average Agglomerative Hierarchical Clustering";
     quadTree: QuadTree;
     pairs: QuadPair[] = [];
-    maxDistance: number = 0;
-    targetPairsCount!: number;
-    increment!: number;
+    maxDistance: number;
+    targetPairsCount: number;
+    increment: number;
 
-    constructor(private initialLevels: number = 10) {
+    constructor(private initialLevels: number = 10, points: Point[] | undefined = undefined) {
         this.quadTree = new QuadTree(initialLevels);
+        if (points) this.init(points);
+        this.maxDistance = 1e-4;
+        this.increment = 0.05;
+        this.targetPairsCount = 100;
     }
 
     init(points: Point[]): void {
@@ -21,10 +26,8 @@ export class NewAvgAlgorithm implements IAlgorithm {
         }
         // originally we take a very small distance and a large increment
         this.maxDistance = 1 / points.length;
-        this.increment = 0.05;
         this.targetPairsCount = Math.round(Math.log(points.length) * 120);
         if (this.targetPairsCount < 100) this.targetPairsCount = 100;
-
         this.pairs = this.quadTree.getPairs(this.maxDistance);
         this.pairs.sort((a, b) => (b.distanceSquared - a.distanceSquared));
 
@@ -33,18 +36,11 @@ export class NewAvgAlgorithm implements IAlgorithm {
     *forEachClusters(): Generator<Cluster> {
         let cluster: Cluster | undefined;
         do {
-            cluster = this.findNearestTwoPoints();
-            if (cluster) yield cluster;
-        } while (cluster)
-    }
-
-    findNearestTwoPoints(): Cluster | undefined {
-        while (true) {
             while (this.pairs.length == 0) {
                 this.maxDistance = this.maxDistance * (1 + this.increment);
                 let nodeSize = this.quadTree.firstLeaf()?.nodeSize!;
                 while (this.maxDistance >= nodeSize) {
-                    if (!this.quadTree.trim()) return undefined;
+                    if (!this.quadTree.trim()) return;
                     nodeSize = this.quadTree.firstLeaf()?.nodeSize!;
                 }
                 this.pairs = this.quadTree.getPairs(this.maxDistance);
@@ -56,22 +52,21 @@ export class NewAvgAlgorithm implements IAlgorithm {
                     this.increment *= 1.2; // we accelerate more gently
                     if (this.increment > 1) this.increment = 1;
                 }
-
-                // console.log({ maxDistance: this.maxDistance, pairs: this.pairs.length, nextIncrement: this.increment, });
             }
 
             let { point1, point2 } = this.pairs.pop()!;
             this.quadTree.delete(point1);
             this.quadTree.delete(point2);
-            let newCluster = new Cluster(point1, point2);
+            cluster = new Cluster(point1, point2);
             let newPairs: QuadPair[] = [];
-            this.quadTree.insertAndAddPairs(newCluster, this.maxDistance, newPairs);
+            this.quadTree.insertAndAddPairs(cluster, this.maxDistance, newPairs);
             newPairs.sort((a, b) => (b.distanceSquared - a.distanceSquared));
             this.pairs = this.filterAndMerge(it => it.point1 != point1 && it.point1 != point2 && it.point2 != point1 && it.point2 != point2, newPairs);
+            yield cluster;
 
-            return newCluster;
-        }
+        } while (cluster)
     }
+
 
     filterAndMerge(predicate: (cluster: QuadPair) => boolean, newPairs: QuadPair[]): QuadPair[] {
         let arrSorted: QuadPair[] = [];

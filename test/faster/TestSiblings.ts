@@ -1,11 +1,11 @@
 import { expect } from 'chai';
-import { PointEx, QuadNode } from '../src/faster/FasterQuadNode';
-import { FasterQuadTree } from '../src/faster/FasterQuadTree';
-import { Sibling } from '../src/faster/Siblings';
-import { Point } from '../src/Point';
+import { PointEx, QuadNode } from '../../src/faster/FasterQuadNode';
+import { FasterQuadTree } from '../../src/faster/FasterQuadTree';
+import { Sibling } from '../../src/faster/Siblings';
+import { Point } from '../../src/Point';
 
 
-describe('QuadNode', function () {
+describe('Faster Siblings', function () {
   it('gives sensible values', function () {
 
     let quad = new FasterQuadTree(3);

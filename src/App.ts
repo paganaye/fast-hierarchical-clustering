@@ -5,7 +5,7 @@ import { Point } from './Point';
 import { AlgorithmRunner } from './AlgorithmRunner';
 import { IPoint } from './IPoint';
 import { IPointsWorkerInput } from './workers/PointsWorker';
-import { AlgorithmType } from './workers/AlgorithmWorker';
+import { AlgorithmType } from "./workers/AlgorithmType";
 
 export class App {
     points: Point[] = [];

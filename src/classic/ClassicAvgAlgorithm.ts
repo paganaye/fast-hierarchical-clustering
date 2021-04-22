@@ -4,7 +4,8 @@ import { getDistance, getDistanceSquared } from '../IPoint';
 import { Point } from '../Point';
 
 export class ClassicAvgAlgorithm implements IAlgorithm {
-    name: string = "Average Agglomerative Hierarchical Clustering";
+    className = "ClassicAvgAlgorithm";
+    name = "Classic Average Agglomerative Hierarchical Clustering";
     dendrograms: Dendrogram[] = [];
 
     constructor(points: Point[] | undefined = undefined) {

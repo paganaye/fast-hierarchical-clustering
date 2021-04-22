@@ -62,11 +62,16 @@ export class Cluster implements IPoint {
         return getDistance(this.dendrogram1, this.dendrogram2);
     }
 
-    getNormalizedDendrogram(): string {
-        let s1 = this.dendrogram1.getNormalizedDendrogram();
-        let s2 = this.dendrogram2.getNormalizedDendrogram();
-        let result = (s2.length < s1.length || s2 < s1) ? `(${s2}-${s1})` : `(${s1}-${s2})`;
-        console.log({ cluster: result, distance: this.distance().toFixed(3) });
+    getNormalizedDendrogram(withDistances: boolean = false): string {
+        let s1 = this.dendrogram1.getNormalizedDendrogram(withDistances);
+        let s2 = this.dendrogram2.getNormalizedDendrogram(withDistances);
+        let result
+        if (withDistances) {            
+            let distance = getDistance(this.dendrogram1, this.dendrogram2).toFixed(3);
+            result = (s2.length < s1.length || s2 < s1) ? `(${s2}-${s1} ${distance})` : `(${s1}-${s2} ${distance})`;
+        } else {
+            result = (s2.length < s1.length || s2 < s1) ? `(${s2}-${s1})` : `(${s1}-${s2})`;
+        }
         return result;
     }
 }
