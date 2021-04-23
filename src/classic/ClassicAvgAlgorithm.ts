@@ -7,7 +7,7 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
     className = "ClassicAvgAlgorithm";
     name = "Classic Average Agglomerative Hierarchical Clustering";
     dendrograms: Dendrogram[] = [];
-
+    i1: number = 0;
     constructor(points: Point[] | undefined = undefined) {
         if (points) this.init(points);
     }
@@ -30,6 +30,7 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
         let best: { point1: Dendrogram, point2: Dendrogram, i1: number, i2: number } | undefined;
         let pt2!: Point;
         let len = this.dendrograms.length;
+
         for (let i1 = 0; i1 < len; i1++) {
             let point1 = this.dendrograms[i1];
             for (let i2 = i1 + 1; i2 < len; i2++) {

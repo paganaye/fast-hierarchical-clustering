@@ -11,6 +11,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
     maxDistance: number;
     targetPairsCount: number;
     increment: number;
+    passNo: number;
 
     constructor(private initialLevels: number = 10, points: Point[] | undefined = undefined) {
         this.quadTree = new QuadTree(initialLevels);
@@ -18,6 +19,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
         this.maxDistance = 1e-4;
         this.increment = 0.05;
         this.targetPairsCount = 100;
+        this.passNo = 0;
     }
 
     init(points: Point[]): void {
@@ -36,24 +38,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
     *forEachClusters(): Generator<Cluster> {
         let cluster: Cluster | undefined;
         do {
-            while (this.pairs.length == 0) {
-                this.maxDistance = this.maxDistance * (1 + this.increment);
-                let nodeSize = this.quadTree.firstLeaf()?.nodeSize!;
-                while (this.maxDistance >= nodeSize) {
-                    if (!this.quadTree.trim()) return;
-                    nodeSize = this.quadTree.firstLeaf()?.nodeSize!;
-                }
-                this.pairs = this.quadTree.getPairs(this.maxDistance);
-                this.pairs.sort((a, b) => (b.distanceSquared - a.distanceSquared));
-
-                // we adjust the increment for the next batch
-                if (this.pairs.length > this.targetPairsCount) this.increment *= 0.5; // we brake fast
-                else if (this.pairs.length < this.targetPairsCount / 2) {
-                    this.increment *= 1.2; // we accelerate more gently
-                    if (this.increment > 1) this.increment = 1;
-                }
-            }
-
+            if (this.pairs.length == 0 && !this.getNextPairs()) return;
             let { point1, point2 } = this.pairs.pop()!;
             this.quadTree.delete(point1);
             this.quadTree.delete(point2);
@@ -67,6 +52,33 @@ export class NewAvgAlgorithm implements IAlgorithm {
         } while (cluster)
     }
 
+
+    getNextPairs(): boolean {
+        do {
+            this.passNo += 1;
+            this.maxDistance = this.maxDistance * (1 + this.increment);
+            let nodeSize = this.quadTree.firstLeaf()?.nodeSize!;
+            while (this.maxDistance >= nodeSize) {
+                if (!this.quadTree.trim()) return false;
+                nodeSize = this.quadTree.firstLeaf()?.nodeSize!;
+            }
+            this.pairs = this.quadTree.getPairs(this.maxDistance);
+            this.pairs.sort((a, b) => (b.distanceSquared - a.distanceSquared));
+            // we adjust the increment for the next batch
+            let message = `Pass ${this.passNo} getting neighbours below ${this.maxDistance.toFixed(5)}: ${this.pairs.length} points. `;
+            if (this.pairs.length > this.targetPairsCount) {
+                message += `We're over ${this.targetPairsCount}. Breaking hard.`;
+                this.increment *= 0.5; // we are already over so we brake fast
+            }
+            else if (this.pairs.length < this.targetPairsCount / 2) {
+                message += `We're below ${this.targetPairsCount / 2}, accelerating.`;
+                this.increment *= 1.2; // we accelerate more gently
+                if (this.increment > 1) this.increment = 1;
+            }
+            console.log(message);
+        } while (this.pairs.length == 0)
+        return true;
+    }
 
     filterAndMerge(predicate: (cluster: QuadPair) => boolean, newPairs: QuadPair[]): QuadPair[] {
         let arrSorted: QuadPair[] = [];

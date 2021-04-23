@@ -21,6 +21,7 @@ export class AlgorithmRunner {
     currentDendrograms: Dendrogram[] = [];
     duration: number = 0;
     runStartTime: number = 0;
+    nbOriginalPoints: number = 0;
 
     constructor(private app: App,
         private algorithmType: AlgorithmType,
@@ -38,18 +39,18 @@ export class AlgorithmRunner {
         // setTimeout(() => this.onCanvasSizeChanged());
         this.algorithmWorker.onmessage = (e) => {
             // console.log("algorithmWorker says", e.data);
-            setTimeout(()=> {
+            setTimeout(() => {
                 let output = e.data as IAlgorithmWorkerOutput;
                 if (output.complete) {
                     this.duration = (new Date().getTime() - this.runStartTime) / 1000.0;
-                    this.outputElt.innerText = "Done in " + this.duration.toFixed(2) + " sec";
+                    this.outputElt.innerText = `Clustered ${this.nbOriginalPoints} points in ${this.duration.toFixed(2)} sec`;
                 } else if (output.canceled) {
                     this.outputElt.innerText = "";
                 } else {
                     this.outputElt.innerText = (output.progress * 100).toFixed(2) + "%"
                 }
                 this.currentDendrograms = output.dendrograms;
-                this.repaint()
+                this.repaintCanvas(true)
             })
         }
 
@@ -73,17 +74,17 @@ export class AlgorithmRunner {
     init() {
         this.canvas.setAttribute("width", this.app.canvasSize + "px")
         this.canvas.setAttribute("height", this.app.canvasSize + "px")
-        this.runButton.disabled = false;
         this.outputElt.innerText = "";
     }
 
     run() {
-        this.outputElt.innerText = "...";
+        this.outputElt.innerText = "Starting...";
         let algorithmWorkerArgs: IAlgorithmWorkerInput = {
             points: this.app.points,
             algorithmType: this.algorithmType,
             wantedClusters: this.app.wantedClusters
         }
+        this.nbOriginalPoints = this.app.points.length;
         console.log("starting algorithmWorker", algorithmWorkerArgs);
         this.algorithmWorker.postMessage(algorithmWorkerArgs);
         this.runStartTime = new Date().getTime();
@@ -91,22 +92,32 @@ export class AlgorithmRunner {
 
 
     onPointsChanged() {
-        this.currentDendrograms = this.app.points as Point[];
-        //this.algorithmWorker.terminate()
         this.cancel();
-        this.repaint();
     }
 
     onAlgorithmArgsChanged() {
         this.cancel();
-        this.repaint();
     }
 
-    repaint() {
+    clearCanvas() {
+        this.outputElt.innerText = "";
+        let width = this.app.canvasSize;
+        let height = this.app.canvasSize;
+        let args: IPaintWorkerArgs = {
+            important: true,
+            width, height,
+            dendrograms: [],
+            wantedClusters: 0
+        }
+        this.paintWorker.postMessage(args);
+    }
+
+    repaintCanvas(final: boolean) {
         let width = this.app.canvasSize;
         let height = this.app.canvasSize;
         if (width && height) {
             let args: IPaintWorkerArgs = {
+                important: final,
                 width: width, height: height,
                 dendrograms: this.currentDendrograms || this.app.points,
                 wantedClusters: this.app.wantedClusters
@@ -115,17 +126,23 @@ export class AlgorithmRunner {
         }
     }
 
-
     onCanvasSizeChanged() {
-        // throw new Error('Method not implemented.');
-        this.repaint();
+        this.repaintCanvas(true);
     }
 
     cancel() {
-        this.algorithmWorker.postMessage({
-            points: this.app.points,
-            linkage: "none",
-        });
-        this.repaint();
+        this.outputElt.innerText = "Canceled";
+        this.cancelAlgorithm();
+        this.clearCanvas();
+        this.repaintCanvas(true);
+    }
+
+    cancelAlgorithm() {
+        let algorithmWorkerArgs: IAlgorithmWorkerInput = {
+            points: [],
+            algorithmType: AlgorithmType.None,
+            wantedClusters: 0
+        }
+        this.algorithmWorker.postMessage(algorithmWorkerArgs);
     }
 }

@@ -1,9 +1,6 @@
-import { ClassicAvgAlgorithm } from './classic/ClassicAvgAlgorithm';
-import { NewAvgAlgorithm } from './new/NewAvgAlgorithm';
 import { IAlgorithm } from './workers/IAlgorithm';
 import { Point } from './Point';
 import { AlgorithmRunner } from './AlgorithmRunner';
-import { IPoint } from './IPoint';
 import { IPointsWorkerInput } from './workers/PointsWorker';
 import { AlgorithmType } from "./workers/AlgorithmType";
 
@@ -21,18 +18,19 @@ export class App {
 
     pointsWorker: Worker = new Worker('./src/workers/PointsWorker.js', { type: "module" });
     selectNumberOfPoints!: HTMLSelectElement;
+    form1!: HTMLFormElement;
 
     addHandler(name: string, expectsInteger: boolean, onChange: (v: any) => void): HTMLSelectElement {
         let select = document.getElementById(name)! as HTMLSelectElement;
         let queryParams = new URLSearchParams(window.location.search);
         let value = queryParams.get(name);
         for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].value == value) {
+            if (select.options[i].value.replace(/_/g, '') == value) {
                 select.options[i].selected = true;
             }
         }
         let onChangeFn = () => {
-            onChange(expectsInteger ? parseInt(select.value) : select.value);
+            onChange(expectsInteger ? parseInt(select.value.replace(/_/g, '')) : select.value);
         }
         select.onchange = onChangeFn;
         setTimeout(onChangeFn, 0);
@@ -40,20 +38,21 @@ export class App {
     }
 
     generateNewPoints() {
-        this.selectNumberOfPoints.disabled = true;
+        this.form1.disabled = true;
         let args: IPointsWorkerInput = {
             numberOfPoints: this.numberOfPoints
         };
         this.pointsWorker.postMessage(args);
         this.updateQueryString();
-        let classicRunBtn = document.getElementById("run1") as HTMLButtonElement;
-        if (classicRunBtn) classicRunBtn.disabled = (this.numberOfPoints > 5000);
     }
 
     init() {
+        this.form1 = document.getElementById("form1") as HTMLFormElement;
         this.selectNumberOfPoints = this.addHandler("numberOfPoints", true, (v) => {
             this.numberOfPoints = v;
             this.updateQueryString();
+            console.log("clearing...")
+            this.allAlgorithms.forEach(it => it.clearCanvas());
             this.generateNewPoints();
         });
         this.addHandler("wantedClusters", true, (v) => {
@@ -72,7 +71,7 @@ export class App {
             this.allAlgorithms.forEach(it => it.onCanvasSizeChanged());
         });
         this.pointsWorker.onmessage = (v) => {
-            this.selectNumberOfPoints.disabled = false;
+            this.form1.disabled = false;
             this.points = v.data.points as Point[];
             this.allAlgorithms.forEach(it => it.onPointsChanged());
         };

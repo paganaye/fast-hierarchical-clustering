@@ -2,8 +2,9 @@ import { Point } from '../Point';
 import { Cluster, Dendrogram, getPoints } from '../Cluster';
 import { start } from 'repl';
 
-
+var running = false;
 export interface IPaintWorkerArgs {
+    important: boolean;
     dendrograms: Dendrogram[];
     width: number,
     height: number;
@@ -12,12 +13,15 @@ export interface IPaintWorkerArgs {
 
 
 function paint(args: IPaintWorkerArgs) {
-
     let dotSize = Math.max(1, 3 - args.dendrograms.length / 1000);
     let canvas = new OffscreenCanvas(args.width, args.height);
     let ctx = canvas.getContext("2d")!;
-    displayDendrograms();
 
+    try {
+        displayDendrograms();
+    } finally {
+        running = false;
+    }
 
     function getColor(colorNo: number, colorCount: number) {
         return hsv2rgb(colorNo * 360 / colorCount, 1, 1);
@@ -29,7 +33,6 @@ function paint(args: IPaintWorkerArgs) {
         return `rgb(${f(5)},${f(3)},${f(1)})`;
     }
 
-
     function postImage() {
         let imageData = ctx.getImageData(0, 0, args.width, args.height);
         postMessage({ imageData }, undefined as any);
@@ -40,7 +43,6 @@ function paint(args: IPaintWorkerArgs) {
         ctx.clearRect(0, 0, args.width, args.height);
         dendrograms.sort((a, b) => (a.y - b.y) || (a.x - b.x))
         displayDendrogramsPart(0)
-
     }
 
     function displayDendrogramsPart(i: number) {
@@ -53,8 +55,7 @@ function paint(args: IPaintWorkerArgs) {
             i += 1;
         }
         if (args != lastArgs) {
-            postImage();
-            return;
+            i = 0;
         }
         else if (i < dendrograms.length) {
             setTimeout(() => displayDendrogramsPart(i));
@@ -93,10 +94,14 @@ let lastArgs: IPaintWorkerArgs | undefined;
 
 onmessage = (e) => {
     let args = e.data as IPaintWorkerArgs;
-    lastArgs = args;
-    setTimeout(() => {
-        if (args == lastArgs) {
-            paint(args)
-        } // otherwise we ignore.
-    })
+
+    if (args.important || !running) {
+        lastArgs = args;
+        running = true;
+        setTimeout(() => {
+            if (args === lastArgs || args.important) {
+                paint(args)
+            } // otherwise we ignore.
+        });
+    }
 }
