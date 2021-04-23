@@ -1,6 +1,5 @@
 import { Point } from '../Point';
 import { Cluster, Dendrogram, getPoints } from '../Cluster';
-import { getHull } from '../GrahamScan';
 import { start } from 'repl';
 
 
@@ -50,8 +49,6 @@ function paint(args: IPaintWorkerArgs) {
         while (i < dendrograms.length && new Date().getTime() - startTime < 100) {
             let color = getColor(i, args.wantedClusters);
             let points = getPoints(dendrograms[i])
-            let hull = getHull(points);
-            displayHull(hull, color);
             displayDendrogram(undefined, dendrograms[i], color);
             i += 1;
         }
@@ -89,24 +86,6 @@ function paint(args: IPaintWorkerArgs) {
             ctx.lineTo(x, y);
             ctx.stroke();
         }
-    }
-
-    function displayHull(hull: Point[], color: string) {
-        ctx.fillStyle = color?.replace(")", ",0.3)"); // Red color
-        ctx.beginPath(); //Start path
-        let first = true;
-        for (let innerPoint of hull) {
-            let x = innerPoint.x * args.width;
-            let y = innerPoint.y * args.height;
-            if (first) {
-                ctx.moveTo(x, y);
-                first = false;
-            } else {
-                ctx.lineTo(x, y);
-            }
-        }
-        ctx.closePath();
-        ctx.fill();
     }
 }
 
