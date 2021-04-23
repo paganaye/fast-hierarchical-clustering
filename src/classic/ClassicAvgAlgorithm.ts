@@ -17,14 +17,19 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
     }
 
     *forEachClusters(): Generator<Cluster> {
-        let cluster: Cluster | undefined;
+        let found: boolean;
         do {
-            cluster = this.findNearestTwoPoints();
-            if (cluster) yield cluster;
-        } while (cluster)
+            found = false;
+            for (let cluster of this.findNearestTwoPoints()) {
+                if (cluster) {
+                    found = true;
+                    yield cluster;
+                }
+            }
+        } while (found)
     }
 
-    findNearestTwoPoints(): Cluster | undefined {
+    *findNearestTwoPoints(): Generator<Cluster> {
         let distanceSquaredMin = Number.MAX_VALUE;
         let result = undefined;
         let best: { point1: Dendrogram, point2: Dendrogram, i1: number, i2: number } | undefined;
@@ -33,6 +38,7 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
 
         for (let i1 = 0; i1 < len; i1++) {
             let point1 = this.dendrograms[i1];
+            yield undefined as any as Cluster;
             for (let i2 = i1 + 1; i2 < len; i2++) {
                 let point2 = this.dendrograms[i2];
                 let distanceSquared = getDistanceSquared(point1, point2);
@@ -48,7 +54,7 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
             let newCluster = new Cluster(best.point1, best.point2);
             this.dendrograms[best.i1] = newCluster; // replace one
             this.dendrograms.splice(best.i2, 1); // delete the other        
-            return newCluster;
+            yield newCluster;
         }
     }
 

@@ -38,6 +38,7 @@ export class App {
     }
 
     generateNewPoints() {
+        this.allAlgorithms.forEach(it => it.cancel());
         this.form1.disabled = true;
         let args: IPointsWorkerInput = {
             numberOfPoints: this.numberOfPoints
@@ -52,7 +53,6 @@ export class App {
             this.numberOfPoints = v;
             this.updateQueryString();
             console.log("clearing...")
-            this.allAlgorithms.forEach(it => it.clearCanvas());
             this.generateNewPoints();
         });
         this.addHandler("wantedClusters", true, (v) => {
@@ -73,7 +73,7 @@ export class App {
         this.pointsWorker.onmessage = (v) => {
             this.form1.disabled = false;
             this.points = v.data.points as Point[];
-            this.allAlgorithms.forEach(it => it.onPointsChanged());
+            this.allAlgorithms.forEach(it => it.cancel());
         };
 
         let newPointsButton = document.getElementById("newpoints")
@@ -90,13 +90,8 @@ export class App {
         queryParams.set("wantedClusters", this.wantedClusters.toString());
         queryParams.set("linkage", this.linkage);
         queryParams.set("canvasSize", this.canvasSize.toString());
-
         // Replace current querystring with the new one.
         history.replaceState(null, "", "?" + queryParams.toString());
     }
-
-    //     this.classicAlgorithmRunner.init(classicAlgorithmConstructor);
-    //     this.newAlgorithmRunner.init(newAlgorithmConstructor);
-
 }
 

@@ -94,7 +94,6 @@ let lastArgs: IPaintWorkerArgs | undefined;
 
 onmessage = (e) => {
     let args = e.data as IPaintWorkerArgs;
-
     if (args.important || !running) {
         lastArgs = args;
         running = true;

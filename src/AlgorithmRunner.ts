@@ -39,19 +39,18 @@ export class AlgorithmRunner {
         // setTimeout(() => this.onCanvasSizeChanged());
         this.algorithmWorker.onmessage = (e) => {
             // console.log("algorithmWorker says", e.data);
-            setTimeout(() => {
-                let output = e.data as IAlgorithmWorkerOutput;
-                if (output.complete) {
-                    this.duration = (new Date().getTime() - this.runStartTime) / 1000.0;
-                    this.outputElt.innerText = `Clustered ${this.nbOriginalPoints} points in ${this.duration.toFixed(2)} sec`;
-                } else if (output.canceled) {
-                    this.outputElt.innerText = "";
-                } else {
-                    this.outputElt.innerText = (output.progress * 100).toFixed(2) + "%"
-                }
-                this.currentDendrograms = output.dendrograms;
-                this.repaintCanvas(true)
-            })
+            let output = e.data as IAlgorithmWorkerOutput;
+            if (output.complete) {
+                this.duration = (new Date().getTime() - this.runStartTime) / 1000.0;
+                this.outputElt.innerText = `Clustered ${this.nbOriginalPoints} points in ${this.duration.toFixed(2)} sec`;
+            } else if (output.canceled) {
+                this.outputElt.innerText = "Canceled";
+            } else {
+                this.outputElt.innerText = isNaN(output.progress) ? ""
+                : (output.progress * 100).toFixed(2) + "%"
+            }
+            this.currentDendrograms = output.dendrograms;
+            this.repaintCanvas(true);
         }
 
         this.runButton.onclick = () => {
@@ -91,10 +90,6 @@ export class AlgorithmRunner {
     }
 
 
-    onPointsChanged() {
-        this.cancel();
-    }
-
     onAlgorithmArgsChanged() {
         this.cancel();
     }
@@ -131,10 +126,8 @@ export class AlgorithmRunner {
     }
 
     cancel() {
-        this.outputElt.innerText = "Canceled";
+        this.outputElt.innerText = "";
         this.cancelAlgorithm();
-        this.clearCanvas();
-        this.repaintCanvas(true);
     }
 
     cancelAlgorithm() {

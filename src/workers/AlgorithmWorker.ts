@@ -11,7 +11,7 @@ export interface IAlgorithmWorkerInput {
 
 export interface IAlgorithmWorkerOutput {
     complete: boolean;
-    canceled?: boolean;
+    canceled: boolean,
     progress: number;
     dendrograms: Dendrogram[]
 }
@@ -25,7 +25,7 @@ function group(input: IAlgorithmWorkerInput) {
     let newAlgo = instantiateAlgorithm(input.algorithmType, input.points);
     if (newAlgo) algorithm = newAlgo;
     else {
-        postMessage({ canceled: true, progress: 0 }, undefined as any);
+        postMessage({ progress: NaN }, undefined as any);
         return;
     }
     postMessage({ complete: false, progress: 0, dendrograms: undefined }, undefined as any);
