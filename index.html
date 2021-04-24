@@ -29,113 +29,148 @@
       .buttonBar {
         margin-bottom: 1em;
       }
+      article {
+        margin: 2em;
+      }
     </style>
   </head>
   <body>
-    <h1>Agglomerative Hierarchical Clustering</h1>
-    <fieldset id="form1">
-      <div>
-        <div class="select-box">
-          <label>Number of points:</label>
-          <select id="numberOfPoints">
-            <option>10</option>
-            <option selected>100</option>
-            <option value="500">500</option>
-            <option value="1_000">1K</option>
-            <option value="2_000" selected>2K</option>
-            <option value="3_000">3K</option>
-            <option value="4_000">4K</option>
-            <option value="5_000">5K</option>
-            <option value="10_000">10K</option>
-            <option value="20_000">20K</option>
-            <option value="30_000">30K</option>
-            <option value="40_000">40K</option>
-            <option value="50_000">50K</option>
-            <option value="60_000">60K</option>
-            <option value="70_000">70K</option>
-            <option value="80_000">80K</option>
-            <option value="90_000">90K</option>
-            <option value="100_000">100K</option>
-            <option value="200_000">200K</option>
-            <option value="300_000">300K</option>
-            <option value="400_000">400K</option>
-            <option value="500_000">500K</option>
-            <option value="600_000">600K</option>
-            <option value="700_000">700K</option>
-            <option value="800_000">800K</option>
-            <option value="900_000">900K</option>
-            <option value="1_000_000">1 Million</option>
-          </select>
-          <button id="newpoints">Random</button>
-        </div>
-        <div class="select-box">
-          <label>Number of wanted clusters:</label>
-          <select id="wantedClusters">
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option selected>6</option>
-            <option>7</option>
-            <option>8</option>
-            <option>9</option>
-            <option>10</option>
-            <option>11</option>
-            <option>12</option>
-            <option>13</option>
-            <option>14</option>
-            <option>15</option>
-            <option>16</option>
-            <option>25</option>
-            <option>36</option>
-            <option>49</option>
-            <option>64</option>
-            <option>81</option>
-            <option>100</option>
-            <option>121</option>
-            <option>144</option>
-            <option>169</option>
-            <option>196</option>
-            <option>225</option>
-            <option>256</option>
-          </select>
-        </div>
-        <div class="select-box">
-          <label>Linkage:</label>
-          <select id="linkage" disabled>
-            <option value="avg" selected>Average (mean)</option>
-            <option value="min">Single (min)</option>
-            <option value="max">Complete (max)</option>
-          </select>
-        </div>
-        <div class="select-box">
-          <label>Canvas size:</label>
-          <select id="canvasSize">
-            <option value="300">small</option>
-            <option value="500" selected>medium</option>
-            <option value="800">large</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <div class="algorithmBox">
-          <h2>Classic Algorithm</h2>
-          <div class="buttonBar">
-            <button id="run1">Run</button>
-            <span id="output1">...</span>
+    <article>
+      <h1>Agglomerative Hierarchical Clustering</h1>
+      <p>using Euclidian distance and centroid linkage.</p>
+
+      <p>
+        According to Wikipedia, the standard algorithm for
+        <a href="https://en.wikipedia.org/wiki/Hierarchical_clustering"
+          >hierarchical clustering</a
+        >
+        is too slow for even medium data sets.
+      </p>
+      <p>Here is my attempt at a faster implementation.</p>
+      <hr />
+      <fieldset id="form1">
+        <div>
+          <div class="select-box">
+            <label>Number of points:</label>
+            <select id="numberOfPoints">
+              <option>10</option>
+              <option selected>100</option>
+              <option value="500">500</option>
+              <option value="1_000">1K</option>
+              <option value="2_000" selected>2K</option>
+              <option value="3_000">3K</option>
+              <option value="4_000">4K</option>
+              <option value="5_000">5K</option>
+              <option value="10_000">10K</option>
+              <option value="20_000">20K</option>
+              <option value="30_000">30K</option>
+              <option value="40_000">40K</option>
+              <option value="50_000">50K</option>
+              <option value="60_000">60K</option>
+              <option value="70_000">70K</option>
+              <option value="80_000">80K</option>
+              <option value="90_000">90K</option>
+              <option value="100_000">100K</option>
+              <option value="200_000">200K</option>
+              <option value="300_000">300K</option>
+              <option value="400_000">400K</option>
+              <option value="500_000">500K</option>
+              <option value="600_000">600K</option>
+              <option value="700_000">700K</option>
+              <option value="800_000">800K</option>
+              <option value="900_000">900K</option>
+              <option value="1_000_000">1 Million</option>
+            </select>
+            <button id="newpoints">Random</button>
           </div>
-          <canvas id="canvas1"></canvas>
-        </div>
-        <div class="algorithmBox">
-          <h2>New Algorithm</h2>
-          <div class="buttonBar">
-            <button id="run2">Run</button>
-            <span id="output2">...</span>
+          <div class="select-box">
+            <label>Number of wanted clusters:</label>
+            <select id="wantedClusters">
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option selected>6</option>
+              <option>7</option>
+              <option>8</option>
+              <option>9</option>
+              <option>10</option>
+              <option>11</option>
+              <option>12</option>
+              <option>13</option>
+              <option>14</option>
+              <option>15</option>
+              <option>16</option>
+              <option>25</option>
+              <option>36</option>
+              <option>49</option>
+              <option>64</option>
+              <option>81</option>
+              <option>100</option>
+              <option>121</option>
+              <option>144</option>
+              <option>169</option>
+              <option>196</option>
+              <option>225</option>
+              <option>256</option>
+            </select>
           </div>
-          <canvas id="canvas2"></canvas>
+          <div class="select-box">
+            <label>Linkage:</label>
+            <select id="linkage" disabled>
+              <option value="avg" selected>Average (mean)</option>
+              <option value="min">Single (min)</option>
+              <option value="max">Complete (max)</option>
+            </select>
+          </div>
+          <div class="select-box">
+            <label>Canvas size:</label>
+            <select id="canvasSize">
+              <option value="300">small</option>
+              <option value="500" selected>medium</option>
+              <option value="800">large</option>
+            </select>
+          </div>
         </div>
-      </div>
-    </fieldset>
+        <div>
+          <div class="algorithmBox">
+            <h2>Classic Algorithm</h2>
+            <div class="buttonBar">
+              <button id="run1">Run</button>
+              <span id="output1">...</span>
+            </div>
+            <canvas id="canvas1"></canvas>
+          </div>
+          <div class="algorithmBox">
+            <h2>New Algorithm</h2>
+            <div class="buttonBar">
+              <button id="run2">Run</button>
+              <span id="output2">...</span>
+            </div>
+            <canvas id="canvas2"></canvas>
+          </div>
+        </div>
+      </fieldset>
+      <hr />
+      <p>
+        Source:
+        <a href="https://github.com/paganaye/fast-hierarchical-clustering"
+          >github/paganaye/fast-hierarchical-clustering</a
+        >
+      </p>
+      <p>
+        A
+        <a
+          href="https://docs.google.com/document/d/1d8vldwLr56vUYoXOg0B1O2WVNddBHCNKatMYUlR_atc/edit?usp=sharing"
+          >google docs document</a
+        >
+        describes the algorithm in more detail.
+      </p>
+      <p>
+        This demo page can be found here
+        <a href="http://ganaye.com/ahc">ganaye.com/ahc</a>
+      </p>
+    </article>
     <script type="module" src="src/Main.js"></script>
   </body>
 </html>

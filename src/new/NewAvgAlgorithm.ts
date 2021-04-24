@@ -65,7 +65,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
             this.pairs = this.quadTree.getPairs(this.maxDistance);
             this.pairs.sort((a, b) => (b.distanceSquared - a.distanceSquared));
             // we adjust the increment for the next batch
-            let message = `Pass ${this.passNo} getting neighbours below ${this.maxDistance.toFixed(5)}: ${this.pairs.length} points. `;
+            let message = `Pass ${this.passNo} getting pairs below ${this.maxDistance.toFixed(5)}: ${this.pairs.length}/${this.quadTree.pointCount} points. `;
             if (this.pairs.length > this.targetPairsCount) {
                 message += `We're over ${this.targetPairsCount}. Breaking hard.`;
                 this.increment *= 0.5; // we are already over so we brake fast

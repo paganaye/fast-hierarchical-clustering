@@ -16,6 +16,12 @@ According to Wikipedia, the standard algorithm for <a href="https://en.wikipedia
 
 This code works only with two dimensional data.
 
+A document here describes the algorithm in more detail
+https://docs.google.com/document/d/1d8vldwLr56vUYoXOg0B1O2WVNddBHCNKatMYUlR_atc/edit?usp=sharing
+
+A demo page can be found here
+
+http://ganaye.com/ahc
 
 ## ❯ Ide 
 
