@@ -1,8 +1,10 @@
+import { Dendrogram } from './Cluster';
 import { getDistance, IPoint } from './IPoint';
 import { PseudoRandom } from './PseudoRandom';
 
 export class Point implements IPoint {
     tag: string | undefined;
+    mergedTo: Dendrogram | undefined;
 
     constructor(readonly x: number, readonly y: number, tag: string | undefined = undefined) {
         if (tag) this.tag = tag;

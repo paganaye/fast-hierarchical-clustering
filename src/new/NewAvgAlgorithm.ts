@@ -40,9 +40,9 @@ export class NewAvgAlgorithm implements IAlgorithm {
         do {
             if (this.pairs.length == 0 && !this.getNextPairs()) return;
             let { point1, point2 } = this.pairs.pop()!;
-            this.quadTree.delete(point1);
-            this.quadTree.delete(point2);
             cluster = new Cluster(point1, point2);
+            this.quadTree.delete(point1, cluster);
+            this.quadTree.delete(point2, cluster);
             let newPairs: QuadPair[] = [];
             this.quadTree.insertAndAddPairs(cluster, this.maxDistance, newPairs);
             newPairs.sort((a, b) => (b.distanceSquared - a.distanceSquared));

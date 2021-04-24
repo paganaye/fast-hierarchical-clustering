@@ -9,6 +9,7 @@ export class Cluster implements IPoint {
     readonly y: number; // Avg point
     readonly dendrogram1: Dendrogram;
     readonly dendrogram2: Dendrogram
+    mergedTo: Dendrogram | undefined;
     tag: string | undefined;
     deleted: true | undefined;
 
@@ -66,7 +67,7 @@ export class Cluster implements IPoint {
         let s1 = this.dendrogram1.getNormalizedDendrogram(withDistances);
         let s2 = this.dendrogram2.getNormalizedDendrogram(withDistances);
         let result
-        if (withDistances) {            
+        if (withDistances) {
             let distance = getDistance(this.dendrogram1, this.dendrogram2).toFixed(3);
             result = (s2.length < s1.length || s2 < s1) ? `(${s2}-${s1} ${distance})` : `(${s1}-${s2} ${distance})`;
         } else {

@@ -22,8 +22,8 @@ export class QuadTree {
         this.root.insert(point);
     }
 
-    delete(point: Dendrogram): boolean {
-        if (this.root.delete(point)) {
+    delete(point: Dendrogram, mergedTo: Dendrogram): boolean {
+        if (this.root.delete(point, mergedTo)) {
             this.pointCount -= 1;
             return true;
         } else return false;
@@ -187,8 +187,10 @@ export class QuadNode {
         if (!this.points || this.points.length < 2) return;
         for (let i = 0; i < this.points.length; i++) {
             let point1 = this.points[i];
+            if (point1.mergedTo) continue;
             for (let j = i + 1; j < this.points.length; j++) {
                 let point2 = this.points[j];
+                if (point2.mergedTo) continue;
                 let distanceSquared = getDistanceSquared(point1, point2);
                 if (distanceSquared < maxDistanceSquared) result.push(new QuadPair(point1, point2, distanceSquared))
             }
@@ -199,6 +201,7 @@ export class QuadNode {
         if (!this.points || !this.points.length) return;
         for (let i = 0; i < this.points.length; i++) {
             let point1 = this.points[i];
+            if (point1.mergedTo) continue;
             let distanceSquared = getDistanceSquared(point1, cluster);
             if (distanceSquared < maxDistanceSquared) result.push(new QuadPair(point1, cluster, distanceSquared))
         }
@@ -210,7 +213,9 @@ export class QuadNode {
         let points2 = node2?.points;
         if (points2 && points2.length) {
             for (let point1 of this.points) {
+                if (point1.mergedTo) continue;
                 for (let point2 of points2) {
+                    if (point2.mergedTo) continue;
                     let distanceSquared = getDistanceSquared(point1, point2);
                     if (distanceSquared < maxDistanceSquared) result.push(new QuadPair(point1, point2, distanceSquared))
                 }
@@ -223,6 +228,7 @@ export class QuadNode {
         let points2 = node2?.points;
         if (points2 && points2.length) {
             for (let point2 of points2) {
+                if (point2.mergedTo) continue;
                 let distance = getDistanceSquared(cluster, point2);
                 if (distance < maxDistanceSquared) result.push(new QuadPair(cluster, point2, distance))
             }
@@ -240,23 +246,21 @@ export class QuadNode {
         }
     }
 
-    delete(point: Dendrogram): boolean {
-        if (this.level > 0) {
-            let quarter = this.getQuarter(point);
-            let node = this.getNode(quarter);
-            if (node) return node.delete(point);
-            else return false;
-        } else {
-            if (this.points) {
-                let index = this.points.indexOf(point);
-                if (index >= 0) {
-                    this.points.splice(index, 1);
-                    return true;
-                } else return false;
-            } else return false;
+    delete(point: Dendrogram, mergedTo: Dendrogram): boolean {
+        if (point.mergedTo) return false;
+        else {
+            point.mergedTo = mergedTo
+            return true;
         }
     }
 
+    private copyPointsFrom(node: QuadNode | undefined) {
+        if (!node || !node.points) return;
+        for (let point of node.points) {
+            if (point.mergedTo) continue;
+            this.points?.push(point);
+        }
+    }
 
     trim() {
         this.topLeft?.trim();
@@ -268,10 +272,10 @@ export class QuadNode {
 
         if (this.level == 0) {
             if (!this.points) this.points = [];
-            if (this.topLeft?.points) this.points.push(...this.topLeft?.points);
-            if (this.topRight?.points) this.points.push(...this.topRight?.points);
-            if (this.bottomLeft?.points) this.points.push(...this.bottomLeft?.points);
-            if (this.bottomRight?.points) this.points.push(...this.bottomRight?.points);
+            this.copyPointsFrom(this.topLeft);
+            this.copyPointsFrom(this.topRight);
+            this.copyPointsFrom(this.bottomLeft);
+            this.copyPointsFrom(this.bottomRight);
 
             this.topLeft = undefined;
             this.topRight = undefined;
@@ -312,7 +316,10 @@ export class QuadNode {
         this.bottomLeft?.getDendrograms(result);
         this.bottomRight?.getDendrograms(result);
         if (this.points && this.points.length) {
-            result.push(...this.points);
+            for (let point of this.points) {
+                if (!point.mergedTo)
+                    result.push(point);
+            }
         }
     }
 
