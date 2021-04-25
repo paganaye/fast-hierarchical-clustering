@@ -8,4 +8,5 @@ export interface IAlgorithm {
     forEachClusters(): Generator<Cluster>;
     getCurrentDendrograms(): Dendrogram[];
     getDendrogramsCount(): number;
+    complete(): void;
 }

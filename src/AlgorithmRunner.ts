@@ -58,7 +58,6 @@ export class AlgorithmRunner {
         }
     }
 
-
     displayPoints() {
         this.paintWorker.onmessage = (e) => {
             let imageData: ImageData = e.data.imageData;

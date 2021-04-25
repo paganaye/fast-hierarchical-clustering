@@ -65,4 +65,6 @@ export class ClassicAvgAlgorithm implements IAlgorithm {
     getDendrogramsCount(): number {
         return this.dendrograms.length;
     }
+
+    complete(): void {}
 }

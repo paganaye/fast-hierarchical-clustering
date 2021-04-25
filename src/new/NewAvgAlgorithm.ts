@@ -18,7 +18,7 @@ export class NewAvgAlgorithm implements IAlgorithm {
         if (points) this.init(points);
         this.maxDistance = 1e-4;
         this.increment = 0.05;
-        this.targetPairsCount = 100;
+        this.targetPairsCount = 1500;
         this.passNo = 0;
     }
 
@@ -28,17 +28,25 @@ export class NewAvgAlgorithm implements IAlgorithm {
         }
         // originally we take a very small distance and a large increment
         this.maxDistance = 1 / points.length;
-        this.targetPairsCount = Math.round(Math.log(points.length) * 120);
-        if (this.targetPairsCount < 100) this.targetPairsCount = 100;
         this.pairs = this.quadTree.getPairs(this.maxDistance);
         this.pairs.sort((a, b) => (b.distanceSquared - a.distanceSquared));
 
+        console.log("passNo,maxDistance,pairs_found,pointCount,targetPairsCount,behaviour,pairsAdded,clustersAdded");
+
     }
+
+    pairsAdded: number = 0;
+    clustersAdded: number = 0;
+    startTime: number = 0;
+    passLine: string | undefined;
 
     *forEachClusters(): Generator<Cluster> {
         let cluster: Cluster | undefined;
         do {
-            if (this.pairs.length == 0 && !this.getNextPairs()) return;
+            if (this.pairs.length == 0 && !this.getNextPairs()) {
+                this.logPassLine();
+                return;
+            }
             let { point1, point2 } = this.pairs.pop()!;
             cluster = new Cluster(point1, point2);
             this.quadTree.delete(point1, cluster);
@@ -47,14 +55,24 @@ export class NewAvgAlgorithm implements IAlgorithm {
             this.quadTree.insertAndAddPairs(cluster, this.maxDistance, newPairs);
             newPairs.sort((a, b) => (b.distanceSquared - a.distanceSquared));
             this.pairs = this.filterAndMerge(it => it.point1 != point1 && it.point1 != point2 && it.point2 != point1 && it.point2 != point2, newPairs);
+            this.clustersAdded += 1;
+            this.pairsAdded += newPairs.length;
             yield cluster;
-
         } while (cluster)
     }
 
+    logPassLine() {
+        if (this.passLine) {
+            console.log(this.passLine + `,${this.clustersAdded},${this.pairsAdded}`);
+            this.clustersAdded = 0;
+            this.pairsAdded = 0;
+            this.passLine = undefined;
+        }
+    }
 
     getNextPairs(): boolean {
         do {
+            this.logPassLine();
             this.passNo += 1;
             this.maxDistance = this.maxDistance * (1 + this.increment);
             let nodeSize = this.quadTree.firstLeaf()?.nodeSize!;
@@ -65,17 +83,18 @@ export class NewAvgAlgorithm implements IAlgorithm {
             this.pairs = this.quadTree.getPairs(this.maxDistance);
             this.pairs.sort((a, b) => (b.distanceSquared - a.distanceSquared));
             // we adjust the increment for the next batch
-            let message = `Pass ${this.passNo} getting pairs below ${this.maxDistance.toFixed(5)}: ${this.pairs.length}/${this.quadTree.pointCount} points. `;
+            this.passLine = `${this.passNo},${this.maxDistance},${this.pairs.length},${this.quadTree.pointCount},${this.targetPairsCount}`;
             if (this.pairs.length > this.targetPairsCount) {
-                message += `We're over ${this.targetPairsCount}. Breaking hard.`;
+                this.passLine += `,Breaking`;
                 this.increment *= 0.5; // we are already over so we brake fast
             }
             else if (this.pairs.length < this.targetPairsCount / 2) {
-                message += `We're below ${this.targetPairsCount / 2}, accelerating.`;
+                this.passLine += `,Accelerating`;
                 this.increment *= 1.2; // we accelerate more gently
                 if (this.increment > 1) this.increment = 1;
+            } else {
+                this.passLine += `,`;
             }
-            console.log(message);
         } while (this.pairs.length == 0)
         return true;
     }
@@ -109,5 +128,9 @@ export class NewAvgAlgorithm implements IAlgorithm {
 
     getDendrogramsCount(): number {
         return this.quadTree.pointCount;
+    }
+
+    complete(): void {
+        this.logPassLine();
     }
 }

@@ -50,6 +50,8 @@ function group(input: IAlgorithmWorkerInput) {
                 postMessage({ complete: false, progress, dendrograms: (batchNo++ % 4 == 0) ? algorithm.getCurrentDendrograms() : undefined }, undefined as any);
                 setTimeout(() => runBatch(runCounter), 0);
             } else {
+                algorithm.complete();
+                console.log("Algorithm Complete");
                 postMessage({ complete: true, progress: 1, dendrograms: algorithm.getCurrentDendrograms() }, undefined as any);
             }
         } else {

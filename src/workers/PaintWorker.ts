@@ -13,10 +13,13 @@ export interface IPaintWorkerArgs {
 
 
 function paint(args: IPaintWorkerArgs) {
-    let dotSize = Math.max(1, 3 - args.dendrograms.length / 1000);
+    let dotSize = args.dendrograms.length < 1000 ? 5
+        : args.dendrograms.length < 10_000 ? 3
+            : args.dendrograms.length < 100_000 ? 2
+                : 1;
     let canvas = new OffscreenCanvas(args.width, args.height);
     let ctx = canvas.getContext("2d")!;
-
+    let paintLines = args.dendrograms.length < 50_000;
     try {
         displayDendrograms();
     } finally {
@@ -78,7 +81,7 @@ function paint(args: IPaintWorkerArgs) {
             ctx.arc(x, y, dotSize, 0, Math.PI * 2, true); // Draw a point using the arc function of the canvas with a point structure.
             ctx.fill(); // Close the path and fill.
         }
-        if (parent != null) {
+        if (parent != null && paintLines) {
             let x0 = parent.x * args.width;
             let y0 = parent.y * args.height;
             ctx.beginPath(); //Start path
